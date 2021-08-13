@@ -1,0 +1,4 @@
+	i_bit1              input   1
+	i_bit2              input   1
+	o_sum               output  1
+	o_carry             output  1
