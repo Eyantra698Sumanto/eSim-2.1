@@ -54,6 +54,7 @@ class AutoSchematic:
         portInformation.getPortInfo()
         self.portInfo = portInformation.bit_list
         self.input_length = portInformation.input_len
+        self.portName = portInformation.port_name
 
     def createXML(self):
         cwd = os.getcwd()
@@ -185,8 +186,20 @@ class AutoSchematic:
         output_port = output_port.split()
         inputs = self.portInfo[0: self.input_length]
         outputs = self.portInfo[self.input_length:]
+        inputName = []
+        outputName = []
+
+        for i in range(self.input_length):
+            for j in range(int(inputs[i])):
+                inputName.append(self.portName[i]+str(j+1))
+
+        for i in range(self.input_length,len(self.portName)):
+            for j in range(int(outputs[i-self.input_length])):
+                outputName.append(self.portName[i]+str(j+1))
 
         print("INPUTS AND OUTPUTS ")
+        print(inputName)
+        print(outputName)
         print(inputs)
         print(outputs)
 
@@ -196,17 +209,19 @@ class AutoSchematic:
         total = inputs+outputs
 
         port_list = []
-
+        j=0
+        k=0
         for i in range(total):
             if (i < inputs):
-                input_port[1] = "in" + str(i + 1)
+                input_port[1] = inputName[i]
                 input_port[2] = str(i + 1)
                 input_port[4] = str(int(input_port[4]) - self.dist_port)
                 input_list = ' '.join(input_port)
                 port_list.append(input_list)
+                j=j+1
 
             else:
-                output_port[1] = "out" + str(i - inputs + 1)
+                output_port[1] = outputName[i - inputs]
                 output_port[2] = str(i + 1)
                 output_port[4] = str(int(output_port[4]) - self.dist_port)
                 output_list = ' '.join(output_port)
@@ -228,6 +243,7 @@ class PortInfo:
         self.modelname = model.modelname
         #self.model_loc = model.parser.get('NGVERI', 'DIGITAL_MODEL')
         self.bit_list = []
+        self.port_name = []
         self.input_len = 0
 
     def getPortInfo(self):
@@ -255,6 +271,8 @@ class PortInfo:
 
         for in_list in input_list:
             self.bit_list.append(in_list[2])
+            self.port_name.append(in_list[0])
         self.input_len = len(self.bit_list)
         for out_list in output_list:
             self.bit_list.append(out_list[2])
+            self.port_name.append(out_list[0])
