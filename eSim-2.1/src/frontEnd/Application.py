@@ -39,9 +39,11 @@ from PyQt5.Qt import QSize
 import shutil
 import time
 import sys
-
+import psutil
 
 # Its our main window of application.
+
+
 class Application(QtWidgets.QMainWindow):
     """This class initializes all objects used in this file."""
     global project_name
@@ -530,24 +532,65 @@ class Application(QtWidgets.QMainWindow):
         print("Current Project is : ", self.obj_appconfig.current_project)
         self.obj_Mainview.obj_dockarea.usermanual()
 
+    def checkIfProcessRunning(self, processName):
+        '''
+        Check if there is any running process
+        that contains the given name processName.
+        '''
+        # Iterate over the all the running process
+        for proc in psutil.process_iter():
+            try:
+                # Check if process name contains the given name string.
+                if processName.lower() in proc.name().lower():
+                    return True
+            except (psutil.NoSuchProcess,
+                    psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        return False
+
     def open_ngspice(self):
         """This Function execute ngspice on current project."""
         self.projDir = self.obj_appconfig.current_project["ProjectName"]
 
         if self.projDir is not None:
-            self.obj_Mainview.obj_dockarea.ngspiceEditor(self.projDir)
 
+            if self.obj_Mainview.obj_dockarea.ngspiceEditor(
+                    self.projDir) is False:
+                print(
+                    "No .cir.out file"
+                    "Check netlist file to change simulation parameters."
+                )
+
+                self.msg = QtWidgets.QErrorMessage()
+                self.msg.setModal(True)
+                self.msg.setWindowTitle("Warning Message")
+                self.msg.showMessage(
+                    'No .cir.out file'
+                )
+                self.msg.exec_()
+                return
             currTime = time.time()
             count = 0
             while True:
                 try:
                     st = os.stat(os.path.join(self.projDir, "plot_data_i.txt"))
+                    if self.checkIfProcessRunning('xterm') is False:
+                        self.msg = QtWidgets.QErrorMessage()
+                        self.msg.setModal(True)
+                        self.msg.setWindowTitle("Warning Message")
+                        self.msg.showMessage(
+                            'Simulation was interuppted. '
+                            'Please close all the Xterm windows.'
+                            'And then rerun the simulation'
+                        )
+                        self.msg.exec_()
+                        return
                     if st.st_mtime >= currTime:
                         break
                 except Exception:
                     pass
                 time.sleep(1)
-		
+
                 # Fail Safe ===>
                 count += 1
                 if count >= 1000:
@@ -566,7 +609,7 @@ class Application(QtWidgets.QMainWindow):
                     self.msg.exec_()
 
                     return
-		
+
             # Calling Python Plotting
             try:
                 self.obj_Mainview.obj_dockarea.plottingEditor()
@@ -579,7 +622,7 @@ class Application(QtWidgets.QMainWindow):
                     ' Please look at console for more details.'
                 )
                 self.msg.exec_()
-                print("Exception Message:", str(e),traceback.format_exc())
+                print("Exception Message:", str(e), traceback.format_exc())
                 self.obj_appconfig.print_error('Exception Message : ' + str(e))
 
         else:

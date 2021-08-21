@@ -1,6 +1,6 @@
 * /home/sumanto/eSim-2.1/Examples/Mixed_Signal/PWM_Decremental/PWM_Decremental.cir
 
-* EESchema Netlist Version 1.1 (Spice format) creation date: Wed Aug  4 01:41:43 2021
+* EESchema Netlist Version 1.1 (Spice format) creation date: Fri Aug 20 12:13:47 2021
 
 * To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
 * To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
@@ -21,6 +21,6 @@ U4  Net-_U4-Pad1_ clk adc_bridge_1
 v3  Net-_X1-Pad4_ GND -9v		
 U1  pwl_IN plot_v1		
 v1  pwl_IN GND 3		
-U2  clk Net-_U2-Pad2_ Net-_U2-Pad3_ pwmd		
+U2  clk Net-_U2-Pad2_ Net-_U2-Pad3_ pwmdecrement		
 
 .end

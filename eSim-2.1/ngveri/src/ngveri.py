@@ -11,8 +11,8 @@ fname='example.v'
 with open(fname, 'rt') as fh:
   code = fh.read()
 
-code=code.replace("input wire","input")
-code=code.replace("output reg","output")
+code=code.replace("wire","")
+code=code.replace("reg","")
 print(code)
 vlog_ex = vlog.VerilogExtractor()
 vlog_mods = vlog_ex.extract_objects_from_source(code)
@@ -23,6 +23,7 @@ for m in vlog_mods:
             p.data_type="1"
         else:
             x = p.data_type.split(":")
+            print(x)
             y= x[0].split("[")
             z= x[1].split("]")
             z=int(y[1])-int(z[0])

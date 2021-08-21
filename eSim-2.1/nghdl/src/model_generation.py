@@ -1100,7 +1100,8 @@ class ModelGeneration:
         else:
             start_server.write("ghdl -e -Wl,ghdlserver.o " +
                                self.fname.split('.')[0] + "_tb &&\n")
-            start_server.write("./"+self.fname.split('.')[0]+"_tb")
+            start_server.write("./"+self.fname.split('.')[0]+"_tb --vcd="+self.fname.split('.')[0]+"_tb.vcd\n")
+            start_server.write("gtkwave "+self.fname.split('.')[0]+"_tb.vcd")
 
         start_server.close()
 

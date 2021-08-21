@@ -51,3 +51,4 @@ class NgspiceWidget(QtWidgets.QWidget):
                 [self.obj_appconfig.current_project['ProjectName']].append(
                     self.process.pid())
             )
+       

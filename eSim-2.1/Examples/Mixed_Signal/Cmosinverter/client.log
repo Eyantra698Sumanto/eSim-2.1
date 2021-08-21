@@ -1,0 +1,530 @@
+Setup Client Server Connection at Fri Aug 20 11:25:42 2021
+ 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Setup Client Server Connection at Fri Aug 20 11:47:09 2021
+ 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Setup Client Server Connection at Fri Aug 20 11:56:09 2021
+ 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Setup Client Server Connection at Fri Aug 20 11:56:54 2021
+ 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Setup Client Server Connection at Fri Aug 20 11:58:29 2021
+ 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:1 
+Message Received From Server-o:0;
+Client-Bit val is 0 
+Creating client socket 
+Client-Client Socket created successfully 
+Client- Socket Id : 5 
+Client-Connecting to server 
+Client-Connected to server 
+Socket Id : 5 & Message sent : i:0 
+Message Received From Server-o:1;
+Client-Bit val is 1 

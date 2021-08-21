@@ -1,5 +1,5 @@
                     * /home/fossee/esim-workspace/rl/rl.cir
-                    Transient Analysis  Sun Jul 18 02:40:17  2021
+                    Transient Analysis  Fri Aug 20 16:31:54  2021
 --------------------------------------------------------------------------------
 Index   time            l1#branch       v1#branch       
 --------------------------------------------------------------------------------

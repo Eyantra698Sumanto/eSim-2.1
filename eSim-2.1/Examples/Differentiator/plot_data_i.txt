@@ -1,5 +1,5 @@
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Sun Jul 18 00:28:48  2021
+    Transient Analysis  Thu Aug 19 13:30:49  2021
 --------------------------------------------------------------------------------
 Index   time            v1#branch       v2#branch       v3#branch       
 --------------------------------------------------------------------------------

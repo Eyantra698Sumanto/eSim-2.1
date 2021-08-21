@@ -123,7 +123,8 @@ class DockArea(QtWidgets.QMainWindow):
         self.projName = os.path.basename(self.projDir)
         self.ngspiceNetlist = os.path.join(
             self.projDir, self.projName + ".cir.out")
-
+        if os.path.isfile(self.ngspiceNetlist) is False:
+            return False
         global count
         self.ngspiceWidget = QtWidgets.QWidget()
 
