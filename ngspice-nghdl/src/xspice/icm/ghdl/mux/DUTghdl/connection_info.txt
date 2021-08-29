@@ -1,0 +1,7 @@
+A in 1
+B in 1
+C in 1
+D in 1
+S0 in 1
+S1 in 1
+Z out 1

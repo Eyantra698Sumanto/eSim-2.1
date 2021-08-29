@@ -1,0 +1,2 @@
+bin in 4
+G out 4

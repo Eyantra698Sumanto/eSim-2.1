@@ -1,0 +1,6 @@
+clk in 1
+il in 1
+ir in 1
+s in 2
+i in 4
+q out 4

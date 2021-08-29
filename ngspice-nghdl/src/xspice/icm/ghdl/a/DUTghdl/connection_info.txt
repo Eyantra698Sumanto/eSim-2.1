@@ -1,0 +1,10 @@
+clk1 in 1
+rst in 1
+f in 1
+g in 1
+h in 1
+val out 4
+a out 4
+b out 4
+c out 4
+d out 4

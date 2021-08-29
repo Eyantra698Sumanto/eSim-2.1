@@ -1,0 +1,3 @@
+Clock in 1
+CLR in 1
+Q out 4

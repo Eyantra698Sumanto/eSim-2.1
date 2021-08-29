@@ -1,0 +1,154 @@
+$date
+  Mon Aug 23 23:04:04 2021
+$end
+$version
+  GHDL v0
+$end
+$timescale
+  1 fs
+$end
+$scope module standard $end
+$upscope $end
+$scope module std_logic_1164 $end
+$upscope $end
+$scope module numeric_std $end
+$upscope $end
+$scope module utility_package $end
+$upscope $end
+$scope module vhpi_foreign $end
+$upscope $end
+$scope module sock_pkg $end
+$upscope $end
+$scope module pwmdecrement_tb $end
+$var reg 1 ! clk_s $end
+$var reg 1 " c $end
+$var reg 1 # d $end
+$var reg 1 $ q $end
+$scope module u1 $end
+$var reg 1 % c $end
+$var reg 1 & d $end
+$var reg 1 ' q $end
+$var integer 32 ( count $end
+$var integer 32 ) alpha $end
+$var integer 32 * beta $end
+$var integer 32 + tmp $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+0!
+U"
+U#
+U$
+U%
+U&
+U'
+b0 (
+b0 )
+b1 *
+b1001 +
+#5000000000
+1!
+#10000000000
+0!
+0"
+0#
+0%
+0&
+#11000000000
+#15000000000
+1!
+#20000000000
+0!
+#21000000000
+#25000000000
+1!
+#30000000000
+0!
+1#
+1&
+#31000000000
+#35000000000
+1!
+#40000000000
+0!
+1"
+1$
+1%
+1'
+b1 (
+b1 )
+#41000000000
+#45000000000
+1!
+#50000000000
+0!
+#51000000000
+#55000000000
+1!
+#60000000000
+0!
+0"
+0%
+#61000000000
+#65000000000
+1!
+#70000000000
+0!
+0#
+0&
+#71000000000
+#75000000000
+1!
+#80000000000
+0!
+1"
+1%
+b10 )
+b10 *
+#81000000000
+#85000000000
+1!
+#90000000000
+0!
+#91000000000
+#95000000000
+1!
+#100000000000
+0!
+#101000000000
+#105000000000
+1!
+#110000000000
+0!
+0"
+0%
+#111000000000
+#115000000000
+1!
+#120000000000
+0!
+1"
+1%
+b11 )
+b11 *
+#121000000000
+#125000000000
+1!
+#130000000000
+0!
+#131000000000
+#135000000000
+1!
+#140000000000
+0!
+#141000000000
+#145000000000
+1!
+#150000000000
+0!
+0"
+0%
+#151000000000
+#155000000000
+1!

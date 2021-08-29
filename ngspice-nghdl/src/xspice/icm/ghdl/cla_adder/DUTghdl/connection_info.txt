@@ -1,0 +1,5 @@
+A in 4
+B in 4
+cin in 1
+S out 4
+cout out 1
