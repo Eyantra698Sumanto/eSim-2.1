@@ -1,5 +1,5 @@
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       v1#branch                       
 --------------------------------------------------------------------------------
@@ -742,7 +742,7 @@ Index   frequency       v1#branch
 700	1.000000e+08	2.496879e-06,	2.483691e-15	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       v2#branch                       
 --------------------------------------------------------------------------------

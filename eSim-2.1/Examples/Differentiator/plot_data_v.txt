@@ -1,5 +1,5 @@
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            ?               in              net-_c1-pad1_   
 --------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ Index   time            ?               in              net-_c1-pad1_
 145	1.000000e-01	-1.49916e+01	-5.00000e+00	8.906334e-04	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            net-_c1-pad2_   net-_r2-pad1_   net-_x1-pad4_   
 --------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ Index   time            net-_c1-pad2_   net-_r2-pad1_   net-_x1-pad4_
 145	1.000000e-01	-5.00000e+00	-1.23184e-04	-1.50000e+01	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            net-_x1-pad7_   out             x1.net-_c1-pad1 
 --------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ Index   time            net-_x1-pad7_   out             x1.net-_c1-pad1
 145	1.000000e-01	1.500000e+01	1.015854e-03	5.325615e-01	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            x1.net-_c1-pad2 x1.net-_q1-pad1 x1.net-_q1-pad3 
 --------------------------------------------------------------------------------
@@ -631,7 +631,7 @@ Index   time            x1.net-_c1-pad2 x1.net-_q1-pad1 x1.net-_q1-pad3
 145	1.000000e-01	-1.37803e+01	1.446107e+01	-5.18489e-01	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q2-pad3 x1.net-_q3-pad2 x1.net-_q3-pad3 
 --------------------------------------------------------------------------------
@@ -789,7 +789,7 @@ Index   time            x1.net-_q2-pad3 x1.net-_q3-pad2 x1.net-_q3-pad3
 145	1.000000e-01	-5.17957e-01	-1.39498e+01	-1.44699e+01	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q10-pad x1.net-_q12-pad x1.net-_q13-pad 
 --------------------------------------------------------------------------------
@@ -947,7 +947,7 @@ Index   time            x1.net-_q10-pad x1.net-_q12-pad x1.net-_q13-pad
 145	1.000000e-01	1.435689e+01	-1.43583e+01	-1.03664e+00	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q13-pad x1.net-_q14-pad x1.net-_q14-pad 
 --------------------------------------------------------------------------------
@@ -1105,7 +1105,7 @@ Index   time            x1.net-_q13-pad x1.net-_q14-pad x1.net-_q14-pad
 145	1.000000e-01	-1.48988e+01	1.127613e-01	-5.28044e-01	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q15-pad x1.net-_q15-pad x1.net-_q18-pad 
 --------------------------------------------------------------------------------
@@ -1263,7 +1263,7 @@ Index   time            x1.net-_q15-pad x1.net-_q15-pad x1.net-_q18-pad
 145	1.000000e-01	-1.43216e+01	-1.49604e+01	1.375000e-03	
 
     * /home/saurabh/desktop/esim/examples/differentiator/differentiator.cir
-    Transient Analysis  Thu Aug 19 13:30:49  2021
+    Transient Analysis  Fri Aug 27 15:21:30  2021
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q19-pad 
 --------------------------------------------------------------------------------

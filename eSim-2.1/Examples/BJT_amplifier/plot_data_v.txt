@@ -1,5 +1,5 @@
        * /home/sumanto/esim-2.1/examples/bjt_amplifier/bjt_amplifier.cir
-       Transient Analysis  Fri Aug 20 16:23:40  2021
+       Transient Analysis  Tue Aug 24 01:35:09  2021
 --------------------------------------------------------------------------------
 Index   time            a               in              net-_c1-pad1_   
 --------------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ Index   time            a               in              net-_c1-pad1_
 1007	1.000000e-02	1.837273e+00	-2.44929e-17	2.336007e-06	
 
        * /home/sumanto/esim-2.1/examples/bjt_amplifier/bjt_amplifier.cir
-       Transient Analysis  Fri Aug 20 16:23:40  2021
+       Transient Analysis  Tue Aug 24 01:35:09  2021
 --------------------------------------------------------------------------------
 Index   time            net-_c2-pad2_   net-_c3-pad2_   net-_r2-pad1_   
 --------------------------------------------------------------------------------
@@ -2129,7 +2129,7 @@ Index   time            net-_c2-pad2_   net-_c3-pad2_   net-_r2-pad1_
 1007	1.000000e-02	1.199884e+00	8.416427e+00	1.000000e+01	
 
        * /home/sumanto/esim-2.1/examples/bjt_amplifier/bjt_amplifier.cir
-       Transient Analysis  Fri Aug 20 16:23:40  2021
+       Transient Analysis  Tue Aug 24 01:35:09  2021
 --------------------------------------------------------------------------------
 Index   time            out             
 --------------------------------------------------------------------------------

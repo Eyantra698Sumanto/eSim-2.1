@@ -191,11 +191,11 @@ class AutoSchematic:
 
         for i in range(self.input_length):
             for j in range(int(inputs[i])):
-                inputName.append(self.portName[i]+str(j+1))
+                inputName.append(self.portName[i]+str(j))
 
         for i in range(self.input_length,len(self.portName)):
             for j in range(int(outputs[i-self.input_length])):
-                outputName.append(self.portName[i]+str(j+1))
+                outputName.append(self.portName[i]+str(j))
 
         print("INPUTS AND OUTPUTS ")
         print(inputName)
@@ -268,7 +268,8 @@ class PortInfo:
                 input_list.append(line.split())
             if out_items:
                 output_list.append(line.split())
-
+        print(input_list)
+        print(output_list)
         for in_list in input_list:
             self.bit_list.append(in_list[2])
             self.port_name.append(in_list[0])

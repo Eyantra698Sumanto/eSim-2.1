@@ -7,18 +7,18 @@ class ModelGeneration:
     def __init__(self, file):
 
         # Script starts from here
-        print("Arguement is : ", file)
+        #print("Arguement is : ", file)
         self.fname = os.path.basename(file)
-        print("VHDL filename is : ", self.fname)
+        #print("VHDL filename is : ", self.fname)
         self.home = os.path.expanduser("~")
         self.parser = SafeConfigParser()
         self.parser.read(os.path.join(
-            self.home, os.path.join('.nghdl', 'config.ini')))
+            self.home, os.path.join('.ngveri', 'config.ini')))
         self.ngspice_home = self.parser.get('NGSPICE', 'NGSPICE_HOME')
         self.release_dir = self.parser.get('NGSPICE', 'RELEASE')
         self.src_home = self.parser.get('SRC', 'SRC_HOME')
         self.licensefile = self.parser.get('SRC', 'LICENSE')
-
+'''
         # #### Creating connection_info.txt file from vhdl file #### #
         read_vhdl = open(file, 'r')
         vhdl_data = read_vhdl.readlines()
@@ -101,7 +101,7 @@ class ModelGeneration:
             )
             con_ifo.write("\n")
         con_ifo.close()
-
+'''
     def readPortInfo(self):
 
         # ############## Reading connection/port information ############## #
@@ -109,45 +109,33 @@ class ModelGeneration:
         # Declaring input and output list
         input_list = []
         output_list = []
-
-        # Reading connection_info.txt file for port infomation
         read_file = open('connection_info.txt', 'r')
         data = read_file.readlines()
+        print(data)
         read_file.close()
 
-        # Extracting input and output port list from data
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         for line in data:
-            print(line)
             if re.match(r'^\s*$', line):
                 pass
             else:
                 in_items = re.findall(
-                    "IN", line, re.MULTILINE | re.IGNORECASE
+                    "INPUT", line, re.MULTILINE | re.IGNORECASE
                 )
                 out_items = re.findall(
-                    "OUT", line, re.MULTILINE | re.IGNORECASE
+                    "OUTPUT", line, re.MULTILINE | re.IGNORECASE
                 )
+            if in_items:
+                input_list.append(line.split())
+            if out_items:
+                output_list.append(line.split())
 
-                if in_items:
-                    input_list.append(line.split())
-                if out_items:
-                    output_list.append(line.split())
-
-        print("Input List :", input_list)
-        print("Output list :", output_list)
-
-        self.input_port = []
-        self.output_port = []
-
-        # creating list of input and output port with its weight
-        for input in input_list:
-            self.input_port.append(input[0]+":"+input[2])
-        for output in output_list:
-            self.output_port.append(output[0]+":"+output[2])
-
-        print("Output Port List : ", self.output_port)
-        print("Input Port List : ", self.input_port)
+        for in_list in input_list:
+            self.bit_list.append(in_list[2])
+            self.port_name.append(in_list[0])
+        self.input_len = len(self.bit_list)
+        for out_list in output_list:
+            self.bit_list.append(out_list[2])
+            self.port_name.append(out_list[0])
 
     def createCfuncModFile(self):
 
@@ -165,25 +153,7 @@ class ModelGeneration:
         #include <stdio.h>
         #include <math.h>
         #include <string.h>
-        #include <time.h>
-        #include <sys/types.h>
-        #include <stdlib.h>
-        #include <unistd.h>
-        #include <errno.h>
-
         '''
-
-        if os.name == 'nt':
-            header += '''
-            #undef BOOLEAN
-            #include<winsock2.h>
-            '''
-        else:
-            header += '''
-            #include <sys/socket.h>
-            #include <netinet/in.h>
-            #include <netdb.h>
-            '''
 
         function_open = (
             '''void cm_''' + self.fname.split('.')[0] + '''(ARGS) \n{''')
@@ -197,27 +167,13 @@ class ModelGeneration:
 
         var_section = '''
             // Declaring components of Client
-            FILE *log_client = NULL;
-            log_client=fopen("client.log","a");
+            FILE *fpin,*fpout;
+            char *line;
+            char temp_i[1024];
             int bytes_recieved;
-            char send_data[1024];
             char recv_data[1024];
             char *key_iter;
-            struct hostent *host;
-            struct sockaddr_in server_addr;
-            int sock_port = 5000+PARAM(instance_id);
         '''
-
-        if os.name != 'nt':
-            var_section += '''
-                int socket_fd;
-            '''
-
-        temp_input_var = []
-        for item in self.input_port:
-            temp_input_var.append(
-                "char temp_" + item.split(':')[0] + "[1024];"
-            )
 
         # Start of INIT function
         init_start_function = '''
@@ -257,153 +213,7 @@ class ModelGeneration:
 
             cm_count_ptr = cm_count_ptr + 1
 
-        systime_info = '''
-                /*Taking system time info for log */
-                time_t systime;
-                systime = time(NULL);
-                printf(ctime(&systime));
-                printf("Client-Initialising GHDL...\\n\\n");
-                fprintf(log_client,"Setup Client Server Connection at %s \\n"''' \
-                ''',ctime(&systime));
-        '''
 
-        els_evt_ptr = []
-        els_evt_count1 = 0
-        els_evt_count2 = 0
-        for item in self.output_port:
-            els_evt_ptr.append("_op_" + item.split(":")[0] +
-                               " = (Digital_State_t *) cm_event_get_ptr(" +
-                               str(els_evt_count1) + "," +
-                               str(els_evt_count2) + ");")
-            els_evt_count2 = els_evt_count2 + 1
-            els_evt_ptr.append("_op_" + item.split(":")[0] + "_old" +
-                               " = (Digital_State_t *) cm_event_get_ptr(" +
-                               str(els_evt_count1) + "," +
-                               str(els_evt_count2) + ");")
-            els_evt_count1 = els_evt_count1 + 1
-
-        client_setup_ip = '''
-                /* Client Setup IP Addr */
-                FILE *fptr;
-                int ip_count = 0;
-                char* my_ip = malloc(16);
-
-                char ip_filename[100];
-        '''
-
-        if os.name == 'nt':
-            client_setup_ip += '''
-                    sprintf(ip_filename, "''' + \
-                    os.getenv('LOCALAPPDATA').replace('\\', '/') + \
-                    '''/Temp/NGHDL_COMMON_IP_%d.txt", getpid());
-            '''
-        else:
-            client_setup_ip += '''
-                    sprintf(ip_filename, "/tmp/NGHDL_COMMON_IP_%d.txt",''' \
-                    ''' getpid());
-            '''
-
-        client_setup_ip += '''
-                fptr = fopen(ip_filename, "r");
-                if (fptr)
-                {
-                    char line_ip[20];
-                    int line_port;
-                    while(fscanf(fptr, "%s %d", line_ip, &line_port) == 2) {
-                        ip_count++;
-                    }
-
-                    fclose(fptr);
-                }
-
-                if (ip_count < 254) {
-                    sprintf(my_ip, "127.0.0.%d", ip_count+1);
-                } else {
-                    sprintf(my_ip, "127.0.%d.1", (ip_count+3)%256);
-                }
-
-                fptr = fopen(ip_filename, "a");
-                if (fptr)
-                {
-                    fprintf(fptr, "%s %d\\n", my_ip, sock_port);
-                    fclose(fptr);
-                } else {
-                    perror("Client - cannot open Common_IP file ");
-                    exit(1);
-                }
-
-                STATIC_VAR(my_ip) = my_ip;
-        '''
-
-        client_fetch_ip = '''
-            /* Client Fetch IP Addr */
-        '''
-
-        if os.name == 'nt':
-            client_fetch_ip += '''
-                WSADATA WSAData;
-                SOCKET socket_fd;
-                WSAStartup(MAKEWORD(2, 2), &WSAData);
-            '''
-
-        client_fetch_ip += '''
-            char* my_ip = STATIC_VAR(my_ip);
-
-            host = gethostbyname(my_ip);
-            fprintf(log_client,"Creating client socket \\n");
-        '''
-
-        create_socket = '''
-            //Creating socket for client
-            if ((socket_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-            {
-                perror("Client - Error while creating client Socket ");
-                fprintf(log_client,"Error while creating client socket \\n");
-                exit(1);
-            }
-
-            printf("Client-Socket (Id : %d) created\\n", socket_fd);
-            fprintf(log_client,"Client-Client Socket created ''' \
-            '''successfully \\n");
-            fprintf(log_client,"Client- Socket Id : %d \\n",socket_fd);
-
-            // memset(&server_addr, 0, sizeof(server_addr));
-            server_addr.sin_family = AF_INET;
-            server_addr.sin_port = htons(sock_port);
-            server_addr.sin_addr = *((struct in_addr *)host->h_addr);
-            bzero(&(server_addr.sin_zero),8);
-
-        '''
-
-        connect_server = '''
-            fprintf(log_client,"Client-Connecting to server \\n");
-
-            //Connecting to server
-            int try_limit=10;
-            while(try_limit>0)
-            {
-                if (connect(socket_fd, (struct sockaddr*)&server_addr,''' \
-                '''sizeof(struct sockaddr)) == -1)
-                {
-                    sleep(1);
-                    try_limit--;
-                    if(try_limit==0)
-                    {
-                        fprintf(stderr,"Connect- Error:Tried to connect server on port,''' \
-                        '''failed...giving up \\n");
-                        fprintf(log_client,"Connect- Error:Tried to connect server on ''' \
-                        '''port, failed...giving up \\n");
-                        exit(1);
-                    }
-                }
-                else
-                {
-                    printf("Client-Connected to server \\n");
-                    fprintf(log_client,"Client-Connected to server \\n");
-                    break;
-                }
-            }
-        '''
 
         # Assign bit value to every input
         assign_data_to_input = []

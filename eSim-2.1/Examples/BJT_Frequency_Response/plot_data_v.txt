@@ -1,5 +1,5 @@
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency                                       
 --------------------------------------------------------------------------------
@@ -742,7 +742,7 @@ Index   frequency
 700	1.000000e+08	0.000000e+00,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       esim_npn                        
 --------------------------------------------------------------------------------
@@ -1485,7 +1485,7 @@ Index   frequency       esim_npn
 700	1.000000e+08	0.000000e+00,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       in                              
 --------------------------------------------------------------------------------
@@ -2228,7 +2228,7 @@ Index   frequency       in
 700	1.000000e+08	5.000000e-01,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       net-_c1-pad1_                   
 --------------------------------------------------------------------------------
@@ -2971,7 +2971,7 @@ Index   frequency       net-_c1-pad1_
 700	1.000000e+08	4.993758e-01,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       net-_c1-pad2_                   
 --------------------------------------------------------------------------------
@@ -3714,7 +3714,7 @@ Index   frequency       net-_c1-pad2_
 700	1.000000e+08	4.993758e-01,	4.967383e-10	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       net-_c2-pad2_                   
 --------------------------------------------------------------------------------
@@ -4457,7 +4457,7 @@ Index   frequency       net-_c2-pad2_
 700	1.000000e+08	0.000000e+00,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       net-_c3-pad2_                   
 --------------------------------------------------------------------------------
@@ -5200,7 +5200,7 @@ Index   frequency       net-_c3-pad2_
 700	1.000000e+08	0.000000e+00,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       net-_r2-pad2_                   
 --------------------------------------------------------------------------------
@@ -5943,7 +5943,7 @@ Index   frequency       net-_r2-pad2_
 700	1.000000e+08	0.000000e+00,	0.000000e+00	
 
 * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_frequency_response/bjt_frequency_response.cir
-AC Analysis  Sat Aug 21 13:57:36  2021
+AC Analysis  Mon Aug 23 23:49:05  2021
 --------------------------------------------------------------------------------
 Index   frequency       out                             
 --------------------------------------------------------------------------------

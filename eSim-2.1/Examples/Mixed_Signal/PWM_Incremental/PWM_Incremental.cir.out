@@ -29,7 +29,7 @@ a4 [clk ] [net-_u2-pad2_ ] [net-_u2-pad3_ ] u2
 .model u4 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
 * Schematic Name:                             pwmincrement, NgSpice Name: pwmincrement
 .model u2 pwmincrement(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 Sumanto=100e-3 ) 
-.tran 1me-00 10e-03 0e-03
+.tran 1me-00 10me-00 0e-03
 
 * Control Statements 
 .control
