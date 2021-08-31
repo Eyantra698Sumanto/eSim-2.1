@@ -52,31 +52,41 @@ unique_ptr = '''
     string line;
     ifstream fpin;
     ofstream fpout;
-    fpin.open("read.txt",ios::in);
+    fpin.open("/home/'''+home+'''/ngspice-nghdl/src/xspice/icm/Ngveri/'''+fname.split('.')[0]+'''/input.txt",ios::in);
     getline(fpin,line);
-
-    cout<<(int)line[0]-48;
-    '''
+    char *cstr = new char[line.length() + 1];
+    strcpy(cstr, line.c_str());
+    int len= strlen(cstr);
+    int i=-1;
+    printf("=============New Iteration===========");
+    while(i<len-1)
+    {
+        contextp->timeInc(1);
+'''
 input_file=[]
 output_file=[]
 for i,item in enumerate(input_port):
-    input_file.append(fname.split('.')[0]+'''->'''+item.split(':')[0]+'''=(int)line['''+str(i)+''']-48;
-    ''')
+    input_file.append("\t\t"+fname.split('.')[0]+'''->'''+item.split(':')[0]+'''=(int)line[++i]-48;\n''')
+input_file.append("\t\t"+fname.split('.')[0]+"->eval();\n\t}\n");
+for i,item in enumerate(input_port):
+    input_file.append('''\tprintf("\\n'''+item.split(':')[0]+'''=%d",'''+fname.split('.')[0]+'''->'''+item.split(':')[0]+''');
+''')
 input_file.append('''
     fpin.close();
-    // Set V'''+fname.split('.')[0]+''''s input signals
-    fpout.open("write.txt");    
-    '''+fname.split('.')[0]+'''->eval();
+    '''+fname.split('.')[0]+'''->final();
+    fpout.open("/home/'''+home+'''/ngspice-nghdl/src/xspice/icm/Ngveri/'''+fname.split('.')[0]+'''/output.txt");    
     ''')
 
 for i,item in enumerate(output_port):   
-    output_file.append('''printf("%d\\n",'''+fname.split('.')[0]+'''->'''+item.split(':')[0]+''');
+    output_file.append('''printf("\\n'''+item.split(':')[0]+'''=%d",\
+'''+fname.split('.')[0]+'''->'''+item.split(':')[0]+''');
     fpout<<("'''+item.split(':')[0]+''':");
     fpout<<(char)('''+fname.split('.')[0]+'''->'''+item.split(':')[0]+'''+48);
     fpout<<(";\\n");
     ''')
 
-output_file.append(fname.split('.')[0]+'''->final();
+output_file.append('''
+    printf("\\n");
     fpout.close();
     return 0;
 }

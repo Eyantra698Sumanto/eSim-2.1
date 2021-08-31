@@ -127,7 +127,7 @@ for item in input_port:
 
 verilator_op = []
 verilator_op.append('''
-    fpout = fopen("read.txt","w");''')
+    fpout = fopen("/home/'''+home+'''/ngspice-nghdl/src/xspice/icm/Ngveri/'''+fname.split('.')[0]+'''/input.txt","a+");''')
     
 for item in input_port:
     verilator_op.append(
@@ -139,7 +139,7 @@ verilator_op.append('''
     system("/home/'''+home+'''/ngspice-nghdl/src/xspice/icm\
 /Ngveri/'''+fname.split('.')[0]+'''/obj_dir/V'''+fname.split('.')[0]+'''\
 ");
-    fpin=fopen("write.txt","r");
+    fpin=fopen("/home/'''+home+'''/ngspice-nghdl/src/xspice/icm/Ngveri/'''+fname.split('.')[0]+'''/output.txt","r");
     fscanf(fpin,"%s", recv_data);
     fclose(fpin);
     ''')

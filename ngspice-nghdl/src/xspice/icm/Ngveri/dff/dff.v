@@ -8,7 +8,8 @@ module dff(input d,
         q <= 0;  
      else  
         q <= d;  
-        initial begin
+        
+    initial begin
       //if ($test$plusargs("trace") != 0) begin
          $display("[%0t] Tracing to logs/vlt_dump.vcd...\n", $time);
          $dumpfile("vlt_dump.vcd");
@@ -17,5 +18,4 @@ module dff(input d,
       $display("[%0t] Model running...\n", $time);
      
    end
-    //endmodule  
 endmodule  

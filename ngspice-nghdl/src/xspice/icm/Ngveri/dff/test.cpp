@@ -10,49 +10,42 @@
 #include <iostream>
 #include <cstring>
 using namespace std;
-
 double sc_time_stamp() { return 0; }
-
 int main(int argc, char** argv, char** env) {
     if (false && argc && argv && env) {}
 
     const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
-
+    
     contextp->traceEverOn(true);
     contextp->commandArgs(argc, argv);
     
     const std::unique_ptr<Vdff> dff{new Vdff{contextp.get(), "dff"}};
-    string line,lineprev;
+    string line;
     ifstream fpin;
     ofstream fpout;
-    fpin.open("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/dff/input.txt",ios::in);
+    
+    //t++;
+    int a=1;
+    while(a==1){
+        cin>>a;
+    contextp->timeInc(1);
+    fpin.open("read.txt",ios::in);
     getline(fpin,line);
-    char *cstr = new char[line.length() + 1];
-    strcpy(cstr, line.c_str());
-    int len= strlen(cstr);
-    cout<<len;
-    //cout<<lineprev;
-    int i=-1;
-    while(i<len-1)
-    {contextp->timeInc(1);
-    dff->d=(int)line[++i]-48;
-    dff->rstn=(int)line[++i]-48;
-
-    dff->clk=(int)line[++i]-48;
-    dff->eval();
-    //printf("\nq=%d\n",dff->q);
-}   printf("\n%d%d%d",dff->d,dff->rstn,dff->clk);
-   
+    cout<<(int)line[0]-48;
+    dff->d=(int)line[0]-48;
+    dff->rstn=(int)line[1]-48;
+    dff->clk=(int)line[2]-48;
+    
     fpin.close();
     // Set Vdff's input signals
-    fpout.open("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/dff/output.txt");    
-    
-    dff->final();
-    printf("\nq=%d\n",dff->q);
+    fpout.open("write.txt");    
+    dff->eval();
+    //dff->final();
+    printf("%d\n",dff->q);
     fpout<<("q:");
     fpout<<(char)(dff->q+48);
-    fpout<<(";\n");
+    fpout<<(";");
     
     fpout.close();
-    return 0;
+    }return 0;
 }

@@ -8,7 +8,7 @@ Developed by Sumanto Kar at IIT Bombay */
 
 
 void cm_dff(ARGS) 
-{
+{   
     Digital_State_t *_op_q, *_op_q_old;
 
     // Declaring components of Client
@@ -93,14 +93,13 @@ void cm_dff(ARGS)
     }
     temp_clk[Ii]='\0';
 
-
-    fpout = fopen("read.txt","w");
+    fpout = fopen("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/dff/input.txt","a+");
     fprintf(fpout,"%s",temp_d);
     fprintf(fpout,"%s",temp_rstn);
     fprintf(fpout,"%s",temp_clk);
     fclose(fpout);
     system("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/dff/obj_dir/Vdff");
-    fpin=fopen("write.txt","r");
+    fpin=fopen("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/dff/output.txt","r");
     fscanf(fpin,"%s", recv_data);
     fclose(fpin);
     

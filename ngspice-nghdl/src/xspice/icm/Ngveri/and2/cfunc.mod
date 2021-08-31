@@ -76,12 +76,12 @@ void cm_and2(ARGS)
     temp_B[Ii]='\0';
 
 
-    fpout = fopen("read.txt","w");
+    fpout = fopen("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/and2/input.txt","a+");
     fprintf(fpout,"%s",temp_A);
     fprintf(fpout,"%s",temp_B);
     fclose(fpout);
     system("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/and2/obj_dir/Vand2");
-    fpin=fopen("write.txt","r");
+    fpin=fopen("/home/sumanto/ngspice-nghdl/src/xspice/icm/Ngveri/and2/output.txt","r");
     fscanf(fpin,"%s", recv_data);
     fclose(fpin);
     
@@ -121,4 +121,5 @@ void cm_and2(ARGS)
             OUTPUT_STRENGTH(Y[Ii]) = STRONG;
         }
     }
-    }
+
+}
