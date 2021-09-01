@@ -1,5 +1,4 @@
 from PyQt5 import QtCore, QtWidgets
-from . import TrackWidget
 import os
 import subprocess
 from xml.etree import ElementTree as ET
@@ -10,7 +9,6 @@ class Maker(QtWidgets.QWidget):
     def __init__(self, clarg1):
         self.clarg1 = clarg1
         QtWidgets.QWidget.__init__(self)
-        self.track_obj = TrackWidget.TrackWidget()
         self.count = 0
         self.text= "" 
         self.entry_var = {}
@@ -28,19 +26,19 @@ class Maker(QtWidgets.QWidget):
 
     def addverilog(self):
 
-
         init_path = '../../../'
         if os.name == 'nt':
             init_path = ''
         self.verilogfile = QtCore.QDir.toNativeSeparators(
         QtWidgets.QFileDialog.getOpenFileName(
                 self, "Open verilog Directory",
-                    init_path + "home", "*.tlv"
+                    init_path + "home", "*.v"
                )[0]
             )
         self.text = open(self.verilogfile).read()
         self.entry_var[0].setText(self.verilogfile)
         self.entry_var[1].setText(self.text)
+        open("filepath.txt","w").write(self.verilogfile)
         
 
     def runverilog(self):        

@@ -24,7 +24,7 @@ from projManagement.Validation import Validation
 #from .Processing import PrcocessNetlist
 from . import Maker
 from . import NgVeri
-from . import TrackWidget
+
 from xml.etree import ElementTree as ET
 
 
@@ -41,7 +41,7 @@ class  makerchip(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self)
-        self.obj_track = TrackWidget.TrackWidget()
+        
         #self.splitter.setOrientation(QtCore.Qt.Vertical)
         print("==================================")
         print("Makerchip and Verilog to Ngspice Converter")
