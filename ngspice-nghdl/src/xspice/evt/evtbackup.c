@@ -3,11 +3,10 @@ FILE    EVTbackup.c
 
 MEMBER OF process XSPICE
 
-Copyright 1991
+Public Domain
+
 Georgia Tech Research Corporation
 Atlanta, Georgia 30332
-All Rights Reserved
-
 PROJECT A-8503
 
 AUTHORS
@@ -578,7 +577,7 @@ static void EVTbackup_output_queue(
         output = *output_ptr;
 
         while(output) {
-            if(output->event_time > new_time)
+            if (output->posted_time < new_time)
                 break;
             output_ptr = &((*output_ptr)->next);
             output = *output_ptr;

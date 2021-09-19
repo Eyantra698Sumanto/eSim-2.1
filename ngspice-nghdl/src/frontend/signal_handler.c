@@ -55,7 +55,7 @@ ft_sigintr_cleanup(void)
 
     /* sjb - what to do for editline???
        The following are not supported in editline */
-#if defined(HAVE_GNUREADLINE) && !defined(__APPLE__)
+#if defined(HAVE_GNUREADLINE)
     /*  Clean up readline after catching signals  */
     /*  One or all of these might be superfluous  */
     (void) rl_free_line_state();
@@ -65,7 +65,7 @@ ft_sigintr_cleanup(void)
 
     /* To restore screen after an interrupt to a plot for instance */
     cp_interactive = TRUE;
-    cp_resetcontrol();
+    cp_resetcontrol(TRUE);
 }
 
 
@@ -104,10 +104,8 @@ ft_sigintr(void)
 
 
 RETSIGTYPE
-sigfloat(int sig, int code)
+sigfloat(int code)
 {
-    NG_IGNORE(sig);
-
     fperror("Error", code);
     rewind(cp_out);
     (void) signal(SIGFPE, (SIGNAL_FUNCTION) sigfloat);
@@ -167,6 +165,13 @@ sigsegv(void)
     winmessage("Fatal error in NGSPICE");
 #endif
     fatal();
+}
+
+RETSIGTYPE
+sigsegvsh(void)
+{
+    fprintf(cp_err, "\ninternal error -- segmentation violation\n");
+    controlled_exit(EXIT_SEGV);
 }
 
 

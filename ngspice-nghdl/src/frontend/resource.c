@@ -6,10 +6,9 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 /*
  * Resource-related routines.
  *
- * New operation systems information options added:
- * Windows 2000 and newer: Use GlobalMemoryStatusEx and GetProcessMemoryInfo
- * LINUX (and maybe some others): Use the /proc virtual file information system
- * Others: Use original code with sbrk(0) and some "ugly hacks"
+ * Time information is acquired here.
+ * Memory information is obtained in functions get_... for
+ * a large variety of current operating systems.
  */
 
 #include "ngspice/ngspice.h"
@@ -17,7 +16,6 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 #include "ngspice/ftedefs.h"
 
 #include "circuits.h"
-#include "quote.h"
 #include "resource.h"
 #include "variable.h"
 #include "ngspice/cktdefs.h"
@@ -30,6 +28,10 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 /* gtri - add - 12/12/90 - wbk - include ipc stuff */
 #include "ngspice/ipctiein.h"
 /* gtri - end - 12/12/90 */
+#endif
+
+#ifdef __APPLE__
+#include <sys/sysctl.h>
 #endif
 
 /* We might compile for Windows, but only as a console application (e.g. tcl) */
@@ -54,39 +56,25 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 #include <unistd.h>
 #endif /* HAVE_WIN32 */
 
-/* Uncheck the following definition if you want to get the old usage information
-   #undef HAVE__PROC_MEMINFO
-*/
-
 static void printres(char *name);
 static void fprintmem(FILE *stream, unsigned long long memory);
 
 #if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO)
 static int get_procm(struct proc_mem *memall);
-static int get_sysmem(struct sys_mem *memall);
 
 struct sys_mem mem_t, mem_t_act;
 struct proc_mem mem_ng, mem_ng_act;
 
-#else
-static RETSIGTYPE fault(void);
-static void *baseaddr(void);
 #endif
 
-char *startdata;
-char *enddata;
-
+#if defined(HAVE_WIN32) &&  defined(SHARED_MODULE) && defined(__MINGW32__)
+static int get_sysmem(struct sys_mem *memall);
+#endif
 
 void
 init_rlimits(void)
 {
-#  if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO)
-    get_procm(&mem_ng);
-    get_sysmem(&mem_t);
-#  else
-    startdata = (char *) baseaddr();
-    enddata = sbrk(0);
-#  endif
+    ft_ckspace();
 }
 
 
@@ -134,56 +122,35 @@ com_rusage(wordlist *wl)
 
 
 /* Find out if the user is approaching his maximum data size.
-   If usage is withing 90% of total available then a warning message is sent
+   If usage is withing 95% of total available then a warning message is sent
    to the error stream (cp_err) */
-void
-ft_ckspace(void)
+void ft_ckspace(void)
 {
-    unsigned long long usage, limit;
-
 #ifdef SHARED_MODULE
     /* False warning on some OSs, especially on Linux when loaded during runtime.
        The caller then has to take care of memory available */
     return;
-#endif
-
-#if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO)
-    get_procm(&mem_ng_act);
-    usage = mem_ng_act.size;
-    limit = mem_t.free;
 #else
-    static size_t old_usage = 0;
-    char *hi;
+    const unsigned long long freemem = getAvailableMemorySize();
+    const unsigned long long usage = getCurrentRSS();
 
-#ifdef HAVE_GETRLIMIT
-    struct rlimit rld;
-    getrlimit(RLIMIT_DATA, &rld);
-    if (rld.rlim_cur == RLIM_INFINITY)
+    if (freemem == 0 || usage == 0) { /* error obtaining data */
         return;
-    limit = rld.rlim_cur - (enddata - startdata); /* rlim_max not used */
-#else /* HAVE_GETRLIMIT */
-    /* SYSVRLIMIT */
-    limit = ulimit(3, 0L) - (enddata - startdata);
-#endif /* HAVE_GETRLIMIT */
-
-    hi = sbrk(0);
-    usage = (size_t) (hi - enddata);
-
-    if (usage <= old_usage)
-        return;
-
-    old_usage = usage;
-#endif /* not HAS_WINGUI */
-
-    if ((double)usage > (double)limit * 0.9) {
-        fprintf(cp_err, "Warning - approaching max data size: ");
-        fprintf(cp_err, "current size = ");
-        fprintmem(cp_err, usage);
-        fprintf(cp_err, ", limit = ");
-        fprintmem(cp_err, limit);
-        fprintf(cp_err, "\n");
     }
-}
+
+    const unsigned long long avail = usage + freemem;
+    if ((double) usage > (double) avail * 0.95) {
+        (void) fprintf(cp_err,
+                "Warning - approaching max data size: "
+                "current size = ");
+        fprintmem(cp_err, usage);
+        (void) fprintf(cp_err, ", limit = ");
+        fprintmem(cp_err, avail);
+        (void) fprintf(cp_err, "\n");
+    }
+#endif
+} /* end of function ft_chkspace */
+
 
 
 /* Print out one piece of resource usage information. */
@@ -256,7 +223,7 @@ printres(char *name)
             }
             /* do not print it the first time, doubling totalcputime */
             if (called)
-                fprintf(cp_out, "%s time since last call seconds) = %lu.%03lu \n",
+                fprintf(cp_out, "%s time since last call (seconds) = %lu.%03lu \n",
                         cpu_elapsed, last_sec, last_msec);
 
             last_sec = total_sec;
@@ -284,50 +251,29 @@ printres(char *name)
     }
 
     if (!name || eq(name, "space")) {
-
-#  ifdef HAVE_GETRLIMIT
-        size_t usage = 0, limit = 0;
-        struct rlimit rld;
-        char *hi;
-
-        getrlimit(RLIMIT_DATA, &rld);
-        limit = rld.rlim_cur - (size_t)(enddata - startdata);
-        hi = (char*) sbrk(0);
-        usage = (size_t) (hi - enddata);
-#  else /* HAVE_GETRLIMIT */
-#    ifdef HAVE_ULIMIT
-        size_t usage = 0, limit = 0;
-        char *hi;
-
-        limit = ulimit(3, 0L) - (size_t)(enddata - startdata);
-        hi = sbrk(0);
-        usage = (size_t) (hi - enddata);
-#    endif /* HAVE_ULIMIT */
-#  endif /* HAVE_GETRLIMIT */
-
-#if defined(HAVE_WIN32) || defined(HAVE__PROC_MEMINFO)
-
-        get_procm(&mem_ng_act);
-        get_sysmem(&mem_t_act);
-
-        /* get_sysmem returns bytes */
+        unsigned long long mem = getMemorySize();
         fprintf(cp_out, "Total DRAM available = ");
-        fprintmem(cp_out, mem_t_act.size);
+        fprintmem(cp_out, mem);
         fprintf(cp_out, ".\n");
-
+        mem = getAvailableMemorySize();
         fprintf(cp_out, "DRAM currently available = ");
-        fprintmem(cp_out, mem_t_act.free);
+        fprintmem(cp_out, mem);
+        fprintf(cp_out, ".\n");
+        mem = getPeakRSS();
+        fprintf(cp_out, "Maximum ngspice program size = ");
+        fprintmem(cp_out, mem);
+        fprintf(cp_out, ".\n");
+        mem = getCurrentRSS();
+        fprintf(cp_out, "Current ngspice program size = ");
+        fprintmem(cp_out, mem);
         fprintf(cp_out, ".\n");
 
-        /* get_procm returns Kilobytes */
-        fprintf(cp_out, "Total ngspice program size = ");
-        fprintmem(cp_out, mem_ng_act.size);
-        fprintf(cp_out, ".\n");
 #if defined(HAVE__PROC_MEMINFO)
-        fprintf(cp_out, "Resident set size = ");
-        fprintmem(cp_out, mem_ng_act.resident);
-        fprintf(cp_out, ".\n");
-
+        get_procm(&mem_ng_act);
+//        fprintf(cp_out, "Resident set size = ");
+//        fprintmem(cp_out, mem_ng_act.resident);
+//        fprintf(cp_out, ".\n");
+        fprintf(cp_out, "\n");  
         fprintf(cp_out, "Shared ngspice pages = ");
         fprintmem(cp_out, mem_ng_act.shared);
         fprintf(cp_out, ".\n");
@@ -348,15 +294,6 @@ printres(char *name)
            fprintmem(cp_out, all_memory.dt);
            fprintf(cp_out, ".\n"); */
 #endif  /* HAVE__PROC_MEMINFO */
-#else   /* HAS_WINGUI or HAVE__PROC_MEMINFO */
-        fprintf(cp_out, "Current dynamic memory usage = ");
-        fprintmem(cp_out, usage);
-        fprintf(cp_out, ",\n");
-
-        fprintf(cp_out, "Dynamic memory limit = ");
-        fprintmem(cp_out, limit);
-        fprintf(cp_out, ".\n");
-#endif
         yy = TRUE;
     }
 
@@ -496,10 +433,13 @@ static int get_procm(struct proc_mem *memall) {
     } else
         return 0;
 #else
-/* Use Windows GlobalMemoryStatus or /proc/memory to obtain size of memory - not accurate */
-    get_sysmem(&mem_t_act); /* size is the difference between free memory at start time and now */
+   /* Use Windows GlobalMemoryStatus or /proc/memory to obtain size of memory -
+    * not accurate */
+    get_sysmem(&mem_t_act); /* size is the difference between free memory at
+                             * start time and now */
     if (mem_t.free > mem_t_act.free) /* it can happen that that ngspice is */
-        memall->size = (mem_t.free - mem_t_act.free); /* to small compared to os memory usage */
+        memall->size = (mem_t.free - mem_t_act.free); /* too small compared to
+                                                       * os memory usage */
     else
         memall->size = 0;       /* sure, it is more */
     memall->resident = 0;
@@ -541,8 +481,8 @@ static int get_procm(struct proc_mem *memall) {
 }
 
 
-static int
-get_sysmem(struct sys_mem *memall)
+#if defined(HAVE_WIN32) &&  defined(SHARED_MODULE) && defined(__MINGW32__)
+static int get_sysmem(struct sys_mem *memall)
 {
 #ifdef HAVE_WIN32
 #if (_WIN32_WINNT >= 0x0500)
@@ -607,6 +547,7 @@ get_sysmem(struct sys_mem *memall)
 #endif
     return 1;
 }
+#endif
 
 
 #else

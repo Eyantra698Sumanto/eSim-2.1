@@ -3,19 +3,21 @@
 
 #include "ngspice/config.h"
 
-typedef enum {
-  COMPATMODE_NATIVE = 0,
-  COMPATMODE_HS = 1,
-  COMPATMODE_SPICE3 = 2,
-  COMPATMODE_ALL = 3,
-  COMPATMODE_PS = 4,
-  COMPATMODE_PSA = 5,
-  COMPATMODE_LT = 6,
-  COMPATMODE_LTA = 7,
-  COMPATMODE_LTPS = 8,
-  COMPATMODE_LTPSA = 9
-} COMPATMODE_T ;
+struct compat
+{
+	bool isset; /* at least one mode is set */
+	bool hs; /* HSPICE */
+	bool s3; /* spice3 */
+	bool ll; /* all */
+	bool ps; /* PSPICE */
+	bool lt; /* LTSPICE */
+	bool ki; /* KiCad */
+	bool a; /* whole netlist */
+	bool spe; /* spectre */
+	bool eg; /* EAGLE */
+	bool mc; /* to be set for 'make check' */
+};
 
-extern COMPATMODE_T inp_compat_mode;
+extern struct compat newcompat;
 
 #endif

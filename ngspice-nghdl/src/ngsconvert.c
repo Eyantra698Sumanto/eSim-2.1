@@ -15,8 +15,12 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
 #include "ngspice/ftedefs.h"
 #include "ngspice/sim.h"
 #include "ngspice/suffix.h"
+#include "ngspice/compatmode.h"
 #include "frontend/display.h"
 #include "../misc/mktemp.h"
+
+#include <errno.h>
+
 
 FILE *cp_in = NULL;
 FILE *cp_out = NULL;
@@ -24,7 +28,6 @@ FILE *cp_err = NULL;
 FILE *cp_curin = NULL;
 FILE *cp_curout = NULL;
 FILE *cp_curerr = NULL;
-int cp_maxhistlength;
 bool cp_debug = FALSE;
 char cp_chars[128];
 bool cp_nocc = TRUE;
@@ -32,6 +35,9 @@ bool ft_stricterror = FALSE;
 bool ft_parsedb = FALSE;
 struct circ *ft_curckt = NULL;
 struct plot *plot_cur = NULL;
+int  cp_maxhistlength = 0;
+bool cp_no_histsubst = FALSE;
+struct compat newcompat;
 
 char *cp_program = "sconvert";
 
@@ -45,6 +51,67 @@ char *cp_program = "sconvert";
                         (nit), (fp)) != (nit)) { \
                     fprintf(cp_err, "Write error\n"); \
                     return; }
+
+#define TMALLOC(t, n)       (t*) tmalloc(sizeof(t) * (size_t)(n))
+#define TREALLOC(t, p, n)   (t*) trealloc(p, sizeof(t) * (size_t)(n))
+
+
+char *
+smktemp(char *id)
+{
+    if (!id)
+        id = "sp";
+    const char* const home = getenv("HOME");
+    if (home) {
+        return tprintf("%s/"TEMPFORMAT, home, id, getpid());
+    }
+    const char* const usr = getenv("USERPROFILE");
+    if (usr) {
+        return tprintf("%s\\"TEMPFORMAT, usr, id, getpid());
+    }
+    return tprintf(TEMPFORMAT, id, getpid());
+}
+
+int
+inchar(FILE *fp)
+{
+
+#if !defined(__MINGW32__)
+    char c;
+    ssize_t i;
+
+    do
+        i = read(fileno(fp), &c, 1);
+    while (i == -1 && errno == EINTR);
+
+    if (i == 0 || c == '\004')
+        return EOF;
+
+    if (i == -1) {
+        perror("read");
+        return EOF;
+    }
+
+    return (int) c;
+#elif
+
+    return getc(fp);
+#endif    
+}
+
+int
+input(FILE *fp)
+{
+    REQUEST request;
+    RESPONSE response;
+
+    request.option = char_option;
+    request.fp = fp;
+
+    Input(&request, &response);
+
+    return (inchar(fp));
+}
 
 
 void
@@ -75,7 +142,7 @@ fixdate(char *date)
         buf[i] = buf[i - 1];
     buf[8] = ' ';
     buf[18] = '\0';
-    return (copy(buf));
+    return (strdup(buf));
 }
 
 
@@ -102,11 +169,11 @@ oldread(char *name)
     for (i = (int) strlen(buf) - 1; (i > 1) && (buf[i] == ' '); i--)
         ;
     buf[i + 1] = '\0';
-    pl->pl_title = copy(buf);
+    pl->pl_title = strdup(buf);
 
     tfread(buf, 1, 16, fp);
     buf[16] = '\0';
-    pl->pl_date = copy(fixdate(buf));
+    pl->pl_date = strdup(fixdate(buf));
 
     tfread(&nv, sizeof (short), 1, fp);
 
@@ -125,7 +192,7 @@ oldread(char *name)
         end = v;
         tfread(buf, 1, 8, fp);
         buf[8] = '\0';
-        v->v_name = copy(buf);
+        v->v_name = strdup(buf);
     }
     for (v = pl->pl_dvecs; v; v = v->v_next) {
         tfread(&a, sizeof (short), 1, fp);
@@ -152,7 +219,7 @@ oldread(char *name)
     }
     tfread(buf, 1, 24, fp);
     buf[24] = '\0';
-    pl->pl_name = copy(buf);
+    pl->pl_name = strdup(buf);
     /* Now to figure out how many points of data there are left in
      * the file. 
      */
@@ -320,12 +387,6 @@ main(int ac, char **av)
     char *infile = NULL;
     char *outfile = NULL;
     FILE *fp;
-    cp_in = stdin;
-    cp_out = stdout;
-    cp_err = stderr;
-    cp_curin = stdin;
-    cp_curout = stdout;
-    cp_curerr = stderr;
 
     switch (ac) {
         case 5: 
@@ -353,7 +414,7 @@ main(int ac, char **av)
         case 1: printf("Input file: ");
             (void) fflush(stdout);
             (void) fgets(buf, BSIZE_SP, stdin);
-            sf = copy(buf);
+            sf = strdup(buf);
             printf("Input type: ");
             (void) fflush(stdout);
             (void) fgets(buf, BSIZE_SP, stdin);
@@ -361,7 +422,7 @@ main(int ac, char **av)
             printf("Output file: ");
             (void) fflush(stdout);
             (void) fgets(buf, BSIZE_SP, stdin);
-            af = copy(buf);
+            af = strdup(buf);
             printf("Output type: ");
             (void) fflush(stdout);
             (void) fgets(buf, BSIZE_SP, stdin);
@@ -426,6 +487,7 @@ main(int ac, char **av)
     exit(EXIT_NORMAL);
 }
 
+
 void cp_pushcontrol(void) { }
 void cp_popcontrol(void) { }
 void out_init(void) { }
@@ -433,10 +495,10 @@ void cp_doquit(void) { exit(0); }
 struct variable *cp_usrvars(void) { return NULL; }
 int cp_evloop(char *s) { NG_IGNORE(s); return (0); }
 void cp_ccon(bool o) { NG_IGNORE(o); }
-char*if_errstring(int c) { NG_IGNORE(c); return copy("error"); }
+char*if_errstring(int c) { NG_IGNORE(c); return strdup("error"); }
 void out_printf(char *fmt, ...) { NG_IGNORE(fmt); }
 void out_send(char *string) { NG_IGNORE(string); }
-struct variable * cp_enqvar(char *word, int *tbfreed) { NG_IGNORE(word); NG_IGNORE(*tbfreed); return (NULL); }
+struct variable * cp_enqvar(const char *word, int *tbfreed) { NG_IGNORE(word); NG_IGNORE(*tbfreed); return (NULL); }
 struct dvec *vec_get(const char *word) { NG_IGNORE(word); return (NULL); }
 void cp_ccom(wordlist *w, char *b, bool e) {
   NG_IGNORE(e);
@@ -445,6 +507,9 @@ void cp_ccom(wordlist *w, char *b, bool e) {
 int cp_usrset(struct variable *v, bool i) {
     NG_IGNORE(i);
     NG_IGNORE(v); return(US_OK); }
+wordlist * cp_doalias(wordlist *wlist) {NG_IGNORE(wlist); return NULL;}
+
+void controlled_exit(int no){exit(no);}
 
 int disptype;
 

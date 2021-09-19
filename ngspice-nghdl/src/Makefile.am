@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = include/ngspice misc maths frontend spicelib
-DIST_SUBDIRS = include/ngspice misc maths frontend spicelib xspice ciderlib unsupported
+SUBDIRS = include/ngspice include/cppduals/duals misc maths frontend spicelib
+DIST_SUBDIRS = include/ngspice include/cppduals/duals misc maths frontend spicelib xspice ciderlib
 
 if XSPICE_WANTED
 SUBDIRS += xspice
@@ -9,10 +9,6 @@ endif
 
 if CIDER_WANTED
 SUBDIRS += ciderlib
-endif
-
-if SENSE2_WANTED
-SUBDIRS += unsupported
 endif
 
 if !TCL_MODULE
@@ -36,7 +32,7 @@ EXTRA_DIST = ngspice.txt setplot spectrum \
 	     devload devaxis ciderinit \
 	     hist_info.c hist_info.h winmain.c winmain.h \
 	     tclspice.c tclspice.map pkgIndex.tcl.in spinit.in tclspinit.in \
-	     main.c sharedspice.c
+	     main.c sharedspice.c ngicon.rc ngspice.ico
 
 
 initdatadir = $(pkgdatadir)/scripts
@@ -73,6 +69,7 @@ DYNAMIC_DEVICELIBS =					\
 	spicelib/devices/isrc/libisrc.la		\
 	spicelib/devices/hfet1/libhfet.la		\
 	spicelib/devices/hfet2/libhfet2.la		\
+	spicelib/devices/hicum2/libhicum2.la		\
 	spicelib/devices/hisim2/libhisim2.la		\
 	spicelib/devices/hisimhv1/libhisimhv1.la	\
 	spicelib/devices/hisimhv2/libhisimhv2.la	\
@@ -102,6 +99,12 @@ DYNAMIC_DEVICELIBS =					\
 
 ## Build ngspice first:
 
+## compile the icon:
+if WINRESOURCE
+ngicon.o: ngicon.rc
+	windres $(srcdir)/ngicon.rc -O coff -o ngicon.o
+endif
+
 ngspice_SOURCES = \
 	main.c \
 	conf.c \
@@ -111,6 +114,7 @@ ngspice_SOURCES = \
 ngspice_CPPFLAGS = $(AM_CPPFLAGS) -DSIMULATOR
 
 if WINGUI
+ngspice_LDFLAGS = -municode $(AM_LDFLAGS)
 ngspice_SOURCES += winmain.c hist_info.c
 endif
 
@@ -145,10 +149,6 @@ endif
 ngspice_LDADD += \
 	spicelib/analysis/libckt.la \
 	spicelib/devices/libdev.la
-
-if SENSE2_WANTED
-ngspice_LDADD += unsupported/libunsupported.la
-endif
 
 if XSPICE_WANTED
 ngspice_LDADD += \
@@ -189,6 +189,10 @@ if !WINGUI
 if !NO_X
 ngspice_LDADD += frontend/help/libhlp.la
 endif
+endif
+
+if WINRESOURCE
+ngspice_LDADD += ngicon.o
 endif
 
 if OLDAPPS
@@ -258,19 +262,26 @@ endif !NO_HELP
 ## sconvert:
 
 ngsconvert_SOURCES =  ngsconvert.c
-
-ngsconvert_LDADD =  \
-	frontend/libfte.la \
-	frontend/parser/libparser.la \
-	maths/misc/libmathmisc.la \
-	misc/libmisc.la
-
+ngsconvert_LDADD = \
+	frontend/dvec.lo \
+    frontend/rawfile.lo \
+    frontend/typesdef.lo \
+    frontend/variable.lo \
+    frontend/dimens.lo \
+    frontend/quote.lo \
+    frontend/parser/lexical.lo \
+    frontend/parser/numparse.lo \
+    misc/string.lo \
+    misc/wlist.lo \
+    misc/misc_time.lo \
+    misc/alloc.lo
 
 ## proc2mod:
 
 ngproc2mod_SOURCES = ngproc2mod.c
 
 ngproc2mod_LDADD =  \
+	frontend/libfte.la \
 	frontend/parser/libparser.la \
 	spicelib/parser/libinp.la \
 	misc/libmisc.la
@@ -281,6 +292,8 @@ ngproc2mod_LDADD =  \
 ngmultidec_SOURCES = ngmultidec.c
 
 ngmultidec_LDADD =  \
+	frontend/libfte.la \
+	frontend/parser/libparser.la \
 	maths/sparse/libsparse.la \
 	misc/libmisc.la
 
@@ -289,6 +302,11 @@ ngmultidec_LDADD =  \
 
 ngmakeidx_SOURCES = makeidx.c
 
+ngmakeidx_LDADD =  \
+	frontend/libfte.la \
+	frontend/parser/libparser.la \
+	misc/libmisc.la
+    
 ## create index for online help:
 
 ngspice.idx: ngmakeidx$(EXEEXT) $(srcdir)/ngspice.txt
@@ -332,17 +350,16 @@ AM_CFLAGS = -static
 LIBS = @LIBS@ @X_LIBS@ @X_PRE_LIBS@ @X_EXTRA_LIBS@
 
 if WINGUI
-LIBS += -lpsapi -lShlwapi
+LIBS += -lpsapi -lshlwapi
 endif
 
 if WINCONSOLE
-LIBS += -lpsapi -lShlwapi
+LIBS += -lpsapi -lshlwapi
 endif
 
-## FIXME: Should be allwed, but fails within MSYS2
-#if SHWIN
-#LIBS += -lpsapi -lShlwapi
-#endif
+if SHWIN
+LIBS += -lpsapi -lshlwapi
+endif
 
 CLEANFILES = ngspice.idx spinit tclspinit pkgIndex.tcl
 
@@ -357,7 +374,7 @@ pkgIndex_DATA = pkgIndex.tcl
 pkgIndexdir = $(pkglibdir)
 
 if TCLWIN
-LIBS += -lpsapi -lShlwapi  -ltcl84 -lBLT24
+LIBS += -lpsapi -lshlwapi  -ltcl84 -lBLT24
 endif
 
 libspice_la_SOURCES = \
@@ -481,7 +498,6 @@ if SHARED_MODULE
 lib_LTLIBRARIES = libngspice.la
 
 libngspice_la_SOURCES = \
-	main.c \
 	conf.c \
 	conf.h \
 	ngspice.c \
@@ -562,6 +578,7 @@ libngspice_la_LIBADD += \
 libngspice_la_CFLAGS = -shared
 
 libngspice_la_LDFLAGS =  -shared
+libngspice_la_LDFLAGS +=  -lstdc++
 
 if SHWIN
 libngspice_la_LDFLAGS += -Wl,--output-def=ngspice.def  -Wl,--out-implib=ngspice.dll.a
@@ -574,6 +591,12 @@ libngspice_la_LDFLAGS += -Wl,--output-def=ngspice.def  -Wl,--out-implib=ngspice.
 libngspice_la_LDFLAGS += -no-undefined
 EXTRA_DIST += ngspice.def
 endif
+
+## if !SHWIN
+## if !SHCYG
+libngspice_la_LDFLAGS += -version-info $(LT_NGSPICE_CURRENT):$(LT_NGSPICE_REVISION):$(LT_LIBNGSPICE_AGE)
+## endif
+## endif
 
 SHAREDSPICE_VERSION = @VERSION@
 

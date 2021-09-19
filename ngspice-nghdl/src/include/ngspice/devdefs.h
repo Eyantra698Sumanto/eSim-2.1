@@ -16,12 +16,13 @@ Author: 1985 Thomas L. Quarles
 double DEVlimvds(double,double);
 double DEVpnjlim(double,double,double,double,int*);
 double DEVfetlim(double,double,double);
+double DEVlimitlog(double, double, double, int*);
 void DEVcmeyer(double,double,double,double,double,double,double,double,double,
         double,double,double*,double*,double*,double,double,double,double);
 void DEVqmeyer(double,double,double,double,double,double*,double*,double*,
         double,double);
 void DevCapVDMOS(double, double, double, double, double,
-                 double*, double*, double*);
+                 double*, double*);
 double DEVpred(CKTcircuit*,int);
 
 /* Cider integration */
@@ -55,15 +56,15 @@ typedef struct SPICEdev {
         /* routine to input a paramater to a model */
     int (*DEVload)(GENmodel*,CKTcircuit*);   
         /* routine to load the device into the matrix */
-    int (*DEVsetup)(SMPmatrix*,GENmodel*,CKTcircuit*,int*);  
+    int (*DEVsetup)(SMPmatrix *, GENmodel *, CKTcircuit *, int *);
         /* setup routine to preprocess devices once before soloution begins */
     int (*DEVunsetup)(GENmodel*,CKTcircuit*);
 	/* clean up before running again */
-    int (*DEVpzSetup)(SMPmatrix*,GENmodel*,CKTcircuit*,int*);  
+    int (*DEVpzSetup)(SMPmatrix *, GENmodel *, CKTcircuit *, int *);
         /* setup routine to process devices specially for pz analysis */
-    int (*DEVtemperature)(GENmodel*,CKTcircuit*);    
+    int (*DEVtemperature)(GENmodel*,CKTcircuit*);
         /* subroutine to do temperature dependent setup processing */
-    int (*DEVtrunc)(GENmodel*,CKTcircuit*,double*);  
+    int (*DEVtrunc)(GENmodel*,CKTcircuit*,double*);
         /* subroutine to perform truncation error calc. */
     int (*DEVfindBranch)(CKTcircuit*,GENmodel*,IFuid); 
         /* subroutine to search for device branch eq.s */

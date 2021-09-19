@@ -77,7 +77,7 @@ struct CKTcircuit {
 
 
     STATistics *CKTstat;        /* The STATistics structure */
-    double *(CKTstates[8]);     /* Used as memory of past steps ??? */
+    double *CKTstates[8];       /* Used as memory of past steps ??? */
 
     /* Some shortcut for CKTstates */
 #define CKTstate0 CKTstates[0]
@@ -88,11 +88,11 @@ struct CKTcircuit {
 #define CKTstate5 CKTstates[5]
 #define CKTstate6 CKTstates[6]
 #define CKTstate7 CKTstates[7]
-    double CKTtime;             /* ??? */
-    double CKTdelta;            /* ??? */
-    double CKTdeltaOld[7];      /* Memory for ??? */
-    double CKTtemp;             /* Actual temperature of CKT */
-    double CKTnomTemp;          /* Reference temperature 27 C ? */
+    double CKTtime;             /* Current transient simulation time */
+    double CKTdelta;            /* next time step in transient simulation */
+    double CKTdeltaOld[7];      /* Memory for the 7 most recent CKTdelta */
+    double CKTtemp;             /* Actual temperature of CKT, initialzed to 300.15 K in cktinit.c*/
+    double CKTnomTemp;          /* Reference temperature 300.15 K set in cktinit.c */
     double CKTvt;               /* Thernmal voltage at CKTtemp */
     double CKTag[7];            /* the gear variable coefficient matrix */
 #ifdef PREDICTOR
@@ -215,6 +215,7 @@ struct CKTcircuit {
 #endif /* NEWTRUNC */
     double CKTgmin;             /* .options GMIN */
     double CKTgshunt;           /* .options RSHUNT */
+    double CKTcshunt;           /* .options CSHUNT */
     double CKTdelmin;           /* minimum time step for tran analysis */
     double CKTtrtol;            /* .options TRTOL */
     double CKTfinalTime;        /* TSTOP */
@@ -428,6 +429,10 @@ extern int DCpss(CKTcircuit *, int);
 /* SP */
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 extern int NaskQuest(CKTcircuit *, JOB *, int, IFvalue *);
 extern int NsetParm(CKTcircuit *, JOB *, int, IFvalue *);
 extern int NIacIter(CKTcircuit *);
@@ -445,6 +450,9 @@ extern int NIreinit(CKTcircuit *);
 extern int NIsenReinit(CKTcircuit *);
 extern int NIdIter (CKTcircuit *);
 extern void NInzIter(CKTcircuit *, int, int);
+#ifdef __cplusplus
+}
+#endif
 
 #ifdef PREDICTOR
 extern int NIpred(CKTcircuit *ckt);

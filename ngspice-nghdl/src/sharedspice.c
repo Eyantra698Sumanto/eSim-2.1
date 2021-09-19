@@ -10,7 +10,6 @@
 /*******************/
 
 #ifdef _MSC_VER
-#define SHAREDSPICE_version "31.0"
 #define STDIN_FILENO    0
 #define STDOUT_FILENO   1
 #define STDERR_FILENO   2
@@ -153,6 +152,8 @@ static bool cont_condition;
 #include "ngspice/memory.h"
 #include "frontend/com_measure2.h"
 #include "frontend/misccoms.h"
+#include "ngspice/stringskip.h"
+#include "frontend/variable.h"
 
 #ifdef HAVE_FTIME
 #include <sys/timeb.h>
@@ -188,13 +189,133 @@ typedef void (*sighandler)(int);
 extern bool wantevtdata;
 #endif
 
-extern IFfrontEnd nutmeginfo;
+
+/********** includes copied from main.c ************/
+#ifdef CIDER
+# include "ngspice/numenum.h"
+# include "maths/misc/accuracy.h"
+#endif
+
+/********** global variables copied from main.c ************/
+FILE* slogp = NULL;          /* soa log file ('--soa-log file' command line option) */
+
+/* Frontend and circuit options */
+IFsimulator* ft_sim = NULL;
+
+char* errRtn;     /* name of the routine declaring error */
+char* errMsg = NULL;     /* descriptive message about what went wrong */
+char* cp_program; /* program name 'ngspice' */
+
+char* Infile_Path = NULL; /* Path to netlist input file */
+
+char* hlp_filelist[] = { "ngspice", NULL };
+
+
+/* Allocate space for global constants declared in const.h
+ * and set their values */
+double CONSTroot2 = CONSTsqrt2;
+double CONSTvt0 = CONSTboltz * REFTEMP / CHARGE;
+double CONSTKoverQ = CONSTboltz / CHARGE;
+double CONSTe = CONSTnap;
+
+IFfrontEnd* SPfrontEnd = NULL;
+int DEVmaxnum = 0;
+
+const bool ft_nutmeg = FALSE;
+extern struct comm spcp_coms[];
+struct comm* cp_coms = spcp_coms;
+
+/* Main options */
+static bool ft_servermode = FALSE;
+bool ft_batchmode = FALSE;
+bool ft_pipemode = FALSE;
+bool rflag = FALSE; /* has rawfile */
+
+/* Frontend options */
+bool ft_intrpt = FALSE;     /* Set by the (void) signal handlers. TRUE = we've been interrupted. */
+bool ft_setflag = FALSE;    /* TRUE = Don't abort simulation after an interrupt. */
+char* ft_rawfile = "rawspice.raw";
+
+#ifdef XSPICE
+bool wantevtdata = FALSE;
+#endif
+
+bool orflag = FALSE; /* global for -o option */
+
+/* Globals definitions for Machine Accuracy Limits
+ * (needed by CIDER)
+ */
+double BMin;                /* lower limit for B(x) */
+double BMax;                /* upper limit for B(x) */
+double ExpLim;              /* limit for exponential */
+double Accuracy;            /* accuracy of the machine */
+double MuLim, MutLim;
+
+IFfrontEnd nutmeginfo = {
+    IFnewUid,
+    IFdelUid,
+    OUTstopnow,
+    seconds,
+    OUTerror,
+    OUTerrorf,
+    OUTpBeginPlot,
+    OUTpData,
+    OUTwBeginPlot,
+    OUTwReference,
+    OUTwData,
+    OUTwEnd,
+    OUTendPlot,
+    OUTbeginDomain,
+    OUTendDomain,
+    OUTattributes
+};
+
+
+#ifdef CIDER
+/* Global debug flags from CIDER, soon they will become
+ * spice variables :)
+ */
+int ONEacDebug = FALSE;
+int ONEdcDebug = TRUE;
+int ONEtranDebug = TRUE;
+int ONEjacDebug = FALSE;
+
+int TWOacDebug = FALSE;
+int TWOdcDebug = TRUE;
+int TWOtranDebug = TRUE;
+int TWOjacDebug = FALSE;
+
+/* CIDER Global Variable Declarations */
+
+int BandGapNarrowing;
+int TempDepMobility, ConcDepMobility, FieldDepMobility, TransDepMobility;
+int SurfaceMobility, MatchingMobility, MobDeriv;
+int CCScattering;
+int Srh, Auger, ConcDepLifetime, AvalancheGen;
+int FreezeOut = FALSE;
+int OneCarrier;
+
+int MaxIterations = 100;
+int AcAnalysisMethod = DIRECT;
+
+double Temp, RelTemp, Vt;
+double RefPsi;/* potential at Infinity */
+double EpsNorm, VNorm, NNorm, LNorm, TNorm, JNorm, GNorm, ENorm;
+
+/* end cider globals */
+#endif /* CIDER */
+
+struct variable* (*if_getparam)(CKTcircuit* ckt, char** name, char* param, int ind, int do_model);
+/***********************************************************/
+
+extern IFsimulator SIMinfo;
 
 extern struct comm spcp_coms[ ];
 extern void DevInit(void);
-extern int SIMinit(IFfrontEnd *frontEnd, IFsimulator **simulator);
 extern wordlist *cp_varwl(struct variable *var);
-extern void create_circbyline(char *line);
+extern void create_circbyline(char *line, bool reset, bool lastline);
+
+static int SIMinit(IFfrontEnd *frontEnd, IFsimulator **simulator);
 
 void exec_controls(wordlist *shcontrols);
 void rem_controls(void);
@@ -257,8 +378,8 @@ static bool nobgtrwanted = FALSE;
 static bool wantvdat = FALSE;
 static bool wantidat = FALSE;
 static bool wantsync = FALSE;
-static bool immediate = FALSE;
-static bool coquit = FALSE;
+static NG_BOOL immediate = FALSE;
+static NG_BOOL coquit = FALSE;
 static jmp_buf errbufm, errbufc;
 static int intermj = 1;
 #ifdef XSPICE
@@ -267,7 +388,6 @@ static SendEvtData* sendevt;
 #endif
 static void* euserptr;
 static wordlist *shcontrols;
-
 
 // thread IDs
 unsigned int main_id, ng_id, command_id;
@@ -299,7 +419,29 @@ get_plot_byname(char* plotname)
     return pl;
 }
 
+/* -------------------------------------------------------------------------- */
+static int
+SIMinit(IFfrontEnd* frontEnd, IFsimulator** simulator)
+{
+    spice_init_devices();
+    SIMinfo.numDevices = DEVmaxnum = num_devices();
+    SIMinfo.devices = devices_ptr();
+    SIMinfo.numAnalyses = spice_num_analysis();
 
+    /* va: we recast, because we use only the public part */
+    SIMinfo.analyses = (IFanalysis**)spice_analysis_ptr();
+
+
+#ifdef CIDER
+    /* Evaluates limits of machine accuracy for CIDER */
+    evalAccLimits();
+#endif /* CIDER */
+
+    SPfrontEnd = frontEnd;
+    *simulator = &SIMinfo;
+
+    return OK;
+} /* end of function SIMinit */
 
 /******************************************************************/
 /*     Main spice command executions and thread control           */
@@ -310,7 +452,7 @@ get_plot_byname(char* plotname)
 static threadId_t tid, printtid, tid2;
 
 static bool fl_running = FALSE;
-static bool fl_exited = TRUE;
+static NG_BOOL fl_exited = TRUE;
 
 static bool printstopp = FALSE;
 static bool ps_exited = TRUE;
@@ -481,7 +623,6 @@ static int
 runc(char* command)
 {
     char buf[1024] = "";
-    sighandler oldHandler;
 #ifdef THREADS
 #ifndef low_latency
     int timeout = 0;
@@ -525,20 +666,6 @@ runc(char* command)
     strncpy(buf, command, 1024);
 #endif
 
-    /* Catch Ctrl-C to break simulations */
-#if 1 //!defined(_MSC_VER) /*&& !defined(__MINGW32__) */
-    oldHandler = signal(SIGINT, (SIGNAL_FUNCTION) ft_sigintr);
-    if (SETJMP(jbuf, 1) != 0) {
-        ft_sigintr_cleanup();
-        signal(SIGINT, oldHandler);
-        return 0;
-    }
-#else
-    oldHandler = SIG_IGN;
-#endif
-
-
-
 #ifdef THREADS
     /* run in the background */
     if (fl_bg && fl_exited) {
@@ -559,7 +686,6 @@ runc(char* command)
     } else
         /* bg_halt (pause) a bg run */
         if (!strcmp(buf, "bg_halt")) {
-            signal(SIGINT, oldHandler);
             return _thread_stop();
         /* bg_ctrl prepare running the controls after bg_run */
         } else if (!strcmp(buf, "bg_ctrl")) {
@@ -584,7 +710,6 @@ runc(char* command)
 #else
     cp_evloop(buf);
 #endif /*THREADS*/
-    signal(SIGINT, oldHandler);
     return 0;
 }
 
@@ -595,9 +720,9 @@ name   is the initialisation file's name
 Return true on success
 SJB 25th April 2005 */
 static bool
-read_initialisation_file(char *dir, char *name)
+read_initialisation_file(const char *dir, const char *name)
 {
-    char *path;
+    const char *path;
     bool result = FALSE;
 
     /* check name */
@@ -651,7 +776,7 @@ read_initialisation_file(char *dir, char *name)
 
 /* Checks if ngspice is running in the background */
 IMPEXP
-bool
+NG_BOOL
 ngSpice_running (void)
 {
     return (fl_running && !fl_exited);
@@ -695,7 +820,9 @@ int
 ngSpice_Init(SendChar* printfcn, SendStat* statusfcn, ControlledExit* ngspiceexit,
              SendData* sdata, SendInitData* sinitdata, BGThreadRunning* bgtrun, void* userData)
 {
-    sighandler old_sigint;
+    sighandler old_sigsegv = NULL;
+
+    struct variable* sourcepathvar;
 
     pfcn = printfcn;
     /* if caller sends NULL, don't send printf strings */
@@ -720,6 +847,8 @@ ngSpice_Init(SendChar* printfcn, SendStat* statusfcn, ControlledExit* ngspiceexi
         nobgtrwanted = TRUE;
     immediate = FALSE;
 
+    cp_nocc = TRUE;
+
 #ifdef THREADS
     /* init the mutexes */
 #ifdef HAVE_LIBPTHREAD
@@ -740,8 +869,10 @@ ngSpice_Init(SendChar* printfcn, SendStat* statusfcn, ControlledExit* ngspiceexi
 #endif
     // Id of primary thread
     main_id =  threadid_self();
-    signal(SIGINT, sighandler_sharedspice);
 #endif
+
+    if (!cp_getvar("nosighandling", CP_BOOL, NULL, 0))
+        old_sigsegv = signal(SIGSEGV, (SIGNAL_FUNCTION) sigsegvsh);
 
     ft_rawfile = NULL;
     ivars(NULL);
@@ -778,14 +909,6 @@ ngSpice_Init(SendChar* printfcn, SendStat* statusfcn, ControlledExit* ngspiceexi
     ft_cpinit();
 
     /* Read the user config files */
-    /* To catch interrupts during .spiceinit... */
-    old_sigint = signal(SIGINT, (SIGNAL_FUNCTION) ft_sigintr);
-    if (SETJMP(jbuf, 1) == 1) {
-        ft_sigintr_cleanup();
-        fprintf(cp_err, "Warning: error executing .spiceinit.\n");
-        goto bot;
-    }
-
 #ifdef HAVE_PWD_H
     /* Try to source either .spiceinit or ~/.spiceinit. */
     if (access(".spiceinit", 0) == 0) {
@@ -803,42 +926,49 @@ ngSpice_Init(SendChar* printfcn, SendStat* statusfcn, ControlledExit* ngspiceexi
         tfree(s);
     }
 #else /* ~ HAVE_PWD_H */
-    /* load user's initialisation file .spiceinit (or old spice.rc)
-       try accessing the initialisation file in the current directory,
-       or the user's home directories HOME (Linux) and USERPROFILE (MS Windows)*/
-    char *homedir;
-    bool userfileok = read_initialisation_file("", INITSTR); /*.spiceinit*/
-    if (!userfileok) {
-        homedir = getenv("HOME");
-        if (homedir)
-            userfileok = read_initialisation_file(homedir, INITSTR);
-        else {
-            homedir = getenv("USERPROFILE");
-            if (homedir)
-                userfileok = read_initialisation_file(homedir, INITSTR);
+             /* load user's initialisation file
+               try accessing the initialisation file .spiceinit in the current directory
+               if that fails try the alternate name spice.rc, then look into the HOME
+               directory, then into USERPROFILE */
+    do {
+        if (read_initialisation_file("", INITSTR) != FALSE) {
+            break;
         }
-    }
-    if (!userfileok)
-        userfileok = read_initialisation_file("", ALT_INITSTR); /*spice.rc*/
-    if (!userfileok) {
-        homedir = getenv("HOME");
-        if (homedir)
-            userfileok = read_initialisation_file(homedir, ALT_INITSTR);
-        else {
-            homedir = getenv("USERPROFILE");
-            if (homedir)
-                userfileok = read_initialisation_file(homedir, ALT_INITSTR);
+        if (read_initialisation_file("", ALT_INITSTR) != FALSE) {
+            break;
         }
-    }
 
-    if (!userfileok && ft_ngdebug)
-        fprintf(stdout, "Warning: No user initialization file .spiceinit or spice.rc found\n");
+        {
+            const char* const home = getenv("HOME");
+            if (home) {
+                if (read_initialisation_file(home, INITSTR) != FALSE) {
+                    break;
+                }
+                if (read_initialisation_file(home, ALT_INITSTR) != FALSE) {
+                    break;
+                }
+            }
+        }
+
+        {
+            const char* const usr = getenv("USERPROFILE");
+            if (usr) {
+                if (read_initialisation_file(usr, INITSTR) != FALSE) {
+                    break;
+                }
+                if (read_initialisation_file(usr, ALT_INITSTR) != FALSE) {
+                    break;
+                }
+            }
+        }
+    } while (0); /* end of case that init file is read */
+
 #endif /* ~ HAVE_PWD_H */
 
-bot:
-    signal(SIGINT, old_sigint);
+    if (!cp_getvar("nosighandling", CP_BOOL, NULL, 0))
+        signal(SIGSEGV, old_sigsegv);
 
-    /* initilise display to 'no display at all'*/
+    /* initialize display to 'no display at all'*/
     DevInit();
 
 #ifdef FastRand
@@ -857,12 +987,11 @@ bot:
         initw();
 #endif
 
-//  com_version(NULL);
     fprintf(cp_out,
             "******\n"
             "** %s-%s shared library\n",
             ft_sim->simulator, ft_sim->version);
-    if (Spice_Build_Date != NULL && *Spice_Build_Date != 0)
+    if (*Spice_Build_Date != 0)
         fprintf(cp_out, "** Creation Date: %s\n", Spice_Build_Date);
     fprintf(cp_out, "******\n");
 
@@ -870,6 +999,11 @@ bot:
 
     if(!myvec)
         myvec = TMALLOC(vector_info, sizeof(vector_info));
+
+    /* Read first entry of sourcepath var, set Infile_path for code models */
+    if ( cp_getvar("sourcepath", CP_LIST, &sourcepathvar, 0)) {
+        Infile_Path = copy(sourcepathvar->va_string);
+    }
 
 #if !defined(low_latency)
     /* If caller has sent valid address for pfcn */
@@ -905,15 +1039,17 @@ sh_delete_myvec(void)
 }
 
 /* retrieve a ngspice command from caller and run it
-immediately */
+   immediately.
+   If NULL is sent, we clear the command memory */
 IMPEXP
 int  ngSpice_Command(char* comexec)
 {
-    /* Check if command is reasonable */
+    /* delete existing command memory */
     if (comexec == NULL) {
-        fprintf(stderr, "Warning: Received command NULL, ignored");
-        return 1;
+        cp_resetcontrol(FALSE);
+        return 0;
     }
+    /* Check if command is reasonable */
     if (*comexec == '\0') {
         fprintf(stderr, "Warning: Received empty string as command, ignored");
         return 1;
@@ -991,18 +1127,30 @@ IMPEXP
 int ngSpice_Circ(char** circa){
     int entries = 0, i;
     char* newline;
+    bool reset = FALSE, lastline = FALSE;
 
     if ( ! setjmp(errbufm) ) {
         intermj = 0;
         immediate = FALSE;
         /* count the entries */
         while (circa[entries]) {
-            entries++;
+            char* line = skip_ws(circa[entries++]);
+            if (ciprefix(".end", line) && (line[4] == '\0' || isspace_c(line[4])))
+                break;
         }
+
+        if (ft_ngdebug)
+            fprintf(stdout, "\nngspiceCirc: received netlist array with %d entries\n", entries);
         /* create a local copy (to be freed in inpcom.c) */
         for (i = 0; i < entries; i++) {
             newline = copy(circa[i]);
-            create_circbyline(newline);
+            if (i == 0)
+                reset = TRUE;
+            else
+                reset = FALSE;
+            if (i == entries - 1)
+                lastline = TRUE;
+            create_circbyline(newline, reset, lastline);
         }
         return 0;
     }
@@ -1039,7 +1187,7 @@ char** ngSpice_AllPlots(void)
         allplots[i] = pl->pl_typename;
         pl = pl->pl_next;
     }
-    allplots[len] = '\0';
+    allplots[len] = NULL;
     return allplots;
 }
 
@@ -1083,7 +1231,7 @@ static int bkpttmpsize = 0;
 
 /* set a breakpoint in ngspice */
 IMPEXP
-bool ngSpice_SetBkpt(double time)
+NG_BOOL ngSpice_SetBkpt(double time)
 {
     int error;
     CKTcircuit *ckt = NULL;
@@ -1625,10 +1773,11 @@ char* outstorage(char* wordin, bool write)
 
 
 /* New progress report to statfcn().
-   An update occurs only every DELTATIME milliseconds. */
+   An update occurs only every DELTATIME milliseconds.
+   We may have two threads: main and bg_run */
 #define DELTATIME 150
 void SetAnalyse(
-   char * Analyse, /*in: analysis type */
+   const char * Analyse, /*in: analysis type */
    int DecaPercent /*in: 10 times the progress [%]*/
    /*HWND hwAnalyse, in: global handle to analysis window */
 ) {
@@ -1636,22 +1785,69 @@ void SetAnalyse(
     if (nostatuswanted)
         return;
 
+    /* check in which thread we are in */
+    static unsigned int ng_id1 = 0, ng_id2 = 0;
+    bool thread1;
+
 #ifdef HAVE_FTIME
-   static int OldPercent = -2;     /* Previous progress value */
-   static char OldAn[128];         /* Previous analysis type */
-   char* s;                        /* outputs to callback function */
-   static char olds[128];          /* previous output */
-   static struct timeb timebefore; /* previous time stamp */
-   struct timeb timenow;           /* actual time stamp */
-   int diffsec, diffmillisec;      /* differences actual minus prev. time stamp */
-   int result;                     /* return value from callback function */
+    struct timeb timenow;           /* actual time stamp */
+    int diffsec, diffmillisec;      /* differences actual minus prev. time stamp */
+    int result;                     /* return value from callback function */    
+    char* s;                        /* outputs to callback function */
+    int OldPercent;                 /* Previous progress value */
+    char OldAn[128];                /* Previous analysis type */
+    char olds[128];                 /* previous output */
+    static struct timeb timebefore; /* previous time stamp */
+
+    /* thread 1 */
+    static int OldPercent1 = -2;     /* Previous progress value */
+    static char OldAn1[128];         /* Previous analysis type */
+    static char olds1[128];          /* previous output */
+    static struct timeb timebefore1; /* previous time stamp */
+    /* thread2 */
+    static int OldPercent2 = -2;     /* Previous progress value */
+    static char OldAn2[128];         /* Previous analysis type */
+    static char olds2[128];          /* previous output */
+    static struct timeb timebefore2; /* previous time stamp */
+
+    /*set the two thread ids */
+    unsigned int ng_idl = threadid_self();
+    if (ng_id1 == 0) {
+        ng_id1 = ng_idl;
+        strncpy(OldAn1, Analyse, 127); //strcpy(OldAn1, "?"); /* initial value */
+    }
+    else if (ng_id2 == 0 && ng_id1 != ng_idl) {
+        ng_id2 = ng_idl;
+        strncpy(OldAn2, Analyse, 127); // strcpy(OldAn2, "?"); /* initial value */
+    }
+
+    if (ng_idl == ng_id1) {
+        thread1 = TRUE;
+        strcpy(OldAn, OldAn1);
+        strcpy(olds, olds1);
+        OldPercent = OldPercent1;
+        timebefore.dstflag = timebefore1.dstflag;
+        timebefore.millitm = timebefore1.millitm;
+        timebefore.time = timebefore1.time;
+        timebefore.timezone = timebefore1.timezone;
+    }
+    else if (ng_idl == ng_id2) {
+        thread1 = FALSE;
+        strcpy(OldAn, OldAn2);
+        strcpy(olds, olds2);
+        OldPercent = OldPercent2;
+        timebefore.dstflag = timebefore2.dstflag;
+        timebefore.millitm = timebefore2.millitm;
+        timebefore.time = timebefore2.time;
+        timebefore.timezone = timebefore2.timezone;
+    }
+    else
+        return;
 
    CKTcircuit *ckt = NULL;
 
    if (ft_curckt)
        ckt = ft_curckt->ci_ckt;
-
-   strcpy(OldAn, "?"); /* initial value */
 
    if ((DecaPercent == OldPercent) && !strcmp(OldAn, Analyse))
        return;
@@ -1688,7 +1884,10 @@ void SetAnalyse(
       if ((int)((double)DecaPercent/10.) > (int)((double)OldPercent/10.)) {
          printf("%3.1f%% percent progress after %4.2f seconds.\n", (double)DecaPercent/10., seconds());
       }
-   OldPercent = DecaPercent;
+   if(thread1)
+       OldPercent1 = DecaPercent;
+   else
+       OldPercent2 = DecaPercent;
    /* output only into hwAnalyse window and if time elapsed is larger than
       DELTATIME given value, or if analysis has changed, else return */
    if ((diffsec > 0) || (diffmillisec > DELTATIME) || strcmp(OldAn, Analyse)) {
@@ -1704,20 +1903,34 @@ void SetAnalyse(
       else {
          sprintf( s, "%s: %3.1f%%", Analyse, (double)DecaPercent/10.);
       }
-      timebefore.dstflag = timenow.dstflag;
-      timebefore.millitm = timenow.millitm;
-      timebefore.time = timenow.time;
-      timebefore.timezone = timenow.timezone;
+        if (thread1) {
+            timebefore1.dstflag = timenow.dstflag;
+            timebefore1.millitm = timenow.millitm;
+            timebefore1.time = timenow.time;
+            timebefore1.timezone = timenow.timezone;
+        }
+        else {
+            timebefore2.dstflag = timenow.dstflag;
+            timebefore2.millitm = timenow.millitm;
+            timebefore2.time = timenow.time;
+            timebefore2.timezone = timenow.timezone;
+        }
       /* info when previous analysis period has finished */
       if (strcmp(OldAn, Analyse)) {
          if (ft_ngdebug && (strcmp(OldAn, "")))
             printf("%s finished after %4.2f seconds.\n", OldAn, seconds());
-         strncpy(OldAn, Analyse, 127);
+         if(thread1)
+             strncpy(OldAn1, Analyse, 127);
+         else
+             strncpy(OldAn2, Analyse, 127);
       }
       /* ouput only after a change */
       if (strcmp(olds, s))
           result = statfcn(s, ng_ident, userptr);
-      strcpy(olds, s);
+      if(thread1)
+          strcpy(olds1, s);
+      else
+          strcpy(olds2, s);
    }
    tfree(s);
 #else
@@ -1882,7 +2095,7 @@ int sh_ExecutePerLoop(void)
     /* get the data of the last entry to the plot vector */
     veclen = pl->pl_dvecs->v_length - 1;
     /* safeguard against vectors with 0 length (e.g. @c1[i] during ac simulation) */
-    if (veclen < 1)
+    if (veclen < 0)
         return 2;
     curvecvalsall->vecindex = veclen;
     for (d = pl->pl_dvecs, i = 0; d; d = d->v_next, i++) {
@@ -1995,7 +2208,6 @@ getvsrcval(double time, char *vname)
     if (!wantvdat) {
         fprintf(stderr, "Error: No callback supplied for source %s\n", vname);
         shared_exit(EXIT_BAD);
-        return(EXIT_BAD);
     }
     else {
         /* callback fcn */
@@ -2013,7 +2225,6 @@ getisrcval(double time, char *iname)
     if (!wantidat) {
         fprintf(stderr, "Error: No callback supplied for source %s\n", iname);
         shared_exit(EXIT_BAD);
-        return(EXIT_BAD);
     }
     else {
         /* callback fcn */

@@ -120,7 +120,7 @@ extern void TWOQrhsLoad(TWOdevice *);
 extern void TWOQcommonTerms(TWOdevice *);
 
 /*twoprint.c */
-extern void TWOprnSolution(FILE *, TWOdevice *, OUTPcard *);
+extern void TWOprnSolution(FILE *, TWOdevice *, OUTPcard *, BOOLEAN, char *);
 extern void TWOmemStats(FILE *, TWOdevice *);
 extern void TWOcpuStats(FILE *, TWOdevice *);
 
@@ -153,7 +153,7 @@ extern BOOLEAN TWOdeltaConverged(TWOdevice *);
 extern BOOLEAN TWOdeviceConverged(TWOdevice *);
 extern void TWOresetJacobian(TWOdevice *);
 extern void TWOstoreNeutralGuess(TWOdevice *);
-extern void TWOequilSolve(TWOdevice *);
+extern int TWOequilSolve(TWOdevice *);
 extern void TWObiasSolve(TWOdevice *, int, BOOLEAN, TWOtranInfo *);
 extern void TWOstoreEquilibGuess(TWOdevice *);
 extern void TWOstoreInitialGuess(TWOdevice *);

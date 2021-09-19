@@ -17,7 +17,13 @@ double *asrc_derivs = NULL;
 
 /* actually load the current voltage value into the
  * sparse matrix previously provided
- */
+
+ * Evaluate the B-source parse tree (example: exp function):
+ * ASRCload asrcload.c
+ * IFeval ifeval.c
+ * PTeval ifeval.c
+ * PTexp ptfuncs.c
+*/
 
 int
 ASRCload(GENmodel *inModel, CKTcircuit *ckt)
@@ -32,13 +38,18 @@ ASRCload(GENmodel *inModel, CKTcircuit *ckt)
     for (; model; model = ASRCnextModel(model)) {
         for (here = ASRCinstances(model); here; here=ASRCnextInstance(here)) {
 
-            difference = (here->ASRCtemp + here->ASRCdtemp) - 300.15;
+            difference = (here->ASRCtemp + here->ASRCdtemp) - 300.15; /* FIXME: tnmom instead of 300.15 */
             factor = 1.0
                 + here->ASRCtc1 * difference
                 + here->ASRCtc2 * difference * difference;
 
             if (here->ASRCreciproctc == 1)
                 factor = 1 / factor;
+
+            if (here->ASRCreciprocm == 1)
+                factor = factor / here->ASRCm;
+            else
+                factor = factor * here->ASRCm;
 
             /*
              * Get the function and its derivatives evaluated

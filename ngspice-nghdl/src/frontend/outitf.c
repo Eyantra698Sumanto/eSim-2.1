@@ -3,6 +3,7 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 Author: 1988 Wayne A. Christopher, U. C. Berkeley CAD Group
 Modified: 2000 AlansFixes, 2013/2015 patch by Krzysztof Blaszkowski
 **********/
+
 /*
  * This module replaces the old "writedata" routines in nutmeg.
  * Unlike the writedata routines, the OUT routines are only called by
@@ -10,25 +11,7 @@ Modified: 2000 AlansFixes, 2013/2015 patch by Krzysztof Blaszkowski
  * of nutmeg doesn't deal with OUT at all.
  */
 
-/**************************************************************************
- * 08.June.2020 - RP, BM - Added OS (Windows and Linux) dependent 
- *                         preprocessors and sockets
- **************************************************************************
- * 29.May.2020 - RP, BM - Read all the IPs and ports from NGHDL_COMMON_IP
- * file from /tmp folder. It connects to each of the ghdlserver and sends 
- * CLOSE_FROM_NGSPICE message to terminate themselves
- **************************************************************************/
-
 #include "ngspice/ngspice.h"
-
-/*05.June.2020 - BM - Added follwing includes for Win OS */
-#ifdef _WIN32
-    #undef BOOLEAN  /* Undefine it due to conflicting definitions in Win OS */
-
-    #include <ws2tcpip.h>
-    #include <winsock2.h>
-#endif
-
 #include "ngspice/cpdefs.h"
 #include "ngspice/ftedefs.h"
 #include "ngspice/dvec.h"
@@ -41,6 +24,7 @@ Modified: 2000 AlansFixes, 2013/2015 patch by Krzysztof Blaszkowski
 #include "circuits.h"
 #include "outitf.h"
 #include "variable.h"
+#include <fcntl.h>
 #include "ngspice/cktdefs.h"
 #include "ngspice/inpdefs.h"
 #include "breakp2.h"
@@ -48,23 +32,9 @@ Modified: 2000 AlansFixes, 2013/2015 patch by Krzysztof Blaszkowski
 #include "plotting/graf.h"
 #include "../misc/misc_time.h"
 
-/* 10.Mar.2017 - RM - Added the following #include */
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-
-/* 27.May.2020 - BM - Added the following #include */
-#ifdef __linux__
-    #include <sys/socket.h>
-    #include <arpa/inet.h>
-#endif
-
 extern char *spice_analysis_get_name(int index);
 extern char *spice_analysis_get_description(int index);
+extern int EVTsetup_plot(CKTcircuit* ckt, char* plotname);
 
 
 static int beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analName,
@@ -95,7 +65,7 @@ static int InterpPlotAdd(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 #include "ngspice/tclspice.h"
 #elif defined SHARED_MODULE
 extern int sh_ExecutePerLoop(void);
-extern void sh_vecinit(runDesc *run);
+extern int sh_vecinit(runDesc *run);
 #endif
 
 /*Suppressing progress info in -o option */
@@ -108,9 +78,11 @@ extern bool orflag;
 int fixme_onoise_type = SV_NOTYPE;
 int fixme_inoise_type = SV_NOTYPE;
 
-#define DOUBLE_PRECISION 15
 
-static clock_t lastclock, currclock;
+#define DOUBLE_PRECISION    15
+
+
+static clock_t lastclock, currclock, startclock;
 static double *rowbuf;
 static size_t column, rowbuflen;
 
@@ -122,9 +94,6 @@ static double *valueold, *valuenew;
 #ifdef SHARED_MODULE
 static bool savenone = FALSE;
 #endif
-
-
-/* 28.May.2020 - RP, BM - Closing the GHDL server after simulation is over */
 static void close_server()
 {	
 	FILE *fptr;
@@ -217,9 +186,7 @@ static void close_server()
 
 	remove(ip_filename);
 }
-
-
-// The two "begin plot" routines share all their internals... 
+/* The two "begin plot" routines share all their internals... */
 
 int
 OUTpBeginPlot(CKTcircuit *circuitPtr, JOB *analysisPtr,
@@ -265,7 +232,7 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
     int i, j, depind = 0;
     char namebuf[BSIZE_SP], parambuf[BSIZE_SP], depbuf[BSIZE_SP];
     char *ch, tmpname[BSIZE_SP];
-    bool saveall = TRUE;
+    bool saveall  = TRUE;
     bool savealli = FALSE;
     char *an_name;
     int initmem;
@@ -367,17 +334,28 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
             run->refIndex = -1;
         }
 
+
         /* Pass 1. */
         if (numsaves && !saveall) {
-            for (i = 0; i < numsaves; i++)
-                if (!savesused[i])
-                    for (j = 0; j < numNames; j++)
+            for (i = 0; i < numsaves; i++) {
+                if (!savesused[i]) {
+                    for (j = 0; j < numNames; j++) {
                         if (name_eq(saves[i].name, dataNames[j])) {
                             addDataDesc(run, dataNames[j], dataType, j, initmem);
                             savesused[i] = TRUE;
                             saves[i].used = 1;
                             break;
                         }
+                        /* generate a vector of real time information */
+                        else if (ft_ngdebug && refName && eq(refName, "time") && eq(saves[i].name, "speedcheck")) {
+                            addDataDesc(run, "speedcheck", IF_REAL, j, initmem);
+                            savesused[i] = TRUE;
+                            saves[i].used = 1;
+                            break;
+                        }
+                    }
+                }
+            }
         } else {
             for (i = 0; i < numNames; i++)
                 if (!refName || !name_eq(dataNames[i], refName))
@@ -391,6 +369,10 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
                     {
                         addDataDesc(run, dataNames[i], dataType, i, initmem);
                     }
+            /* generate a vector of real time information */
+            if (ft_ngdebug && refName && eq(refName, "time")) {
+                 addDataDesc(run, "speedcheck", IF_REAL, numNames, initmem);
+            }
         }
 
         /* Pass 1 and a bit.
@@ -449,6 +431,7 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
                 }
             }
         }
+
 
         /* Pass 2. */
         for (i = 0; i < numsaves; i++) {
@@ -521,6 +504,11 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
             plotInit(run);
             if (refName)
                 run->runPlot->pl_ndims = 1;
+#ifdef XSPICE
+            /* set the current plot name into the event job */
+            if (run->runPlot->pl_typename)
+                EVTsetup_plot(run->circuit, run->runPlot->pl_typename);
+#endif
         }
     }
 
@@ -539,6 +527,7 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
     sh_vecinit(run);
 #endif
 
+    startclock = clock();
     return (OK);
 }
 
@@ -636,10 +625,10 @@ OUTpD_memory(runDesc *run, IFvalue *refValue, IFvalue *valuePtr)
 
         dataDesc *d;
 
-        #ifdef TCL_MODULE
+#ifdef TCL_MODULE
         /*Locks the blt vector to stop access*/
         blt_lockvec(i);
-        #endif
+#endif
 
         d = &run->data[i];
 
@@ -649,7 +638,13 @@ OUTpD_memory(runDesc *run, IFvalue *refValue, IFvalue *valuePtr)
             else if (d->type == IF_COMPLEX)
                 plotAddComplexValue(d, refValue->cValue);
         } else if (d->regular) {
-            if (d->type == IF_REAL)
+            if (ft_ngdebug && d->type == IF_REAL && eq(d->name, "speedcheck")) {
+                /* current time */
+                clock_t cl = clock();
+                double tt = ((double)cl - (double)startclock) / CLOCKS_PER_SEC;
+                plotAddRealValue(d, tt);
+            }
+            else if (d->type == IF_REAL)
                 plotAddRealValue(d, valuePtr->v.vec.rVec[d->outIndex]);
             else if (d->type == IF_COMPLEX)
                 plotAddComplexValue(d, valuePtr->v.vec.cVec[d->outIndex]);
@@ -668,10 +663,10 @@ OUTpD_memory(runDesc *run, IFvalue *refValue, IFvalue *valuePtr)
                 fprintf(stderr, "OUTpData: unsupported data type\n");
         }
 
-        #ifdef TCL_MODULE
+#ifdef TCL_MODULE
         /*relinks and unlocks vector*/
         blt_relink(i, d->vec);
-        #endif
+#endif
 
     }
 }
@@ -688,21 +683,22 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 #ifdef TCL_MODULE
     steps_completed = run->pointCount;
 #endif
-    /* interpolated batch mode output to file in transient analysis */
-    if (interpolated && run->circuit->CKTcurJob->JOBtype == 4 && run->writeOut) {
-        InterpFileAdd(run, refValue, valuePtr);
-        return (OK);
+    /* interpolated batch mode output to file/plot in transient analysis */
+    if (interpolated && run->circuit->CKTcurJob->JOBtype == 4) {
+        if (run->writeOut) { /* To file */
+            InterpFileAdd(run, refValue, valuePtr);
+        }
+        else { /* To plot */
+            InterpPlotAdd(run, refValue, valuePtr);
+        }
+        return OK;
     }
-    /* interpolated interactive or control mode output to plot in transient analysis */
-    else if (interpolated && run->circuit->CKTcurJob->JOBtype == 4 && !(run->writeOut)) {
-        InterpPlotAdd(run, refValue, valuePtr);
-        return (OK);
-    }
+
     /* standard batch mode output to file */
     else if (run->writeOut) {
-
-        if (run->pointCount == 1)
+        if (run->pointCount == 1) {
             fileInit_pass2(run);
+        }
 
         fileStartPoint(run->fp, run->binary, run->pointCount);
 
@@ -723,10 +719,8 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
                     }
                 }
 #endif
-            } else {
-
-                /*  And the same for a non-complex value  */
-
+            }
+            else { /* And the same for a non-complex (real) value  */
                 fileAddRealValue(run->fp, run->binary, refValue->rValue);
 #ifndef HAS_WINGUI
                 if (!orflag && !ft_norefprint) {
@@ -743,8 +737,9 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 
         for (i = 0; i < run->numData; i++) {
             /* we've already printed reference vec first */
-            if (run->data[i].outIndex == -1)
+            if (run->data[i].outIndex == -1) {
                 continue;
+            }
 
 #ifdef TCL_MODULE
             blt_add(i, refValue ? refValue->rValue : NAN);
@@ -753,13 +748,14 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
             if (run->data[i].regular) {
                 if (run->data[i].type == IF_REAL)
                     fileAddRealValue(run->fp, run->binary,
-                                     valuePtr->v.vec.rVec [run->data[i].outIndex]);
+                            valuePtr->v.vec.rVec [run->data[i].outIndex]);
                 else if (run->data[i].type == IF_COMPLEX)
                     fileAddComplexValue(run->fp, run->binary,
-                                        valuePtr->v.vec.cVec [run->data[i].outIndex]);
+                            valuePtr->v.vec.cVec [run->data[i].outIndex]);
                 else
                     fprintf(stderr, "OUTpData: unsupported data type\n");
-            } else {
+            }
+            else {
                 IFvalue val;
                 /* should pre-check instance */
                 if (!getSpecial(&run->data[i], run, &val)) {
@@ -775,7 +771,8 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
                         val.cValue.real = 0;
                         val.cValue.imag = 0;
                         fileAddComplexValue(run->fp, run->binary, val.cValue);
-                    } else {
+                    }
+                    else {
                         val.rValue = 0;
                         fileAddRealValue(run->fp, run->binary, val.rValue);
                     }
@@ -806,8 +803,8 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
             shouldstop = TRUE;
         }
 
-    } else {
-
+    }
+    else {
         OUTpD_memory(run, refValue, valuePtr);
 
         /*  This is interactive mode. Update the screen with the reference
@@ -841,18 +838,18 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
     sh_ExecutePerLoop();
 #endif
 
-    return (OK);
-}
+    return OK;
+} /* end of function OUTpData */
 
 
-int
-OUTwReference(void *plotPtr, IFvalue *valuePtr, void **refPtr)
+
+int OUTwReference(runDesc*plotPtr, IFvalue *valuePtr, void **refPtr)
 {
     NG_IGNORE(refPtr);
     NG_IGNORE(valuePtr);
     NG_IGNORE(plotPtr);
 
-    return (OK);
+    return OK;
 }
 
 
@@ -864,7 +861,7 @@ OUTwData(runDesc *plotPtr, int dataIndex, IFvalue *valuePtr, void *refPtr)
     NG_IGNORE(dataIndex);
     NG_IGNORE(plotPtr);
 
-    return (OK);
+    return OK;
 }
 
 
@@ -873,7 +870,7 @@ OUTwEnd(runDesc *plotPtr)
 {
     NG_IGNORE(plotPtr);
 
-    return (OK);
+    return OK;
 }
 
 
@@ -960,8 +957,10 @@ OUTattributes(runDesc *plotPtr, IFuid varName, int param, IFvalue *value)
 }
 
 
-/* The file writing routines. */
-
+/* The file writing routines.
+   Write a raw file in batch mode (-b and -r flags).
+   Writing a raw file in interactive or control  mode is handled
+   by raw_write() in rawfile.c */
 static void
 fileInit(runDesc *run)
 {
@@ -1018,6 +1017,8 @@ guess_type(const char *name)
         type = SV_CURRENT;
     else if (cieq(name, "time"))
         type = SV_TIME;
+    else if ( cieq(name, "speedcheck"))
+        type = SV_TIME;
     else if (cieq(name, "frequency"))
         type = SV_FREQUENCY;
     else if (ciprefix("inoise", name))
@@ -1028,6 +1029,8 @@ guess_type(const char *name)
         type = SV_TEMP;
     else if (cieq(name, "res-sweep"))
         type = SV_RES;
+    else if (cieq(name, "i-sweep"))
+        type = SV_CURRENT;
     else if ((*name == '@') && substring("[g", name)) /* token starting with [g */
         type = SV_ADMITTANCE;
     else if ((*name == '@') && substring("[c", name))
@@ -1143,19 +1146,11 @@ fileEndPoint(FILE *fp, bool bin)
 static void
 fileEnd(runDesc *run)
 {
-    /* 28.May.2020 - RP, BM - Check if any orphan test benches are running. If any are
-     * found, force them to exit.
-     */
-
-    /* 28.May.2020 - BM */
-    close_server();
-    /* End 28.May.2020 */
-
-
     if (run->fp != stdout) {
         long place = ftell(run->fp);
         fseek(run->fp, run->pointPos, SEEK_SET);
         fprintf(run->fp, "%d", run->pointCount);
+	close_server();
         fprintf(stdout, "\nNo. of Data Rows : %d\n", run->pointCount);
         fseek(run->fp, place, SEEK_SET);
     } else {
@@ -1303,11 +1298,8 @@ plotAddComplexValue(dataDesc *desc, IFcomplex value)
 
 static void
 plotEnd(runDesc *run)
-{
-    /* 28.May.2020 - BM, RP */
+{   
     close_server();
-    /* End 28.May.2020 */
-
     fprintf(stdout, "\nNo. of Data Rows : %d\n", run->pointCount);
 }
 

@@ -16,7 +16,7 @@ package body sock_pkg is
 		type string_ptr is access string;
 		variable sock_ip : string_ptr;
 			begin
-				sock_ip := new string'("127.0.0.1");
+				sock_ip := new string'("127.0.0.2");
 				return sock_ip.all;
 			end function;
 

@@ -24,9 +24,16 @@ VL_MODULE(Vdff___024root) {
     VL_IN8(d,0,0);
     VL_OUT8(q,0,0);
 
+    // LOCAL SIGNALS
+    CData/*2:0*/ dff__DOT__q_net;
+
     // LOCAL VARIABLES
+    CData/*0:0*/ dff__DOT____Vcellout__u0__q;
+    CData/*0:0*/ dff__DOT____Vcellout__u1__q;
+    CData/*0:0*/ dff__DOT____Vcellout__u2__q;
     CData/*0:0*/ __Vclklast__TOP__clk;
     CData/*0:0*/ __Vclklast__TOP__rstn;
+    VlUnpacked<CData/*0:0*/, 2> __Vm_traceActivity;
 
     // INTERNAL VARIABLES
     Vdff__Syms* vlSymsp;  // Symbol table

@@ -1,14 +1,152 @@
-Ngspice-31, Oct 6th, 2019
+Ngspice-35, August 8th, 2021
+============
+- New features:
+    + Libtool version info for shared ngspice
+    + Version info in sharedspice.h.
+    + Replace double braces {{...}} by {(...)} in netlist (PSLT mode).
+    + Add plotting of graphics in SVG format.
+    + Setting variable 'nounits' allows suppressing the unit in a graph.
+    + Update of macOS configure script.
+    + In sharedspice API, convert all boolean variables to type integer
+      for C++ compatibility.
+    + Add geometry scaling to diode device model (level 3).
+    + In PS mode exp function is limited to exp(14).
+    + Speed enhancement for using SkyWater PDK under Linux.
+    + Add option Cshunt which adds a capacitor to each circuit voltage node.
+    + Diode device model now has a self heating option.
+    + Allow opening files with names containing ANSI special characters.
+    + Enable using parameters in .options lines.
+    + For C and R devices enable value tokens like 4k7 or 1u2
+      in addition to 4.7k and 1.2u.
+    + New XSPICE pswitch for internally replacing the vswitch.
+    + Within a single run, allow multiple PS or SVG plots with different names.
+    + Don't replace a device model name by a parameter,
+      if both have the same names.
+    + Analog delay code model 'delay'.
+    + B source (ASRC) will acknowledge temp and dtemp instance parameters.
+    + In CIDER printing of either ASCII or binary is supported.
+    + PSP models now support NMOS and PMOS, update to parameters and examples.
+    + E and G source TABLE function replaces by a B source pwl.
+    + re-enable making the old help system for Linux/Cygwin
+      by --enable-help --enable-oldapps.
+    + Enable the m parameter in E, G, B, R behavioral source/devices.
+
+- Bug fixes:
+    + many bugs fixed and code improvements (see bugs 539 and up)
+    + memory leaks removed
+
+
+Ngspice-34, Jan 31st, 2021
+============
+- New features:
+    + Improved VBIC model
+    + Get the vector type automatically, if db, ph, cph are applied.
+    + Enable finding 'spinit' if its path contains spaces.
+    + Increase buffer size for command 'listing' to 4096 bytes.
+    + Add compatibility modes for EAGLE (ea) and Spectre (spe).
+    + Add parameter 'plain' to 'plot' command.
+    + Add variables 'plainplot', 'plainwrite', 'plainlet'
+    + Add RF bipolar model HICUM 2.4 to the ngspice C sources.
+    + Add charge formulation for non-linear capacitors.
+    + Remove outdated code from contrib and unsupported directories.
+    + When installing ngspice executable, do not install the headers.
+    + Add support for tc1, tc2, and m for behavioral resistors,
+      which use the B source internally.
+    + Add supporting E_constant Vconst 0 TABLE {Max(V(DP)-V(GN),0)}=((20,120)).
+    + Remove the XSPICE limitation of the current source flag "current".
+    + Remove the XSPICE dependency of the phase parameter for the
+      independent current source.
+    + Drastically reduce the memory requirements if there is a PDK with
+      a lot of binning models (e.g. the SkyWater PDK).
+    + Update to admst: Enhance the Verilog A compatibility.
+    + Add most recent PSP102, Mextram504, BSIMBULK, and BSIMCMG models
+      to the ngspice adms sources.
+    + Model checking for BSIM4.5 will only write to file if an excursion
+      is detected (still to be added to the other BSIM models)
+    + Many code updates not visible to the user, but enhancing stability
+      and efficiency
+
+- Bug fixes:
+    + many bugs fixed and code improvements (see bugs 523 and up)
+    + memory leaks removed
+
+
+
+Ngspice-33, Oct 18th, 2020
+============
+- New features:
+    + try first storing the temporary file in user directory,
+      only then in current directory.
+    + Add adding the ngspice icon to the MINGW executable.
+    + Do not print transient initial conditions, if uic is selected.
+    + Enable node names with special characters like '/'.
+    + Do not print "Units" on a graph, if unknown type or settype notype is given.
+    + Unify batch mode and control mode raw file output.
+    + Make PPerror message more verbose.
+    + Make the pwl parameter r adjustable by .param.
+    + Enable flags xdelta, ydelta for 'gnuplot' command.
+    + Enable special characters for cpl model names and parameters.
+    + New command 'cutout': Cut out part of each vector of the current tran plot
+      and copy into a new plot
+    + Compatibility switches KiCad 'ki', and Spectre 'spe'
+    + Remove vceo= and icrating= from bjt model cards.
+    + The tests of cmaths function will be done only on request.
+    + Add alternative temperature model for certain jfet parameters.
+    + Add BJT Kull Quasi-Saturation model.
+    + Improve self heating tempaerature handling in VDMOS model.
+    + Use W/nf for selecting binning model.
+    + Add wnflag as an instance parameter.
+    + Add PSPICE compatible ISWITCH.
+    + Add a limit capability to the code model aswitch.
+    + Add a new code model pswitch.
+    + Many conde updates not visible to the user, but enhancing stability
+      and efficiency
+
+- Bug fixes:
+    + many bugs fixed and code improvements (see bugs 484 and up)
+    + memory leaks removed
+
+
+Ngspice-32, Apr 25th, 2020
 ============
 
-- ngspice-31.3 includes several bug fixes, if compared to ngspice-31 (for ngspice-31 see below)
-    + Visual C now compiles again under all configurations
-    + spurious read is removed, when usind variable 'controlswait'
-    + Crash in KiCad/Eeschema/ngspice is removed, when running under macOS
-    + tclspice compiles again
-    + improved thread handling in shared ngspice
-    + Lintian typo messages aknowledged
+- New features:
+    + Add resource info on memory used and available for macOS
+    + redesign of memory monitoring
+    + Replace B source pwl by XSPICE PWL Controlled Source that has smooth rounded and 
+      stepless differentiable corners.
+    + Get a variable directly from an input file with i/o redirection
+    + Make 64 bit compilation the standard
+    + On Windows VisualStudio compilation we support only VS2019
+    + Add function 'conj'
+    + Improved error messages for 'meas' command
+    + Improved PSPICE compatibility
+    + VDMOS model now allows electro-thermal simulation
+      Optionally (instance flag 'thermal') 2 thermal nodes tj and tcase are added
+      to the device instance
+    + Enable utf-8 and UNICODE for string handling (maybe switch off by --disable-utf8)
+    + Vastly redisigned plotting capability: vertical text for labeling y axis,
+      independent color selection for background, grid/text and graphs,
+      independent width selection for grid and graph, access to UNICODE fonts,
+      characters may become ticmarks (variable 'ticchar'), RGB color tables included,
+      variable 'nolegend' switches off the legend
+    + Add variables 'oscompiled'
+    + Command 'let' to allow default low and high indices
+    + Upon calculating the operating point, true gmin stepping added
+    + Free the internal control structure memory by sending ngSpice_Command(NULL)
+    + No interrupt handling (SIGINT) in shared ngspice
+    + Limit the exp function to exp(14)
+    + Event simulation output data may be selected by command 'setplot'
+    + Many code updates not directly visible to the user, enhancing stability
+      and efficiency
 
+- Bug fixes:
+    + many bugs fixed and code improvements (see bugs 427 and up)
+    + memory leaks removed
+
+
+Ngspice-31, Sep 22nd, 2019
+============
 
 - New features:
     + if a subcircuit is defined more than once, only read the first one and discard the others

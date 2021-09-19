@@ -38,36 +38,6 @@ int vbic_4T_et_cf_fj(double *,
     double *,double *,double *,double *,double *,double *, double *,
     double *,double *);
 
-/* VBIClimitlog(deltemp, deltemp_old, LIM_TOL, check)
- * Logarithmic damping the per-iteration change of deltemp beyond LIM_TOL.
- */
-static double
-VBIClimitlog(
-    double deltemp,
-    double deltemp_old,
-    double LIM_TOL,
-    int *check)
-{
-    *check = 0;
-    if (isnan (deltemp) || isnan (deltemp_old))
-    {
-        fprintf(stderr, "Alberto says:  YOU TURKEY!  The limiting function received NaN.\n");
-        fprintf(stderr, "New prediction returns to 0.0!\n");
-        deltemp = 0.0;
-        *check = 1;
-    }
-    /* Logarithmic damping of deltemp beyond LIM_TOL */
-    if (deltemp > deltemp_old + LIM_TOL) {
-        deltemp = deltemp_old + LIM_TOL + log10((deltemp-deltemp_old)/LIM_TOL);
-        *check = 1;
-    }
-    else if (deltemp < deltemp_old - LIM_TOL) {
-        deltemp = deltemp_old - LIM_TOL - log10((deltemp_old-deltemp)/LIM_TOL);
-        *check = 1;
-    }
-    return deltemp;
-}
-
 int
 VBICload(GENmodel *inModel, CKTcircuit *ckt)
         /* actually load the current resistance value into the 
@@ -126,7 +96,7 @@ VBICload(GENmodel *inModel, CKTcircuit *ckt)
     int ichk1, ichk2, ichk3, ichk4, ichk5, ichk6;
     int error;
     double gqbeo, cqbeo, gqbco, cqbco, gbcx, cbcx;
-    double Icth, Icth_Vrth, delvrth;
+    double Icth, Icth_Vrth;
 
     /*  loop through all the models */
     for( ; model != NULL; model = VBICnextModel(model)) {
@@ -523,8 +493,6 @@ VBICload(GENmodel *inModel, CKTcircuit *ckt)
                 delvrbi = Vrbi - *(ckt->CKTstate0 + here->VBICvrbi);
                 delvrbp = Vrbp - *(ckt->CKTstate0 + here->VBICvrbp);
                 delvbcp = Vbcp - *(ckt->CKTstate0 + here->VBICvbcp);
-                if (here->VBIC_selfheat)
-                    delvrth = Vrth - *(ckt->CKTstate0 + here->VBICvrth);
 
                 Vbe = model->VBICtype*(
                     *(ckt->CKTrhsOld+here->VBICbaseNode)-
@@ -720,7 +688,7 @@ VBICload(GENmodel *inModel, CKTcircuit *ckt)
                         here->VBICtVcrit,&ichk5);
                 if (here->VBIC_selfheat) {
                     ichk6 = 1;
-                    Vrth = VBIClimitlog(Vrth,
+                    Vrth = DEVlimitlog(Vrth,
                         *(ckt->CKTstate0 + here->VBICvrth),100,&ichk6);
                 }
                 if ((ichk1 == 1) || (ichk2 == 1) || (ichk3 == 1) || (ichk4 == 1) || (ichk5 == 1) || (ichk6 == 1)) icheck=1;
@@ -1240,7 +1208,11 @@ c               Stamp element: Ibep
 /*
 c               Stamp element: Rcx
 */
-                *(here->VBICcollTempPtr) +=  Ircx_Vrth;
+                rhs_current = -Ircx_Vrth * Vrth;
+                *(ckt->CKTrhs + here->VBICcollNode)   += -rhs_current;
+                *(here->VBICcollTempPtr)   +=  Ircx_Vrth;
+                *(ckt->CKTrhs + here->VBICcollCXNode) +=  rhs_current;
+                *(here->VBICcollCXtempPtr) += -Ircx_Vrth;
 /*
 c               Stamp element: Irci
 */
@@ -1252,7 +1224,11 @@ c               Stamp element: Irci
 /*
 c               Stamp element: Rbx
 */
-                *(here->VBICbaseTempPtr) +=  Irbx_Vrth;
+                rhs_current = -Irbx_Vrth * Vrth;
+                *(ckt->CKTrhs + here->VBICbaseNode)   += -rhs_current;
+                *(here->VBICbaseTempPtr)   +=  Irbx_Vrth;
+                *(ckt->CKTrhs + here->VBICbaseBXNode) +=  rhs_current;
+                *(here->VBICbaseBXtempPtr) += -Irbx_Vrth;
 /*
 c               Stamp element: Irbi
 */
@@ -1264,7 +1240,11 @@ c               Stamp element: Irbi
 /*
 c               Stamp element: Re
 */
-                *(here->VBICemitTempPtr) +=  Ire_Vrth;
+                rhs_current = -Ire_Vrth * Vrth;
+                *(ckt->CKTrhs + here->VBICemitNode)   += -rhs_current;
+                *(here->VBICemitTempPtr)   +=  Ire_Vrth;
+                *(ckt->CKTrhs + here->VBICemitEINode) +=  rhs_current;
+                *(here->VBICemitEItempPtr) += -Ire_Vrth;
 /*
 c               Stamp element: Irbp
 */
@@ -1292,7 +1272,11 @@ c               Stamp element: Iccp
 /*
 c               Stamp element: Rs
 */
-                *(here->VBICsubsTempPtr) +=  Irs_Vrth;
+                rhs_current = -Irs_Vrth * Vrth;
+                *(ckt->CKTrhs + here->VBICsubsNode)   += -rhs_current;
+                *(here->VBICsubsTempPtr)   +=  Irs_Vrth;
+                *(ckt->CKTrhs + here->VBICsubsSINode) +=  rhs_current;
+                *(here->VBICsubsSItempPtr) += -Irs_Vrth;
 /*
 c               Stamp element: Rth
 */
@@ -1300,18 +1284,20 @@ c               Stamp element: Rth
 /*
 c               Stamp element: Cth
 */
+                rhs_current = Icth - Icth_Vrth*Vrth;
+                *(ckt->CKTrhs + here->VBICtempNode) += -rhs_current;
                 *(here->VBICtempTempPtr) +=  Icth_Vrth;
 /*
 c               Stamp element: Ith
 */
-                rhs_current = - Ith + Ith_Vrth*Vrth + Icth - Icth_Vrth*Vrth
-                              + Ith_Vbei*Vbei + Ith_Vbci*Vbci + Ith_Vcei*Vcei
-                              + Ith_Vbex*Vbex + Ith_Vbep*Vbep + Ith_Vbcp*Vbcp
-                              + Ith_Vcep*Vcep + Ith_Vrci*Vrci + Ith_Vbcx*Vbcx
-                              + Ith_Vrbi*Vrbi + Ith_Vrbp*Vrbp
-                              + Ith_Vrcx*Vrcx + Ith_Vrbx*Vrbx + Ith_Vre*Vre + Ith_Vrs*Vrs;
+                rhs_current = -Ith - Ith_Vrth*Vrth
+                                   - Ith_Vbei*Vbei - Ith_Vbci*Vbci - Ith_Vcei*Vcei
+                                   - Ith_Vbex*Vbex - Ith_Vbep*Vbep - Ith_Vbcp*Vbcp
+                                   - Ith_Vcep*Vcep - Ith_Vrci*Vrci - Ith_Vbcx*Vbcx
+                                   - Ith_Vrbi*Vrbi - Ith_Vrbp*Vrbp
+                                   - Ith_Vrcx*Vrcx - Ith_Vrbx*Vrbx - Ith_Vre*Vre - Ith_Vrs*Vrs;
 
-                *(ckt->CKTrhs + here->VBICtempNode) -= rhs_current;
+                *(ckt->CKTrhs + here->VBICtempNode) += rhs_current;
 
                 *(here->VBICtempTempPtr)   += -Ith_Vrth;
 
@@ -1337,11 +1323,14 @@ c               Stamp element: Ith
                 *(here->VBICtempBaseBIPtr) += +Ith_Vrbi;
                 *(here->VBICtempBaseBPPtr) += -Ith_Vrbp;
                 *(here->VBICtempCollCXPtr) += +Ith_Vrbp;
-
+                *(here->VBICtempCollPtr)   += -Ith_Vrcx;
                 *(here->VBICtempCollCXPtr) += +Ith_Vrcx;
+                *(here->VBICtempBasePtr)   += -Ith_Vrbx;
                 *(here->VBICtempBaseBXPtr) += +Ith_Vrbx;
+                *(here->VBICtempEmitPtr)   += -Ith_Vre;
                 *(here->VBICtempEmitEIPtr) += +Ith_Vre;
-                *(here->VBICtempSubsPtr)   += +Ith_Vrs;
+                *(here->VBICtempSubsPtr)   += -Ith_Vrs;
+                *(here->VBICtempSubsSIPtr) += +Ith_Vrs;
             }
         }
 
@@ -1419,7 +1408,7 @@ double xvar1_Vbep,xvar3_Vbep,qdbep,qdbep_qlo,qdbep_Vrth,qdbep_Vbep,qdbep_qhi;
 double vn_Vbep,vnl_Vbep,vl_Vbep,sel_Vbep,cl_Vbep,ql_Vbep,qdbep_ql;
 double qdbep_qlo0,dv_Vbep,mv_Vbep,qdbep_vl,qdbep_vl0,qdbep_q0,dv0_PSatT;
 double dvh_Vbcp,qlo_PSatT,qlo_Vbcp,qhi_Vbcp,qhi_PSatT,xvar1_Vbcp,xvar3_Vbcp;
-double qdbcp,qdbcp_qlo,qdbcp_Vrth,qdbcp_Vbcp,qdbcp_Vbep,qdbcp_qhi,q0_PSatT;
+double qdbcp,qdbcp_qlo,qdbcp_Vrth,qdbcp_Vbcp,qdbcp_qhi,q0_PSatT;
 double dv_Vbcp,mv_Vbcp,vl_Vbcp,qdbcp_vl,qdbcp_vl0,qdbcp_q0,argi;
 double argi_Vbei,argi_NFatT,argi_Vrth,argi_Vtv,expi,expi_argi,expi_Vbei;
 double expi_Vrth,Ifi,Ifi_ISatT,Ifi_Vrth,Ifi_expi,Ifi_Vbei,argi_Vbci;
@@ -2852,13 +2841,11 @@ double Ith_Iccp,Ith_Ircx,Ith_Irci,Ith_Irbx,Ith_Irbi,Ith_Ire,Ith_Irbp;
                 pwq=pow(xvar1,xvar2);
                 qlo=PSatT*(1.0-pwq*(1.0-p[14])*(1.0-p[14]))/(1.0-p[29]);
                 qlo_PSatT=(1.0-((1.0-p[14])*(1.0-p[14]))*pwq)/(1.0-p[29]);
-                qlo_Vbep=0.0;
                 qlo_Vbcp=0.0;
                 qlo_Vrth=qlo_PSatT*PSatT_Vrth;
                 qhi=dvh*(1.0-p[14]+0.5*p[29]*dvh/PSatT)*pwq;
                 qhi_dvh=(0.5*dvh*p[29]/PSatT-p[14]+1.0)*pwq+0.5*dvh*p[29]*pwq/PSatT;
                 qhi_PSatT=-0.5*(dvh*dvh)*p[29]*pwq/(PSatT*PSatT);
-                qhi_Vbep=0.0;
                 qhi_Vbcp=qhi_dvh*dvh_Vbcp;
                 qhi_Vrth=qhi_dvh*dvh_Vrth;
                 qhi_Vrth=qhi_Vrth+qhi_PSatT*PSatT_Vrth;
@@ -2875,12 +2862,10 @@ double Ith_Iccp,Ith_Ircx,Ith_Irci,Ith_Irbx,Ith_Irbi,Ith_Ire,Ith_Irbp;
                 qlo=PSatT*(1.0-xvar3)/(1.0-p[29]);
                 qlo_PSatT=(1.0-xvar3)/(1.0-p[29]);
                 qlo_xvar3=-PSatT/(1.0-p[29]);
-                qlo_Vbep=0.0;
                 qlo_Vrth=qlo_PSatT*PSatT_Vrth;
                 qlo_Vbcp=qlo_xvar3*xvar3_Vbcp;
                 qlo_Vrth=qlo_Vrth+qlo_xvar3*xvar3_Vrth;
                 qhi=0.0;
-                qhi_Vbep=0.0;
                 qhi_Vrth=0.0;
                 qhi_Vbcp=0.0;
             }
@@ -2889,8 +2874,6 @@ double Ith_Iccp,Ith_Ircx,Ith_Irci,Ith_Irbx,Ith_Irbi,Ith_Ire,Ith_Irbp;
             qdbcp_qhi=1.0;
             qdbcp_Vrth=qdbcp_qlo*qlo_Vrth;
             qdbcp_Vbcp=qdbcp_qlo*qlo_Vbcp;
-            qdbcp_Vbep=qdbcp_qlo*qlo_Vbep;
-            qdbcp_Vbep=qdbcp_Vbep+qdbcp_qhi*qhi_Vbep;
             qdbcp_Vrth=qdbcp_Vrth+qdbcp_qhi*qhi_Vrth;
             qdbcp_Vbcp=qdbcp_Vbcp+qdbcp_qhi*qhi_Vbcp;
         }else{
@@ -2947,7 +2930,6 @@ double Ith_Iccp,Ith_Ircx,Ith_Irci,Ith_Irbx,Ith_Irbi,Ith_Ire,Ith_Irbp;
             qlo=-PSatT*xvar3/(1.0-p[29]);
             qlo_PSatT=-xvar3/(1.0-p[29]);
             qlo_xvar3=-PSatT/(1.0-p[29]);
-            qlo_Vbep=0.0;
             qlo_Vrth=qlo_PSatT*PSatT_Vrth;
             qlo_Vbcp=qlo_xvar3*xvar3_Vbcp;
             qlo_Vrth=qlo_Vrth+qlo_xvar3*xvar3_Vrth;
@@ -2962,7 +2944,6 @@ double Ith_Iccp,Ith_Ircx,Ith_Irci,Ith_Irbx,Ith_Irbi,Ith_Ire,Ith_Irbp;
             qdbcp_q0=-1.0;
             qdbcp_Vrth=qdbcp_qlo*qlo_Vrth;
             qdbcp_Vbcp=qdbcp_Vbcp+qdbcp_qlo*qlo_Vbcp;
-            qdbcp_Vbep=qdbcp_qlo*qlo_Vbep;
             qdbcp_Vbcp=qdbcp_Vbcp+qdbcp_vl*vl_Vbcp;
             qdbcp_Vrth=qdbcp_Vrth+qdbcp_vl*vl_Vrth;
             qdbcp_Vrth=qdbcp_Vrth+qdbcp_vl0*vl0_Vrth;

@@ -18,7 +18,7 @@ com_option(wordlist *wl)
 
     CKTcircuit *circuit = NULL;
 
-    if (!ft_curckt) {
+    if (!ft_curckt || !ft_curckt->ci_ckt) {
         fprintf(cp_err, "Error: no circuit loaded\n");
         return;
     }
@@ -76,6 +76,7 @@ com_option(wordlist *wl)
         printf("gmin     (devices)  = %g\n", circuit->CKTgmin);
         printf("diaggmin (stepping) = %g\n", circuit->CKTdiagGmin);
         printf("gshunt = %g\n", circuit->CKTgshunt);
+        printf("cshunt = %g\n", circuit->CKTcshunt);
 
         printf("delmin = %g\n", circuit->CKTdelmin);
 

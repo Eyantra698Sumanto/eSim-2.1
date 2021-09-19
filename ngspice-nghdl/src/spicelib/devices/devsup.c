@@ -150,6 +150,39 @@ DEVfetlim(double vnew, double vold, double vto)
     return(vnew);
 }
 
+/* DEVlimitlog(deltemp, deltemp_old, LIM_TOL, check)
+ * Logarithmic damping the per-iteration change of deltemp beyond LIM_TOL.
+ */
+double
+DEVlimitlog(
+    double deltemp,
+    double deltemp_old,
+    double LIM_TOL,
+    int *check)
+{
+    static bool shown = FALSE;
+    *check = 0;
+    if (!shown && (isnan (deltemp) || isnan (deltemp_old)))
+    {
+        fprintf(stderr, "\n\nThe temperature limiting function received NaN.\n");
+        fprintf(stderr, "Please check your power dissipation and improve your heat sink Rth!\n");
+        fprintf(stderr, "    This message will be shown only once.\n\n");
+        deltemp = 0.0;
+        *check = 1;
+        shown = TRUE;
+    }
+    /* Logarithmic damping of deltemp beyond LIM_TOL */
+    if (deltemp > deltemp_old + LIM_TOL) {
+        deltemp = deltemp_old + LIM_TOL + log10((deltemp-deltemp_old)/LIM_TOL);
+        *check = 1;
+    }
+    else if (deltemp < deltemp_old - LIM_TOL) {
+        deltemp = deltemp_old - LIM_TOL - log10((deltemp_old-deltemp)/LIM_TOL);
+        *check = 1;
+    }
+    return deltemp;
+}
+
 int
 ACM_SourceDrainResistances(
 int ACM,
@@ -620,7 +653,7 @@ http://ltwiki.org/index.php5?title=Undocumented_LTspice#VDMOS:_Breakdown_and_Sub
 void
 DevCapVDMOS(double vgd, double cgdmin,
             double cgdmax, double a, double cgs,
-            double *capgs, double *capgd, double *capgb)
+            double *capgs, double *capgd)
 {
     double s = (cgdmax - cgdmin) / (1 + M_PI / 2);
     double y = cgdmax - s;
@@ -629,7 +662,6 @@ DevCapVDMOS(double vgd, double cgdmin,
     else
         *capgd = 0.5 * (s * atan(a * vgd) + y);
     *capgs = 0.5 * cgs;
-    *capgb = 0;
 }
 
 /* Compute the MOS overlap capacitances as functions of the device
