@@ -104,7 +104,7 @@ function installNgspice
 
     # Extracting Ngspice to Home Directory
     cd $src_dir
-    tar -xJf $ngspice.tar.xz -C $HOME 
+    #tar -xJf $ngspice.tar.xz -C $HOME 
     
     echo "Ngspice extracted sucessfully to $HOME"
     # Change to ngspice-nghdl directory

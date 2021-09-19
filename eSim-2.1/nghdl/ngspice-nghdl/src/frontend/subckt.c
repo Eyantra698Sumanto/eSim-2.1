@@ -60,6 +60,7 @@ Modified: 2000 AlansFixes
 #include "ngspice/ftedefs.h"
 #include "ngspice/fteinp.h"
 #include "ngspice/stringskip.h"
+#include "ngspice/compatmode.h"
 
 #include <stdarg.h>
 
@@ -75,6 +76,7 @@ Modified: 2000 AlansFixes
 #include "numparam/numpaif.h"
 
 extern void line_free_x(struct card *deck, bool recurse);
+extern int get_number_terminals(char* c);
 
 #define line_free(line, flag)                   \
     do {                                        \
@@ -239,13 +241,17 @@ inp_subcktexpand(struct card *deck) {
 
         nupa_signal(NUPADECKCOPY);
         /* get the subckt names from the deck */
-        for (c = deck; c; c = c->nextcard)    /* first Numparam pass */
-            if (ciprefix(".subckt", c->line))
+        for (c = deck; c; c = c->nextcard) {    /* first Numparam pass */
+            if (ciprefix(".subckt", c->line)) {
                 nupa_scan(c);
+            }
+        }
+
         /* now copy instances */
         for (c = deck; c; c = c->nextcard) {  /* first Numparam pass */
-            if (*(c->line) == '*')
+            if (*(c->line) == '*') {
                 continue;
+            }
             c->line = nupa_copy(c);
         }
 
@@ -456,7 +462,6 @@ doit(struct card *deck, wordlist *modnames) {
         struct card *prev_of_c = NULL;
 
         while (c) {
-
             if (ciprefix(sbend, c->line)) {  /* if line == .ends  */
                 fprintf(cp_err, "Error: misplaced %s line: %s\n", sbend,
                         c->line);
@@ -554,6 +559,10 @@ doit(struct card *deck, wordlist *modnames) {
     }
 #endif
 
+    double scale;
+    if (!cp_getvar("scale", CP_REAL, &scale, 0))
+        scale = 1;
+
     error = 0;
     /* Second pass: do the replacements. */
     do {                    /*  while (!error && numpasses-- && gotone)  */
@@ -605,8 +614,115 @@ doit(struct card *deck, wordlist *modnames) {
                  * instance of a subckt that is defined above at higher level.
                  */
                 if (sss) {
-
+//                    tprint(sss->su_def);
                     struct card *su_deck = inp_deckcopy(sss->su_def);
+                    /* If we have modern PDKs, we have to reduce the amount of memory required.
+                       We try to reduce the models to the one really used.
+                       Otherwise su_deck is full of unused binning models.*/
+                    if ((newcompat.hs || newcompat.spe) && c->w > 0 && c->l > 0) {
+                        /* extract wmin, wmax, lmin, lmax */
+                        struct card* new_deck = su_deck;
+                        struct card* prev = NULL;
+                        while (su_deck) {
+                            if (!ciprefix(".model", su_deck->line)) {
+                                prev = su_deck;
+                                su_deck = su_deck->nextcard;
+                                    continue;
+                            }
+
+                            char* curr_line = su_deck->line;
+                            float fwmin, fwmax, flmin, flmax;
+                            char *wmin = strstr(curr_line, " wmin=");
+                            if (wmin) {
+                                int err;
+                                wmin = wmin + 6;
+                                fwmin = (float)INPevaluate(&wmin, &err, 0);
+                                if (err) {
+                                    prev = su_deck;
+                                    su_deck = su_deck->nextcard;
+                                    continue;
+                                }
+                            }
+                            else {
+                                prev = su_deck;
+                                su_deck = su_deck->nextcard;
+                                continue;
+                            }
+                            char *wmax = strstr(curr_line, " wmax=");
+                            if (wmax) {
+                                int err;
+                                wmax = wmax + 6;
+                                fwmax = (float)INPevaluate(&wmax, &err, 0);
+                                if (err) {
+                                    prev = su_deck;
+                                    su_deck = su_deck->nextcard;
+                                    continue;
+                                }
+                            }
+                            else {
+                                prev = su_deck;
+                                su_deck = su_deck->nextcard;
+                                continue;
+                            }
+
+                            char* lmin = strstr(curr_line, " lmin=");
+                            if (lmin) {
+                                int err;
+                                lmin = lmin + 6;
+                                flmin = (float)INPevaluate(&lmin, &err, 0);
+                                if (err) {
+                                    prev = su_deck;
+                                    su_deck = su_deck->nextcard;
+                                    continue;
+                                }
+                            }
+                            else {
+                                prev = su_deck;
+                                su_deck = su_deck->nextcard;
+                                continue;
+                            }
+                            char* lmax = strstr(curr_line, " lmax=");
+                            if (lmax) {
+                                int err;
+                                lmax = lmax + 6;
+                                flmax = (float)INPevaluate(&lmax, &err, 0);
+                                if (err) {
+                                    prev = su_deck;
+                                    su_deck = su_deck->nextcard;
+                                    continue;
+                                }
+                            }
+                            else {
+                                prev = su_deck;
+                                su_deck = su_deck->nextcard;
+                                continue;
+                            }
+
+                            float csl = (float)scale * c->l;
+                            /* scale by nf */
+                            float csw = (float)scale * c->w / c->nf;
+                            /*fprintf(stdout, "Debug: nf = %f\n", c->nf);*/
+                            if (csl >= flmin && csl < flmax && csw >= fwmin && csw < fwmax) {
+                                /* use the current .model card */
+                                prev = su_deck;
+                                su_deck = su_deck->nextcard;
+                                continue;
+                            }
+                            else {
+                                struct card* tmpcard = su_deck->nextcard;
+                                line_free_x(prev->nextcard, FALSE);
+                                su_deck = prev->nextcard = tmpcard;
+                            }
+                        }
+                        su_deck = new_deck;
+                    }
+
+                    if (!su_deck) {
+                        fprintf(stderr, "\nError: Could not find a model for device %s in subcircuit %s\n",
+                            scname, sss->su_name);
+                        controlled_exit(1);
+                    }
+
                     struct card *rest_of_c = c->nextcard;
 
                     /* Now we have to replace this line with the
@@ -697,8 +813,7 @@ doit(struct card *deck, wordlist *modnames) {
 /*-------------------------------------------------------------------*/
 /* Copy a deck, including the actual lines.                          */
 /*-------------------------------------------------------------------*/
-struct card *
-inp_deckcopy(struct card *deck) {
+struct card * inp_deckcopy(struct card *deck) {
     struct card *d = NULL, *nd = NULL;
 
     while (deck) {
@@ -709,6 +824,9 @@ inp_deckcopy(struct card *deck) {
             nd = d = TMALLOC(struct card, 1);
         }
         d->linenum = deck->linenum;
+        d->w = deck->w;
+        d->l = deck->l;
+        d->nf = deck->nf;
         d->line = copy(deck->line);
         if (deck->error)
             d->error = copy(deck->error);
@@ -718,14 +836,12 @@ inp_deckcopy(struct card *deck) {
     return (nd);
 }
 
-
 /*
  * Copy a deck, without the ->actualLine lines, without comment lines, and
  * without .control section(s).
  * First line is always copied (except being .control).
  */
-struct card *
-inp_deckcopy_oc(struct card *deck)
+struct card *inp_deckcopy_oc(struct card * deck)
 {
     struct card *d = NULL, *nd = NULL;
     int skip_control = 0, i = 0;
@@ -746,26 +862,85 @@ inp_deckcopy_oc(struct card *deck)
             deck = deck->nextcard;
             continue;
         }
-        if (nd) {
-            d->nextcard = TMALLOC(struct card, 1);
-            d = d->nextcard;
+        if (nd) { /* First card already found */
+            /* d is the card at the end of the deck */
+            d = d->nextcard = TMALLOC(struct card, 1);
         }
-        else {
+        else { /* This is the first card */
             nd = d = TMALLOC(struct card, 1);
         }
+        d->w = deck->w;
+        d->l = deck->l;
+        d->nf = deck->nf;
         d->linenum_orig = deck->linenum;
         d->linenum = i++;
         d->line = copy(deck->line);
-        if (deck->error)
+        if (deck->error) {
             d->error = copy(deck->error);
+        }
         d->actualLine = NULL;
         deck = deck->nextcard;
-        while (deck && *(deck->line) == '*')
+        while (deck && *(deck->line) == '*') { /* skip comments */
             deck = deck->nextcard;
-    }
+        }
+    } /* end of loop over cards in the source deck */
 
-    return (nd);
-}
+    return nd;
+} /* end of function inp_deckcopy_oc */
+
+/*
+ * Copy a deck, without the ->actualLine lines, without comment lines, and
+ * without .control section(s).
+ * Keep the line numbers.
+ */
+struct card* inp_deckcopy_ln(struct card* deck)
+{
+    struct card* d = NULL, * nd = NULL;
+    int skip_control = 0;
+
+    while (deck) {
+        /* exclude any command inside .control ... .endc */
+        if (ciprefix(".control", deck->line)) {
+            skip_control++;
+            deck = deck->nextcard;
+            continue;
+        }
+        else if (ciprefix(".endc", deck->line)) {
+            skip_control--;
+            deck = deck->nextcard;
+            continue;
+        }
+        else if (skip_control > 0) {
+            deck = deck->nextcard;
+            continue;
+        }
+        else if (*(deck->line) == '*') {
+            deck = deck->nextcard;
+            continue;
+        }
+
+        if (nd) { /* First card already found */
+            /* d is the card at the end of the deck */
+            d = d->nextcard = TMALLOC(struct card, 1);
+        }
+        else { /* This is the first card */
+            nd = d = TMALLOC(struct card, 1);
+        }
+        d->w = deck->w;
+        d->l = deck->l;
+        d->nf = deck->nf;
+        d->linenum_orig = deck->linenum_orig;
+        d->linenum = deck->linenum;
+        d->line = copy(deck->line);
+        if (deck->error) {
+            d->error = copy(deck->error);
+        }
+        d->actualLine = NULL;
+        deck = deck->nextcard;
+    } /* end of loop over cards in the source deck */
+
+    return nd;
+} /* end of function inp_deckcopy_ln */
 
 
 /*-------------------------------------------------------------------
@@ -988,6 +1163,7 @@ translate(struct card *deck, char *formal, char *actual, char *scname, const cha
     }
 
     for (c = deck; c; c = c->nextcard) {
+        bool got_vnam = FALSE;
         char *s = c->line;
         char dev_type = tolower_c(s[0]);
 
@@ -1070,13 +1246,23 @@ translate(struct card *deck, char *formal, char *actual, char *scname, const cha
                     if (name)
                         tfree(name);
                     name = next_name;
+                    /* vname requires instance translation of token following */
+                    if (eq(name, "vnam"))
+                        got_vnam = TRUE;
                     next_name = MIFgettok(&s);
                     bxx_put_cstring(&buffer, name);
                     break;
 
                 default:
-                    /* must be a node name at this point, so translate it */
-                    translate_node_name(&buffer, scname, name, NULL);
+                    if (got_vnam) {
+                        /* after %vnam an instance name is following */
+                        translate_inst_name(&buffer, scname, name, NULL);
+                        got_vnam = FALSE;
+                    }
+                    else {
+                        /* must be a node name at this point, so translate it */
+                        translate_node_name(&buffer, scname, name, NULL);
+                    }
                     break;
 
                 }
@@ -1208,7 +1394,11 @@ translate(struct card *deck, char *formal, char *actual, char *scname, const cha
             tfree(name);
             bxx_putc(&buffer, ' ');
 
-            nnodes = numnodes(c->line, subs, modnames);
+            /* FIXME anothet hack: if no models found for m devices, set number of nodes to 4 */
+            if (!modnames && *(c->line) == 'm')
+                nnodes = get_number_terminals(c->line);
+            else
+                nnodes = numnodes(c->line, subs, modnames);
             while (--nnodes >= 0) {
                 name = gettok_node(&s);
                 if (name == NULL) {
@@ -1456,7 +1646,9 @@ numnodes(const char *line, struct subs *subs, wordlist const *modnames)
     /* for a given device type.                                          */
     /* Paolo Nenzi Jan-2001                                              */
 
-    if ((c == 'm') || (c == 'p') || (c == 'q')) { /* IF this is a mos, cpl or bjt*/
+    /* If model names equal node names, this code will fail! */
+
+    if ((c == 'm') || (c == 'p') || (c == 'q') || (c == 'd')) { /* IF this is a mos, cpl, bjt or diode */
         char *s = nexttok(line);       /* Skip the instance name */
         int gotit = 0;
         int i = 0;
@@ -1736,7 +1928,25 @@ devmodtranslate(struct card *s, char *subname, wordlist * const orig_modnames)
             name = gettok_node(&t);  /* get second attached netname */
             bxx_printf(&buffer, "%s ", name);
             tfree(name);
-            name = gettok(&t);
+            name = gettok_node(&t);  /* this can be either a model name or a node name. */
+            if (name == NULL) {
+                name = copy(""); /* allow 'tfree' */
+            } else {
+                for (;;) {
+                    wlsub = wl_find(name, orig_modnames);
+                    if (wlsub) {
+                        break;
+                    } else {
+                        bxx_printf(&buffer, "%s ", name);
+                        tfree(name);
+                        name = gettok(&t);
+                        if (name == NULL) {  /* No token anymore - leave */
+                            name = copy(""); /* allow 'tfree' */
+                            break;
+                        }
+                    }
+                }  /* while  */
+            }
 
             translate_mod_name(&buffer, name, subname, orig_modnames);
 
@@ -1807,7 +2017,7 @@ devmodtranslate(struct card *s, char *subname, wordlist * const orig_modnames)
             tfree(name);
             break;
 
-            /* 4-7 terminal mos devices */
+            /* 3-7 terminal mos devices */
         case 'm':
             name = gettok(&t);  /* get refdes */
             bxx_printf(&buffer, "%s ", name);
@@ -1821,10 +2031,11 @@ devmodtranslate(struct card *s, char *subname, wordlist * const orig_modnames)
             name = gettok_node(&t);  /* get third attached netname */
             bxx_printf(&buffer, "%s ", name);
             tfree(name);
-            name = gettok_node(&t);  /* get fourth attached netname */
-            bxx_printf(&buffer, "%s ", name);
-            tfree(name);
-            name = gettok(&t);
+            name = gettok_node(&t);
+
+            if (!name) {
+                break;
+            }
 
             found = 0;
             while (!found) {
@@ -1837,7 +2048,7 @@ devmodtranslate(struct card *s, char *subname, wordlist * const orig_modnames)
                 if (!found) { /* name was not a model - was a netname */
                     bxx_printf(&buffer, "%s ", name);
                     tfree(name);
-                    name = gettok(&t);
+                    name = gettok_node(&t);
                     if (name == NULL) {
                         name = copy(""); /* allow 'tfree' */
                         break;
@@ -1876,11 +2087,9 @@ devmodtranslate(struct card *s, char *subname, wordlist * const orig_modnames)
             if (name == NULL) {
                 name = copy(""); /* allow 'tfree' */
             } else {
-                found = 0;
-                while (!found) {
+                for (;;) {
                     wlsub = wl_find(name, orig_modnames);
                     if (wlsub) {
-                        found = 1;
                         break;
                     } else {
                         bxx_printf(&buffer, "%s ", name);
@@ -1969,7 +2178,7 @@ inp_numnodes(char c)
     case 'c':
         return (2);
     case 'd':
-        return (2);
+        return (3);
     case 'e':
         return (2); /* changed from 4 to 2 by SDB on 4.22.2003 to enable POLY */
     case 'f':

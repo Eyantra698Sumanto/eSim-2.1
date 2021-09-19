@@ -1,9 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.4.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
-   Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -41,14 +40,11 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
-
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.4.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -71,8 +67,8 @@
 #define yynerrs         PTnerrs
 
 
-/* First part of user prologue.  */
-#line 1 "../../../../src/spicelib/parser/inpptree-parser.y"
+/* Copy the first part of user declarations.  */
+#line 1 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:339  */
 
     /*
      * (compile (concat "bison -ydo inpptree-parser.c " (file-relative-name buffer-file-name)))
@@ -102,17 +98,13 @@
 
   static void PTerror (YYLTYPE *locp, char **line, struct INPparseNode **retval, void *ckt, char const *);
 
-#line 106 "inpptree-parser.c"
+#line 102 "inpptree-parser.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
-#  if defined __cplusplus
-#   if 201103L <= __cplusplus
-#    define YY_NULLPTR nullptr
-#   else
-#    define YY_NULLPTR 0
-#   endif
+#  if defined __cplusplus && 201103L <= __cplusplus
+#   define YY_NULLPTR nullptr
 #  else
-#   define YY_NULLPTR ((void*)0)
+#   define YY_NULLPTR 0
 #  endif
 # endif
 
@@ -124,8 +116,8 @@
 # define YYERROR_VERBOSE 0
 #endif
 
-/* Use api.header.include to #include this header
-   instead of duplicating it here.  */
+/* In a future release of Bison, this section will be replaced
+   by #include "y.tab.h".  */
 #ifndef YY_PT_INPPTREE_PARSER_H_INCLUDED
 # define YY_PT_INPPTREE_PARSER_H_INCLUDED
 /* Debug traces.  */
@@ -171,17 +163,18 @@ extern int PTdebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+
 union YYSTYPE
 {
-#line 43 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 43 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:355  */
 
   double num;
   const char  *str;
   struct INPparseNode *pnode;
 
-#line 183 "inpptree-parser.c"
-
+#line 176 "inpptree-parser.c" /* yacc.c:355  */
 };
+
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -207,7 +200,9 @@ int PTparse (char **line, struct INPparseNode **retval, CKTcircuit *ckt);
 
 #endif /* !YY_PT_INPPTREE_PARSER_H_INCLUDED  */
 
+/* Copy the second part of user declarations.  */
 
+#line 206 "inpptree-parser.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -228,13 +223,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short yytype_uint16;
+typedef unsigned short int yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short yytype_int16;
+typedef short int yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -246,7 +241,7 @@ typedef short yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned
+#  define YYSIZE_T unsigned int
 # endif
 #endif
 
@@ -282,6 +277,15 @@ typedef short yytype_int16;
 # define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
 #endif
 
+#if !defined _Noreturn \
+     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
+# if defined _MSC_VER && 1200 <= _MSC_VER
+#  define _Noreturn __declspec (noreturn)
+# else
+#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
+# endif
+#endif
+
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
@@ -289,7 +293,7 @@ typedef short yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -308,8 +312,6 @@ typedef short yytype_int16;
 # define YY_INITIAL_VALUE(Value) /* Nothing. */
 #endif
 
-
-#define YY_ASSERT(E) ((void) (0 && (E)))
 
 #if ! defined yyoverflow || YYERROR_VERBOSE
 
@@ -455,16 +457,16 @@ union yyalloc
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  52
 
+/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
+   by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   269
 
-/* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
-   as returned by yylex, with out-of-bounds checking.  */
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
-   as returned by yylex.  */
+   as returned by yylex, without out-of-bounds checking.  */
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -658,22 +660,22 @@ static const yytype_uint8 yyr2[] =
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                                    \
-  do                                                              \
-    if (yychar == YYEMPTY)                                        \
-      {                                                           \
-        yychar = (Token);                                         \
-        yylval = (Value);                                         \
-        YYPOPSTACK (yylen);                                       \
-        yystate = *yyssp;                                         \
-        goto yybackup;                                            \
-      }                                                           \
-    else                                                          \
-      {                                                           \
-        yyerror (&yylloc, line, retval, ckt, YY_("syntax error: cannot back up")); \
-        YYERROR;                                                  \
-      }                                                           \
-  while (0)
+#define YYBACKUP(Token, Value)                                  \
+do                                                              \
+  if (yychar == YYEMPTY)                                        \
+    {                                                           \
+      yychar = (Token);                                         \
+      yylval = (Value);                                         \
+      YYPOPSTACK (yylen);                                       \
+      yystate = *yyssp;                                         \
+      goto yybackup;                                            \
+    }                                                           \
+  else                                                          \
+    {                                                           \
+      yyerror (&yylloc, line, retval, ckt, YY_("syntax error: cannot back up")); \
+      YYERROR;                                                  \
+    }                                                           \
+while (0)
 
 /* Error token number */
 #define YYTERROR        1
@@ -732,10 +734,10 @@ do {                                            \
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
 YY_ATTRIBUTE_UNUSED
-static int
+static unsigned
 yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
 {
-  int res = 0;
+  unsigned res = 0;
   int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
   if (0 <= yylocp->first_line)
     {
@@ -778,15 +780,15 @@ do {                                                                      \
 } while (0)
 
 
-/*-----------------------------------.
-| Print this symbol's value on YYO.  |
-`-----------------------------------*/
+/*----------------------------------------.
+| Print this symbol's value on YYOUTPUT.  |
+`----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, char **line, struct INPparseNode **retval, CKTcircuit *ckt)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, char **line, struct INPparseNode **retval, CKTcircuit *ckt)
 {
-  FILE *yyoutput = yyo;
-  YYUSE (yyoutput);
+  FILE *yyo = yyoutput;
+  YYUSE (yyo);
   YYUSE (yylocationp);
   YYUSE (line);
   YYUSE (retval);
@@ -795,28 +797,26 @@ yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YY
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
 # endif
-  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   YYUSE (yytype);
-  YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 
 
-/*---------------------------.
-| Print this symbol on YYO.  |
-`---------------------------*/
+/*--------------------------------.
+| Print this symbol on YYOUTPUT.  |
+`--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, char **line, struct INPparseNode **retval, CKTcircuit *ckt)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, char **line, struct INPparseNode **retval, CKTcircuit *ckt)
 {
-  YYFPRINTF (yyo, "%s %s (",
+  YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  YY_LOCATION_PRINT (yyo, *yylocationp);
-  YYFPRINTF (yyo, ": ");
-  yy_symbol_value_print (yyo, yytype, yyvaluep, yylocationp, line, retval, ckt);
-  YYFPRINTF (yyo, ")");
+  YY_LOCATION_PRINT (yyoutput, *yylocationp);
+  YYFPRINTF (yyoutput, ": ");
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, line, retval, ckt);
+  YYFPRINTF (yyoutput, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -850,7 +850,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, char **line, struct INPparseNode **retval, CKTcircuit *ckt)
 {
-  unsigned long yylno = yyrline[yyrule];
+  unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -861,7 +861,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
-                       &yyvsp[(yyi + 1) - (yynrhs)]
+                       &(yyvsp[(yyi + 1) - (yynrhs)])
                        , &(yylsp[(yyi + 1) - (yynrhs)])                       , line, retval, ckt);
       YYFPRINTF (stderr, "\n");
     }
@@ -965,10 +965,7 @@ yytnamerr (char *yyres, const char *yystr)
           case '\\':
             if (*++yyp != '\\')
               goto do_not_strip_quotes;
-            else
-              goto append;
-
-          append:
+            /* Fall through.  */
           default:
             if (yyres)
               yyres[yyn] = *yyp;
@@ -986,7 +983,7 @@ yytnamerr (char *yyres, const char *yystr)
   if (! yyres)
     return yystrlen (yystr);
 
-  return (YYSIZE_T) (yystpcpy (yyres, yystr) - yyres);
+  return yystpcpy (yyres, yystr) - yyres;
 }
 # endif
 
@@ -1064,10 +1061,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                 yyarg[yycount++] = yytname[yyx];
                 {
                   YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
-                  if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
-                    yysize = yysize1;
-                  else
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
                     return 2;
+                  yysize = yysize1;
                 }
               }
         }
@@ -1079,7 +1076,6 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
-    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1091,10 +1087,9 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 
   {
     YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
-    if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
-      yysize = yysize1;
-    else
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
       return 2;
+    yysize = yysize1;
   }
 
   if (*yymsg_alloc < yysize)
@@ -1247,45 +1242,34 @@ YYLTYPE yylloc = yyloc_default;
   yychar = YYEMPTY; /* Cause a token to be read.  */
 
 /* User initialization code.  */
-#line 70 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 70 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1429  */
 {
-    yylval.num = 0.0;
+    (yylval).num = 0.0;
     yylloc.start = yylloc.stop = NULL;
 }
 
-#line 1257 "inpptree-parser.c"
-
+#line 1252 "inpptree-parser.c" /* yacc.c:1429  */
   yyvsp[0] = yylval;
   yylsp[0] = yylloc;
   goto yysetstate;
 
-
 /*------------------------------------------------------------.
-| yynewstate -- push a new state, which is found in yystate.  |
+| yynewstate -- Push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
-yynewstate:
+ yynewstate:
   /* In all cases, when you get here, the value and location stacks
      have just been pushed.  So pushing a state here evens the stacks.  */
   yyssp++;
 
-
-/*--------------------------------------------------------------------.
-| yynewstate -- set current state (the top of the stack) to yystate.  |
-`--------------------------------------------------------------------*/
-yysetstate:
-  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
-  YY_ASSERT (0 <= yystate && yystate < YYNSTATES);
-  *yyssp = (yytype_int16) yystate;
+ yysetstate:
+  *yyssp = yystate;
 
   if (yyss + yystacksize - 1 <= yyssp)
-#if !defined yyoverflow && !defined YYSTACK_RELOCATE
-    goto yyexhaustedlab;
-#else
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = (YYSIZE_T) (yyssp - yyss + 1);
+      YYSIZE_T yysize = yyssp - yyss + 1;
 
-# if defined yyoverflow
+#ifdef yyoverflow
       {
         /* Give user a chance to reallocate the stack.  Use copies of
            these so that the &'s don't force the real ones into
@@ -1303,11 +1287,15 @@ yysetstate:
                     &yyvs1, yysize * sizeof (*yyvsp),
                     &yyls1, yysize * sizeof (*yylsp),
                     &yystacksize);
+
+        yyls = yyls1;
         yyss = yyss1;
         yyvs = yyvs1;
-        yyls = yyls1;
       }
-# else /* defined YYSTACK_RELOCATE */
+#else /* no yyoverflow */
+# ifndef YYSTACK_RELOCATE
+      goto yyexhaustedlab;
+# else
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
         goto yyexhaustedlab;
@@ -1324,34 +1312,36 @@ yysetstate:
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
         YYSTACK_RELOCATE (yyls_alloc, yyls);
-# undef YYSTACK_RELOCATE
+#  undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
       }
 # endif
+#endif /* no yyoverflow */
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
       yylsp = yyls + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long) yystacksize));
+                  (unsigned long int) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
     }
-#endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
+
+  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
   if (yystate == YYFINAL)
     YYACCEPT;
 
   goto yybackup;
 
-
 /*-----------.
 | yybackup.  |
 `-----------*/
 yybackup:
+
   /* Do appropriate processing given the current state.  Read a
      lookahead token if we need one and don't already have one.  */
 
@@ -1424,7 +1414,7 @@ yydefault:
 
 
 /*-----------------------------.
-| yyreduce -- do a reduction.  |
+| yyreduce -- Do a reduction.  |
 `-----------------------------*/
 yyreduce:
   /* yyn is the number of a rule to reduce with.  */
@@ -1440,169 +1430,167 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-  /* Default location. */
+  /* Default location.  */
   YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
-  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2:
-#line 78 "../../../../src/spicelib/parser/inpptree-parser.y"
+        case 2:
+#line 78 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     {
       *retval = (yyvsp[0].pnode);
       *line = (yylsp[0]).stop;
       YYACCEPT;
  }
-#line 1457 "inpptree-parser.c"
+#line 1446 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 86 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 86 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mknnode((yyvsp[0].num)); }
-#line 1463 "inpptree-parser.c"
+#line 1452 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 87 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 87 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mksnode((yyvsp[0].str), ckt); txfree((yyvsp[0].str)); }
-#line 1469 "inpptree-parser.c"
+#line 1458 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 89 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 89 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkbnode("+", (yyvsp[-2].pnode), (yyvsp[0].pnode)); }
-#line 1475 "inpptree-parser.c"
+#line 1464 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 90 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 90 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkbnode("-", (yyvsp[-2].pnode), (yyvsp[0].pnode)); }
-#line 1481 "inpptree-parser.c"
+#line 1470 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 91 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 91 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkbnode("*", (yyvsp[-2].pnode), (yyvsp[0].pnode)); }
-#line 1487 "inpptree-parser.c"
+#line 1476 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 92 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 92 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkbnode("/", (yyvsp[-2].pnode), (yyvsp[0].pnode)); }
-#line 1493 "inpptree-parser.c"
+#line 1482 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 93 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 93 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkbnode("^", (yyvsp[-2].pnode), (yyvsp[0].pnode)); }
-#line 1499 "inpptree-parser.c"
+#line 1488 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 95 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 95 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = (yyvsp[-1].pnode); }
-#line 1505 "inpptree-parser.c"
+#line 1494 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 97 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 97 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("-",(yyvsp[0].pnode)); }
-#line 1511 "inpptree-parser.c"
+#line 1500 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 98 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 98 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = (yyvsp[0].pnode); }
-#line 1517 "inpptree-parser.c"
+#line 1506 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 100 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 100 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode((yyvsp[-3].str), (yyvsp[-1].pnode));
                                         if (!(yyval.pnode))
                                             YYERROR;
                                         txfree((yyvsp[-3].str)); }
-#line 1526 "inpptree-parser.c"
+#line 1515 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 107 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 107 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("ternary_fcn",
                                                PT_mkbnode(",",
                                                  PT_mkbnode(",", (yyvsp[-4].pnode), (yyvsp[-2].pnode)),
                                                  (yyvsp[0].pnode))); }
-#line 1535 "inpptree-parser.c"
+#line 1524 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 112 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 112 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("eq0", PT_mkbnode("-",(yyvsp[-2].pnode),(yyvsp[0].pnode))); }
-#line 1541 "inpptree-parser.c"
+#line 1530 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 113 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 113 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("ne0", PT_mkbnode("-",(yyvsp[-2].pnode),(yyvsp[0].pnode))); }
-#line 1547 "inpptree-parser.c"
+#line 1536 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 114 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 114 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("gt0", PT_mkbnode("-",(yyvsp[-2].pnode),(yyvsp[0].pnode))); }
-#line 1553 "inpptree-parser.c"
+#line 1542 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 115 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 115 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("lt0", PT_mkbnode("-",(yyvsp[-2].pnode),(yyvsp[0].pnode))); }
-#line 1559 "inpptree-parser.c"
+#line 1548 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 116 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 116 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("ge0", PT_mkbnode("-",(yyvsp[-2].pnode),(yyvsp[0].pnode))); }
-#line 1565 "inpptree-parser.c"
+#line 1554 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 117 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 117 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("le0", PT_mkbnode("-",(yyvsp[-2].pnode),(yyvsp[0].pnode))); }
-#line 1571 "inpptree-parser.c"
+#line 1560 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 119 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 119 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("ne0",
                                                PT_mkbnode("+",
                                                  PT_mkfnode("ne0", (yyvsp[-2].pnode)),
                                                    PT_mkfnode("ne0", (yyvsp[0].pnode)))); }
-#line 1580 "inpptree-parser.c"
+#line 1569 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 123 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 123 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("eq0",
                                                PT_mkbnode("+",
                                                  PT_mkfnode("eq0", (yyvsp[-2].pnode)),
                                                    PT_mkfnode("eq0", (yyvsp[0].pnode)))); }
-#line 1589 "inpptree-parser.c"
+#line 1578 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 127 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 127 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkfnode("eq0", (yyvsp[0].pnode)); }
-#line 1595 "inpptree-parser.c"
+#line 1584 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 133 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 133 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1646  */
     { (yyval.pnode) = PT_mkbnode(",", (yyvsp[-2].pnode), (yyvsp[0].pnode)); }
-#line 1601 "inpptree-parser.c"
+#line 1590 "inpptree-parser.c" /* yacc.c:1646  */
     break;
 
 
-#line 1605 "inpptree-parser.c"
-
+#line 1594 "inpptree-parser.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1628,13 +1616,14 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-  {
-    const int yylhs = yyr1[yyn] - YYNTOKENS;
-    const int yyi = yypgoto[yylhs] + *yyssp;
-    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
-               ? yytable[yyi]
-               : yydefgoto[yylhs]);
-  }
+
+  yyn = yyr1[yyn];
+
+  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
+  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
+    yystate = yytable[yystate];
+  else
+    yystate = yydefgoto[yyn - YYNTOKENS];
 
   goto yynewstate;
 
@@ -1717,11 +1706,14 @@ yyerrlab:
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
 yyerrorlab:
-  /* Pacify compilers when the user code never invokes YYERROR and the
-     label yyerrorlab therefore never appears in user code.  */
-  if (0)
-    YYERROR;
 
+  /* Pacify compilers like GCC when the user code never invokes
+     YYERROR and the label yyerrorlab therefore never appears in user
+     code.  */
+  if (/*CONSTCOND*/ 0)
+     goto yyerrorlab;
+
+  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -1787,14 +1779,12 @@ yyacceptlab:
   yyresult = 0;
   goto yyreturn;
 
-
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
   goto yyreturn;
-
 
 #if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
@@ -1806,10 +1796,6 @@ yyexhaustedlab:
   /* Fall through.  */
 #endif
 
-
-/*-----------------------------------------------------.
-| yyreturn -- parsing is finished, return the result.  |
-`-----------------------------------------------------*/
 yyreturn:
   if (yychar != YYEMPTY)
     {
@@ -1839,7 +1825,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 135 "../../../../src/spicelib/parser/inpptree-parser.y"
+#line 135 "../../../../src/spicelib/parser/inpptree-parser.y" /* yacc.c:1906  */
 
 
 

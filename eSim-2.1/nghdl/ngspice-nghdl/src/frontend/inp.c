@@ -41,7 +41,7 @@ Author: 1985 Wayne A. Christopher
 #include "numparam/numpaif.h"
 #include "ngspice/stringskip.h"
 #include "ngspice/randnumb.h"
-
+#include "ngspice/compatmode.h"
 
 #define line_free(line, flag)                   \
     do {                                        \
@@ -49,30 +49,46 @@ Author: 1985 Wayne A. Christopher
         line = NULL;                            \
     } while(0)
 
-static char *upper(register char *string);
-static bool doedit(char *filename);
+
 static struct card *com_options = NULL;
 static struct card *mc_deck = NULL;
 static struct card *recent_deck = NULL;
+
 static void cktislinear(CKTcircuit *ckt, struct card *deck);
+void create_circbyline(char *line, bool reset, bool lastline);
+static bool doedit(char *filename);
 static void dotifeval(struct card *deck);
-static void recifeval(struct card *pdeck);
-
-static wordlist *inp_savecurrents(struct card *deck, struct card *options, wordlist *wl, wordlist *controls);
-
 static void eval_agauss(struct card *deck, char *fcn);
+static wordlist *inp_savecurrents(struct card *deck, struct card *options,
+        wordlist *wl, wordlist *controls);
 void line_free_x(struct card *deck, bool recurse);
-void create_circbyline(char *line);
+static void recifeval(struct card *pdeck);
+static char *upper(register char *string);
+static void rem_unused_mos_models(struct card* deck);
+
+
+
 //void inp_source_recent(void);
 //void inp_mc_free(void);
 //void inp_remove_recent(void);
 static bool mc_reload = FALSE;
-void eval_seed_opt(struct card *deck);
+void eval_opt(struct card *deck);
 
 extern bool ft_batchmode;
 
+/* from inpcom.c */
+extern struct nscope* inp_add_levels(struct card *deck);
+extern void inp_rem_levels(struct nscope* root);
+extern void comment_out_unused_subckt_models(struct card *deck);
+extern void inp_rem_unused_models(struct nscope *root, struct card *deck);
+
 #ifdef SHARED_MODULE
 extern void exec_controls(wordlist *controls);
+#endif
+
+/* display the source file name in the source window */
+#ifdef HAS_WINGUI
+extern void SetSource(char *Name);
 #endif
 
 /* structure used to save expression parse trees for .model and
@@ -175,11 +191,13 @@ com_listing(wordlist *wl)
 static char *
 upper(char *string)
 {
-    static char buf[BSIZE_SP];
+    static char buf[LBSIZE_SP];
 
     if (string) {
-        strncpy(buf, string, BSIZE_SP - 1);
-        buf[BSIZE_SP - 1] = '\0';
+        if (strlen(string) > LBSIZE_SP - 1)
+            fprintf(stderr, "Warning: output of command 'listing' will be truncated\n");
+        strncpy(buf, string, LBSIZE_SP - 1);
+        buf[LBSIZE_SP - 1] = '\0';
         inp_casefix(buf);
     } else {
         strcpy(buf, "<null>");
@@ -377,49 +395,66 @@ inp_remove_recent(void) {
         line_free(recent_deck, TRUE);
 }
 
-/* check for .option seed=[val|random] and set the random number generator */
+
+/* Check for .option seed=[val|random] and set the random number generator.
+   Check for .option cshunt=val and set a global variable
+   Input is the option deck (already sorted for .option) */
 void
-eval_seed_opt(struct card *deck)
+eval_opt(struct card* deck)
 {
-    struct card *card;
+    struct card* card;
     bool has_seed = FALSE;
+    bool has_cshunt = FALSE;
 
     for (card = deck; card; card = card->nextcard) {
-        char *line = card->line;
-        if (*line == '*')
-            continue;
-        if (ciprefix(".option", line) || ciprefix("option", line)) {
-            /* option seedinfo */
-            if (strstr(line, "seedinfo"))
-                setseedinfo();
-            char *begtok = strstr(line, "seed=");
-            if (begtok)
-                begtok = &begtok[5]; /*skip seed=*/
-            if (begtok) {
-                if (has_seed)
-                    fprintf(cp_err, "Warning: Multiple 'option seed=val|random' found!\n");
-                char *token = gettok(&begtok);
-                /* option seed=random [seed='random'] */
-                if (eq(token, "random") || eq(token, "{random}")) {
-                    time_t acttime = time(NULL);
-                    /* get random value from time in seconds since 1.1.1970 */
-                    int rseed = (int)(acttime - 1470000000);
-                    cp_vset("rndseed", CP_NUM, &rseed);
+        char* line = card->line;
+
+        if (strstr(line, "seedinfo"))
+            setseedinfo();
+        char* begtok = strstr(line, "seed=");
+        if (begtok)
+            begtok = &begtok[5]; /*skip seed=*/
+        if (begtok) {
+            if (has_seed)
+                fprintf(cp_err, "Warning: Multiple 'option seed=val|random' found!\n");
+            char* token = gettok(&begtok);
+            /* option seed=random [seed='random'] */
+            if (eq(token, "random") || eq(token, "{random}")) {
+                time_t acttime = time(NULL);
+                /* get random value from time in seconds since 1.1.1970 */
+                int rseed = (int)(acttime - 1600000000);
+                cp_vset("rndseed", CP_NUM, &rseed);
+                com_sseed(NULL);
+                has_seed = TRUE;
+            }
+            /* option seed=val*/
+            else {
+                int sr = atoi(token);
+                if (sr <= 0)
+                    fprintf(cp_err, "Warning: Cannot convert 'option seed=%s' to seed value, skipped!\n", token);
+                else {
+                    cp_vset("rndseed", CP_NUM, &sr);
                     com_sseed(NULL);
                     has_seed = TRUE;
                 }
-                /* option seed=val*/
-                else {
-                    int sr = atoi(token);
-                    if (sr <= 0)
-                        fprintf(cp_err, "Warning: Cannot convert 'option seed=%s' to seed value, skipped!\n", token);
-                    else {
-                        cp_vset("rndseed", CP_NUM, &sr);
-                        com_sseed(NULL);
-                        has_seed = TRUE;
-                    }
-                }
-                tfree(token);
+            }
+            tfree(token);
+        }
+
+        begtok = strstr(line, "cshunt=");
+        if (begtok)
+            begtok = &begtok[7]; /*skip cshunt=*/
+        if (begtok) {
+            int err = 0;
+            if (has_cshunt)
+                fprintf(cp_err, "Warning: Multiple '.option cshunt=val' found!\n");
+            /* option cshunt=val*/
+            double sr = INPevaluate(&begtok, &err, 0);
+            if (sr <= 0 || err)
+                fprintf(cp_err, "Warning: Cannot convert 'option cshunt=%s' to capacitor value, skipped!\n", begtok);
+            else {
+                cp_vset("cshunt_value", CP_REAL, &sr);
+                has_cshunt = TRUE;
             }
         }
     }
@@ -430,7 +465,7 @@ eval_seed_opt(struct card *deck)
  * filter out the following cards: .save, .width, .four, .print, and
  * .plot, to perform after the run is over.
  * Then, we run dodeck, which parses up the deck.             */
-void
+int
 inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
 /* arguments:
  *  *fp = pointer to the input file
@@ -441,8 +476,7 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
 {
     struct card *deck = NULL, *dd, *ld, *prev_param = NULL, *prev_card = NULL;
     struct card *realdeck = NULL, *options = NULL, *curr_meas = NULL;
-    char *tt = NULL, name[BSIZE_SP], *s, *t, *temperature = NULL;
-    double testemp = 0.0;
+    char *tt = NULL, name[BSIZE_SP + 1], *s, *t, *temperature = NULL;
     bool commands = FALSE;
     wordlist *wl = NULL, *end = NULL, *wl_first = NULL;
     wordlist *controls = NULL, *pre_controls = NULL;
@@ -450,7 +484,7 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
     double temperature_value;
     bool expr_w_temper = FALSE;
 
-    double startTime, endTime;
+    double startTime, loadTime = 0., endTime;
 
 #ifdef HAS_PROGREP
     if (!comfile)
@@ -466,8 +500,6 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
     if (fp || intfile) {
         deck = inp_readall(fp, dir_name, comfile, intfile, &expr_w_temper);
 
-        /* here we check for .option seed=[val|random] and set the random number generator */
-        eval_seed_opt(deck);
         /* files starting with *ng_script are user supplied command files */
         if (deck && ciprefix("*ng_script", deck->line))
             comfile = TRUE;
@@ -518,17 +550,18 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
         }
     }
     endTime = seconds();
-    /* store input directory to a variable*/
+    /* store input directory to a variable */
     if (fp) {
         cp_vset("inputdir", CP_STRING, dir_name);
     }
     tfree(dir_name);
 
-    /* if nothing came back from inp_readall, just close fp and return to caller */
+    /* if nothing came back from inp_readall, e.g. after calling ngspice without parameters,
+       just close fp and return to caller */
     if (!deck) {
         if (!intfile && fp)
             fclose(fp);
-        return;
+        return 0;
     }
 
     /* files starting with *ng_script are user supplied command files */
@@ -537,19 +570,23 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
 
     if (!comfile) {
         /* Extract the .option lines from the deck into 'options',
-           and remove them from the deck. */
+           and remove them from the deck. Exceptions are .option with params. */
         options = inp_getopts(deck);
-
+        /* Check for .option seed=[val|random] and set the random number generator.
+           Check for .option cshunt=val and set a global variable cshunt_value */
+        eval_opt(options);
         /* copy a deck before subckt substitution. */
         realdeck = inp_deckcopy(deck);
 
         /* Save the title before INPgetTitle gets it. */
         tt = copy(deck->line);
-        if (!deck->nextcard)
+        if (!deck->nextcard) {
             fprintf(cp_err, "Warning: no lines in input\n");
+        }
     }
-    if (fp && !intfile)
+    if (fp && !intfile) {
         fclose(fp);
+    }
 
     /* Now save the IO context and start a new control set.  After we
        are done with the source we'll put the old file descriptors
@@ -595,16 +632,9 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
         ft_dotsaves();
     } /* end if (comfile) */
 
-    else {    /* must be regular deck . . . . */
+    else {  /* must be regular deck . . . . */
         /* loop through deck and handle control cards */
         for (dd = deck->nextcard; dd; dd = ld->nextcard) {
-            /* get temp from deck */
-            if (ciprefix(".temp", dd->line)) {
-                s = skip_ws(dd->line + 5);
-                if (temperature)
-                    txfree(temperature);
-                temperature = copy(s);
-            }
             /* Ignore comment lines, but not lines begining with '*#',
                but remove them, if they are in a .control ... .endc section */
             s = skip_ws(dd->line);
@@ -641,13 +671,14 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
                 else
                     fprintf(cp_err, "Warning: misplaced .endc card\n");
             } else if (commands || prefix("*#", dd->line)) {
-                /* assemble all commands starting with pre_ after stripping pre_,
-                to be executed before circuit parsing */
+                /* assemble all commands starting with pre_ after stripping
+                 * pre_, to be executed before circuit parsing */
                 if (ciprefix("pre_", dd->line)) {
                     s = copy(dd->line + 4);
                     pre_controls = wl_cons(s, pre_controls);
                 }
-                /* assemble all other commands to be executed after circuit parsing */
+                /* assemble all other commands to be executed after circuit
+                 * parsing */
                 else {
                     /* special control lines outside of .control section*/
                     if (prefix("*#", dd->line)) {
@@ -673,14 +704,13 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
                 if (!eq(s, ".plot") && !eq(s, ".print"))
                     inp_casefix(dd->line);
                 if (eq(s, ".width") ||
-                    ciprefix(".four", s) ||
-                    eq(s, ".plot") ||
-                    eq(s, ".print") ||
-                    eq(s, ".save") ||
-                    eq(s, ".op") ||
-                    ciprefix(".meas", s) ||
-                    eq(s, ".tf"))
-                {
+                        ciprefix(".four", s) ||
+                        eq(s, ".plot") ||
+                        eq(s, ".print") ||
+                        eq(s, ".save") ||
+                        eq(s, ".op") ||
+                        ciprefix(".meas", s) ||
+                        eq(s, ".tf")) {
                     wl_append_word(&wl_first, &end, copy(dd->line));
 
                     if (!eq(s, ".op") && !eq(s, ".tf") && !ciprefix(".meas", s)) {
@@ -704,17 +734,6 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
             wl_free(pre_controls);
         }
 
-        /* set temperature if defined to a preliminary variable which may be used
-           in numparam evaluation */
-        if (temperature) {
-            temperature_value = atof(temperature);
-            cp_vset("pretemp", CP_REAL, &temperature_value);
-        }
-        if (ft_ngdebug) {
-            cp_getvar("pretemp", CP_REAL, &testemp, 0);
-            printf("test temperature %f\n", testemp);
-        }
-
         /* We are done handling the control stuff.  Now process remainder of deck.
            Go on if there is something left after the controls.*/
         if (deck->nextcard) {
@@ -722,19 +741,87 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
 #ifdef HAS_PROGREP
             SetAnalyse("Prepare Deck", 0);
 #endif
-            /*FIXME This is for the globel param setting only */
-            /* replace agauss(x,y,z) in each b-line by suitable value */
-            static char *statfcn[] = { "agauss", "gauss", "aunif", "unif", "limit" };
-            int ii;
-            for (ii = 0; ii < 5; ii++)
-                eval_agauss(deck, statfcn[ii]);
+            endTime = seconds();
+            loadTime = endTime - startTime;
+            startTime = endTime;
+            /*This is for the globel param setting only */
+            /* replace agauss(x,y,z) in each b-line by suitable value, one for all */
+            bool statlocal = cp_getvar("statlocal", CP_BOOL, NULL, 0);
+            if (!statlocal) {
+                static char *statfcn[] = {"agauss", "gauss", "aunif", "unif", "limit"};
+                int ii;
+                for (ii = 0; ii < 5; ii++)
+                    eval_agauss(deck, statfcn[ii]);
+            }
+
+            /* If we have large PDK deck, search for scale option and set 
+            the variable 'scale'*/
+            if (newcompat.hs || newcompat.spe) {
+                struct card* scan;
+                double dscale = 1;
+                /* from options in a script */
+                for (scan = com_options; scan; scan = scan->nextcard) {
+                    char* tmpscale = strstr(scan->line, "scale=");
+                    if (tmpscale) {
+                        int err;
+                        tmpscale = tmpscale + 6;
+                        dscale = INPevaluate(&tmpscale, &err, 1);
+                        if (err == 0) {
+                            cp_vset("scale", CP_REAL, &dscale);
+                            printf("option SCALE: Scale is set to %g for instance and model parameters\n", dscale);
+                        }
+                        else
+                            fprintf(stderr, "\nError: Could not set 'scale' variable\n");
+                    }
+                    tmpscale = strstr(scan->line, "scalm=");
+                    if (tmpscale) {
+                        int err;
+                        tmpscale = tmpscale + 6;
+                        dscale = INPevaluate(&tmpscale, &err, 1);
+                        if (err == 0) {
+                            cp_vset("scalm", CP_REAL, &dscale);
+                            fprintf(stderr, "Warning: option SCALM is not supported.\n");
+                        }
+                        else
+                            fprintf(stderr, "\nError: Could not set 'scalm' variable\n");
+                    }
+                }
+                /* from .options (will override the previous settings) */
+                for (scan = options; scan; scan = scan->nextcard) {
+                    char* tmpscale = strstr(scan->line, "scale=");
+                    if (tmpscale) {
+                        int err;
+                        tmpscale = tmpscale + 6;
+                        dscale = INPevaluate(&tmpscale, &err, 1);
+                        if (err == 0) {
+                            cp_vset("scale", CP_REAL, &dscale);
+                            printf("option SCALE: Scale is set to %g for instance and model parameters\n", dscale);
+                        }
+                        else
+                            fprintf(stderr, "\nError: Could not set 'scale' variable\n");
+                    }
+                    tmpscale = strstr(scan->line, "scalm=");
+                    if (tmpscale) {
+                        int err;
+                        tmpscale = tmpscale + 6;
+                        dscale = INPevaluate(&tmpscale, &err, 1);
+                        if (err == 0) {
+                            cp_vset("scalm", CP_REAL, &dscale);
+                            fprintf(stderr, "Warning: option SCALM is not supported\n");
+                        }
+                        else
+                            fprintf(stderr, "\nError: Could not set 'scalm' variable\n");
+                    }
+                }
+            }
+
             /* Now expand subcircuit macros and substitute numparams.*/
             if (!cp_getvar("nosubckt", CP_BOOL, NULL, 0))
                 if ((deck->nextcard = inp_subcktexpand(deck->nextcard)) == NULL) {
                     line_free(realdeck, TRUE);
                     line_free(deck->actualLine, TRUE);
                     tfree(tt);
-                    return;
+                    return 1;
                 }
 
             /* Now handle translation of spice2c6 POLYs. */
@@ -782,8 +869,9 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
                     cstoken[0] = gettok_char(&s, '=', FALSE, FALSE);
                     cstoken[1] = gettok_char(&s, '=', TRUE, FALSE);
                     cstoken[2] = gettok(&s);
-                    for (i = 3; --i >= 0;)
+                    for (i = 3; --i >= 0; ) {
                         wlist = wl_cons(cstoken[i], wlist);
+                    }
                     com_let(wlist);
                     wl_free(wlist);
                 }
@@ -809,17 +897,27 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
 
             /* replace agauss(x,y,z) in each b-line by suitable value */
             /* FIXME: This is for the local param setting (not yet implemented in
-            inp_fix_agauss_in_param() for model parameters according to HSPICE manual)
-            static char *statfcn[] = { "agauss", "gauss", "aunif", "unif", "limit" };
-            int ii;
-            for (ii = 0; ii < 5; ii++)
-                eval_agauss(deck, statfcn[ii]); */
+            inp_fix_agauss_in_param() for model parameters according to HSPICE manual)*/
+            if (statlocal) {
+                static char *statfcn[] = {"agauss", "gauss", "aunif", "unif", "limit"};
+                int ii;
+                for (ii = 0; ii < 5; ii++)
+                    eval_agauss(deck, statfcn[ii]);
+            }
             /* If user wants all currents saved (.options savecurrents), add .save 
             to wl_first with all terminal currents available on selected devices */
             wl_first = inp_savecurrents(deck, options, wl_first, controls);
 
+            /* Circuit is flat, all numbers expanded.
+               So again try to remove unused MOS models.
+               All binning models are still here when w or l have been
+               determined by an expression. */
+           if (newcompat.hs || newcompat.spe)
+              rem_unused_mos_models(deck->nextcard);
+
             /* now load deck into ft_curckt -- the current circuit. */
-            inp_dodeck(deck, tt, wl_first, FALSE, options, filename);
+            if(inp_dodeck(deck, tt, wl_first, FALSE, options, filename) != 0)
+                return 1;
 
             if (ft_curckt) {
                 ft_curckt->devtlist = devtlist;
@@ -836,8 +934,6 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
         if (ft_curckt) {
             ft_curckt->ci_param = NULL;
             ft_curckt->ci_meas  = NULL;
-            /* PN add here stats*/
-            ft_curckt->FTEstats->FTESTATnetLoadTime = endTime - startTime;
         }
 
         for (dd = deck; dd; dd = dd->nextcard) {
@@ -885,6 +981,15 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
                 curr_meas->nextcard = NULL;
                 dd                 = prev_card;
             }
+            /* get temp from deck */
+            if (ciprefix(".temp", dd->line)) {
+                s = skip_ws(dd->line + 5);
+                if (temperature) {
+                    txfree(temperature);
+                }
+                temperature = copy(s);
+                *(dd->line) = '*';
+            }
             prev_card = dd;
         }  //end of for-loop
 
@@ -927,6 +1032,21 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
                 fprintf(stderr, "Warning: Cannot open file debug-out3.txt for saving debug info\n");
         }
 
+        /* Remove comment lines 
+        if (newcompat.hs || newcompat.spe) {
+            struct card *prev, *fcard, *tmpdeck;
+            prev = deck;
+            tmpdeck = deck->nextcard;
+            for (fcard = tmpdeck; fcard; fcard = fcard->nextcard) {
+                if (*(prev->nextcard->line) == '*') {
+                    struct card* tmpcard = fcard->nextcard;
+                    line_free_x(prev->nextcard, FALSE);
+                    fcard = prev->nextcard = tmpcard;
+                }
+                prev = fcard;
+            }
+        }*/
+
         /* Now the circuit is defined, so generate the parse trees */
         inp_parse_temper_trees(ft_curckt);
         /* Get the actual data for model and device instance parameters */
@@ -943,6 +1063,13 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
 
         /* Now that the deck is loaded, do the commands, if there are any */
         controls = wl_reverse(controls);
+
+        /* statistics for preparing the deck */
+        endTime = seconds();
+        if (ft_curckt) {
+            ft_curckt->FTEstats->FTESTATnetLoadTime = loadTime;
+            ft_curckt->FTEstats->FTESTATnetPrepTime = seconds() - startTime;
+        }
 
         /* in shared ngspice controls a execute in the primary thread, typically
            before the background thread has finished. This leads to premature execution
@@ -972,6 +1099,8 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
     cp_curerr = lasterr;
 
     tfree(tt);
+
+    return 0;
 }
 
 
@@ -983,7 +1112,7 @@ inp_spsource(FILE *fp, bool comfile, char *filename, bool intfile)
  * It appears that inp_dodeck adds the circuit described by *deck
  * to the current circuit (ft_curckt).
  *-----------------------------------------------------------------*/
-void
+int
 inp_dodeck(
     struct card *deck,     /*in: the spice deck */
     char *tt,              /*in: the title of the deck */
@@ -997,11 +1126,9 @@ inp_dodeck(
     struct circ *ct;
     struct card *dd;
     CKTcircuit *ckt;
-    char *s;
     INPtables *tab = NULL;
     struct variable *eev = NULL;
-    wordlist *wl;
-    bool noparse, ii;
+    bool noparse;
     int print_listing;
     bool have_err = FALSE;
     int warn;          /* whether SOA check should be performed */
@@ -1032,12 +1159,13 @@ inp_dodeck(
     }
     noparse = cp_getvar("noparse", CP_BOOL, NULL, 0);
 
-
-    /* We check preliminary for the scale option. This special processing
-       is needed because we need the scale info BEFORE building the circuit
-       and seems there is no other way to do this. */
+    /* Read the options, create variables and store them
+       in ftcurckt->ci_vars */
     if (!noparse) {
-        struct card *opt_beg = options;
+        char* s;
+        bool ii;
+        wordlist* wl;
+        struct card* opt_beg = options;
         for (; options; options = options->nextcard) {
             s = skip_non_ws(options->line);
 
@@ -1062,21 +1190,19 @@ inp_dodeck(
             case CP_NUM:
                 break;
             case CP_REAL:
-                if (strcmp("scale", eev->va_name) == 0) {
-                    cp_vset("scale", CP_REAL, &eev->va_real);
-                    printf("Scale set\n");
-                }
                 break;
             case CP_STRING:
                 break;
             default: {
-                fprintf(stderr, "ERROR: enumeration value `CP_LIST' not handled in inp_dodeck\nAborting...\n");
+                fprintf(stderr, "ERROR: wrong format in option %s!\n", eev->va_name);
+                fprintf(stderr, "   Aborting...\n");
                 controlled_exit(EXIT_FAILURE);
             }
             } /* switch  . . . */
         }
         options = opt_beg; // back to the beginning
     } /* if (!noparse)  . . . */
+
 
     /*----------------------------------------------------
      * Now assuming that we wanna parse this deck, we call
@@ -1149,6 +1275,7 @@ inp_dodeck(
                         out_printf("Error on line %d :\n  %s\n%s\n",
                                    dd->linenum_orig, dd->line, dd->error);
                         have_err = TRUE;
+                        return 1;
                     }
                     if (ft_stricterror)
                         controlled_exit(EXIT_BAD);
@@ -1203,7 +1330,7 @@ inp_dodeck(
     ct->ci_deck = deck;
     ct->ci_mcdeck = mc_deck;
     ct->ci_options = options;
-    if (deck->actualLine)
+    if (deck && deck->actualLine)
         ct->ci_origdeck = deck->actualLine;
     else
         ct->ci_origdeck = ct->ci_deck;
@@ -1270,6 +1397,7 @@ inp_dodeck(
 #if 0
     cp_addkword(CT_CKTNAMES, tt);
 #endif
+    return 0;
 }
 
 
@@ -1366,8 +1494,7 @@ com_edit(wordlist *wl)
 
     fprintf(cp_out, "run circuit? ");
     fflush(cp_out);
-    fgets(buf, BSIZE_SP, stdin);
-    if (buf[0] != 'n') {
+    if (fgets(buf, BSIZE_SP, stdin) == (char *) NULL || buf[0] != 'n') {
         fprintf(cp_out, "running circuit\n");
         com_run(NULL);
     }
@@ -1529,7 +1656,9 @@ doedit(char *filename)
                 editor = "/usr/bin/vi";
         }
     }
-    sprintf(buf, "%s %s", editor, filename);
+    int len = snprintf(buf, BSIZE_SP - 1, "%s %s", editor, filename);
+    if (len > BSIZE_SP - 1)
+        fprintf(stderr, "Error: the filename is probably tuncated\n");
     return (system(buf) ? FALSE : TRUE);
 }
 
@@ -1545,6 +1674,9 @@ com_source(wordlist *wl)
     wordlist *owl = wl;
     size_t n;
 
+    if (wl == NULL)
+        return;
+
     inter = cp_interactive;
     cp_interactive = FALSE;
 
@@ -1555,16 +1687,29 @@ com_source(wordlist *wl)
         tempfile = smktemp("sp");
         if ((fp = inp_pathopen(tempfile, "w+")) == NULL) {
             perror(tempfile);
+            fprintf(cp_err, "    Simulation interrupted due to error!\n\n");
             cp_interactive = TRUE;
-            return;
+            /* If we cannot open the temporary file, stop all further command execution */
+#ifdef SHARED_MODULE
+            controlled_exit(1);
+#else
+            cp_evloop(NULL);
+#endif
         }
         while (wl) {
             if ((tp = inp_pathopen(wl->wl_word, "r")) == NULL) {
+                fprintf(cp_err, "Command 'source' failed:\n");
                 perror(wl->wl_word);
+                fprintf(cp_err, "    Simulation interrupted due to error!\n\n");
                 fclose(fp);
                 cp_interactive = TRUE;
                 unlink(tempfile);
-                return;
+                /* If we cannot source the file, stop all further command execution */
+#ifdef SHARED_MODULE
+                controlled_exit(1);
+#else
+                cp_evloop(NULL);
+#endif
             }
             while ((n = fread(buf, 1, BSIZE_SP, tp)) > 0)
                 fwrite(buf, 1, n, fp);
@@ -1577,8 +1722,16 @@ com_source(wordlist *wl)
     }
 
     if (fp == NULL) {
+        fprintf(cp_err, "Command 'source' failed:\n");
         perror(wl->wl_word);
+        fprintf(cp_err, "    Simulation interrupted due to error!\n\n");
         cp_interactive = TRUE;
+        /* If we cannot source the file, stop all further command execution */
+#ifdef SHARED_MODULE
+        controlled_exit(1);
+#else
+        cp_evloop(NULL);
+#endif
         return;
     }
 
@@ -1586,11 +1739,17 @@ com_source(wordlist *wl)
     if (ft_nutmeg || substring(INITSTR, owl->wl_word) || substring(ALT_INITSTR, owl->wl_word))
         inp_spsource(fp, TRUE, tempfile ? NULL : wl->wl_word, FALSE);
     else {
+#ifdef HAS_WINGUI
+        /* set the source window */
+        SetSource(wl->wl_word);
+#endif
         /* Save path name for use in XSPICE fopen_with_path() */
         if (Infile_Path)
             tfree(Infile_Path);
         Infile_Path = ngdirname(firstfile);
-        inp_spsource(fp, FALSE, tempfile ? NULL : wl->wl_word, FALSE);
+        if (inp_spsource(fp, FALSE, tempfile ? NULL : wl->wl_word, FALSE) != 0) {
+            fprintf(stderr, "    Simulation interrupted due to error!\n\n");
+        }
     }
 
     cp_interactive = inter;
@@ -1599,11 +1758,13 @@ com_source(wordlist *wl)
 }
 
 
-void
-inp_source(char *file)
+void inp_source(const char *file)
 {
+    /* This wordlist is special in that nothing in it should be freed --
+     * the file name word is "borrowed" from the argument to file and
+     * the wordlist is allocated on the stack. */
     static struct wordlist wl = { NULL, NULL, NULL };
-    wl.wl_word = file;
+    wl.wl_word = (char *) file;
     com_source(&wl);
 }
 
@@ -1612,8 +1773,7 @@ inp_source(char *file)
    for linear elements. If only linear elements are found,
    ckt->CKTisLinear is set to 1. Return immediately if a first
    non-linear element is found. */
-static void
-cktislinear(CKTcircuit *ckt, struct card *deck)
+static void cktislinear(CKTcircuit *ckt, struct card *deck)
 {
     struct card *dd;
     char firstchar;
@@ -1633,6 +1793,7 @@ cktislinear(CKTcircuit *ckt, struct card *deck)
                 case 'g':
                 case 'f':
                 case 'h':
+                case 'k':
                     continue;
                     break;
                 default:
@@ -1646,55 +1807,79 @@ cktislinear(CKTcircuit *ckt, struct card *deck)
 
 
 /* global array for assembling circuit lines entered by fcn circbyline
-   or receiving array from external caller. Array is created once per ngspice call.
-   Last line of the array has to get the value NULL */
+ * or receiving array from external caller. Array is created whenever
+ * a new deck is started. Last line of the array has to get the string ".end" */
 char **circarray;
 
 
-void
-create_circbyline(char *line)
+void create_circbyline(char *line, bool reset, bool lastline)
 {
-    static int linec = 0;
-    static int memlen = 256;
-    FILE *fp = NULL;
-    if (!circarray)
-        circarray = TMALLOC(char*, memlen);
-    char *p = skip_ws(line);
-    if (line < p)
-        memmove(line, p, strlen(p) + 1);
-    circarray[linec++] = line;
-    if (linec < memlen) {
-        if (ciprefix(".end", line) && (line[4] == '\0' || isspace_c(line[4]))) {
-            circarray[linec] = NULL;
-            inp_spsource(fp, FALSE, NULL, TRUE);
-            linec = 0;
+    static unsigned int linec = 0;
+    static unsigned int n_elem_alloc = 0;
+
+    if (reset) {
+        linec = 0;
+        n_elem_alloc = 0;
+        tfree(circarray);
+    }
+
+    /* Ensure up to 2 cards can be added */
+    if (n_elem_alloc < linec + 2) {
+        n_elem_alloc = n_elem_alloc == 0 ? 256 : 2 * n_elem_alloc;
+        circarray = TREALLOC(char *, circarray, n_elem_alloc);
+    }
+
+    /* Remove any leading whitespace by shifting */
+    char *p_src = skip_ws(line);
+    if (p_src != line) {
+        char *p_dst = line;
+        char ch_cur;
+        do {
+            ch_cur = *p_dst++ = *p_src++;
         }
+        while (ch_cur != '\0');
     }
-    else {
-        memlen += memlen;
-        circarray = TREALLOC(char*, circarray, memlen);
+    if (ft_ngdebug) {
+        if (linec == 0)
+            fprintf(stdout, "**** circbyline: circuit netlist sent to shared ngspice ****\n");
+        fprintf(stdout, "%d   %s\n", linec, line);
     }
-}
+    circarray[linec++] = line; /* add card to deck */
+
+    /* If the card added ended the deck, send it for processing and
+     * free the deck. The card allocations themselves will be freed
+     * elsewhere */
+    if (ciprefix(".end", line) && (line[4] == '\0' || isspace_c(line[4]))) {
+        circarray[linec] = NULL; /* termiante the deck */
+        inp_spsource((FILE *) NULL, FALSE, NULL, TRUE); /* process */
+        tfree(circarray); /* set to empty */
+        linec = 0;
+        n_elem_alloc = 0;
+    }
+    /* If the .end statement is missing */
+    else if (lastline) {
+        fprintf(stderr, "Error: .end statement is missing in netlist!\n");
+    }
+} /* end of function create_circbyline */
+
 
 
 /* fcn called by command 'circbyline' */
-void
-com_circbyline(wordlist *wl)
+void com_circbyline(wordlist *wl)
 {
     /* undo the automatic wordline creation.
        wl_flatten allocates memory on the heap for each newline.
        This memory will be released line by line in inp_source(). */
 
     char *newline = wl_flatten(wl);
-    create_circbyline(newline);
+    create_circbyline(newline, FALSE, FALSE);
 }
 
 /* handle .if('expr') ... .elseif('expr') ... .else ... .endif statements.
    numparam has evaluated .if('boolean expression') to
    .if (   1.000000000e+000  ) or .elseif (   0.000000000e+000  ).
    Evaluation is done recursively, starting with .IF, ending with .ENDIF*/
-static void
-recifeval(struct card *pdeck)
+static void recifeval(struct card *pdeck)
 {
     struct card *nd;
     int iftrue = 0, elseiftrue = 0, elsetrue = 0, iffound = 0, elseiffound = 0, elsefound = 0;
@@ -1753,8 +1938,7 @@ recifeval(struct card *pdeck)
 }
 
 /* Scan through all lines of the deck */
-static void
-dotifeval(struct card *deck)
+static void dotifeval(struct card *deck)
 {
     struct card *dd;
     char *dottoken;
@@ -1806,8 +1990,8 @@ dotifeval(struct card *deck)
        to the model parameters or device instance parameters.
 */
 
-static int
-inp_parse_temper(struct card *card, struct pt_temper **modtlist_p, struct pt_temper **devtlist_p)
+static int inp_parse_temper(struct card *card, struct pt_temper **modtlist_p,
+            struct pt_temper **devtlist_p)
 {
     int error = 0;
 
@@ -1930,8 +2114,8 @@ rem_tlist(struct pt_temper *p)
 }
 
 
-void
-inp_evaluate_temper(struct circ *circ)
+
+void inp_evaluate_temper(struct circ *circ)
 {
     struct pt_temper *d;
     double result;
@@ -1944,20 +2128,24 @@ inp_evaluate_temper(struct circ *circ)
         com_alter(d->wl);
     }
 
+    /* Step through the nodes of the linked list at circ->modtlist */
     for(d = circ->modtlist; d; d = d->next) {
         char *name = d->wl->wl_word;
         INPretrieve(&name, circ->ci_symtab);
         /* only evaluate models which have been entered into the
            hash table ckt->MODnameHash */
-        if (ft_sim->findModel (circ->ci_ckt, name) == NULL)
+        if (ft_sim->findModel (circ->ci_ckt, name) == NULL) {
             continue;
+        }
+
         IFeval((IFparseTree *) d->pt, 1e-12, &result, NULL, NULL);
         if (d->wlend->wl_word)
             tfree(d->wlend->wl_word);
         d->wlend->wl_word = tprintf("%g", result);
         com_altermod(d->wl);
     }
-}
+} /* end of funtion inp_evaluate_temper */
+
 
 
 /*
@@ -1998,10 +2186,12 @@ inp_savecurrents(struct card *deck, struct card *options, wordlist *wl, wordlist
                 break;
 
     /* if not found, then add '.save all' */
-    if (!p)
+    if (!p) {
         p = wl_cons(copy(".save all"), NULL);
-    else
+    }
+    else {
         p = NULL;
+    }
 
     /* Scan the deck for devices with their terminals.
      * We currently serve bipolars, resistors, MOS1, capacitors, inductors,
@@ -2192,5 +2382,223 @@ eval_agauss(struct card *deck, char *fcn)
             tfree(contstr);
             tfree(midstr);
         }
+    }
+}
+
+struct mlist {
+    struct card* mod;
+    struct card* prevmod;
+    struct card* prevcard;
+    char* mname;
+    float wmin;
+    float wmax;
+    float lmin;
+    float lmax;
+    struct mlist* nextm;
+    bool used;
+    bool checked;
+};
+
+/* Finally get rid of unused MOS models */
+static void rem_unused_mos_models(struct card* deck) {
+    struct card *tmpc, *tmppc = NULL;
+    struct mlist* modellist = NULL, *tmplist;
+    double scale;
+    if (!cp_getvar("scale", CP_REAL, &scale, 0))
+        scale = 1;
+    /* the old way to remove unused models */
+    struct nscope* root = inp_add_levels(deck);
+    comment_out_unused_subckt_models(deck);
+    inp_rem_unused_models(root, deck);
+    inp_rem_levels(root);
+    /* remove unused binning models */
+    for (tmpc = deck; tmpc; tmppc = tmpc, tmpc = tmpc->nextcard) {
+        char* curr_line;
+        char* nline = curr_line = tmpc->line;
+        if (ciprefix(".model", nline)) {
+            float fwmin, fwmax, flmin, flmax;
+            char* wmin = strstr(curr_line, " wmin=");
+            if (wmin) {
+                int err;
+                wmin = wmin + 6;
+                wmin = skip_ws(wmin);
+                fwmin = (float)INPevaluate(&wmin, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            else {
+                continue;
+            }
+            char* wmax = strstr(curr_line, " wmax=");
+            if (wmax) {
+                int err;
+                wmax = wmax + 6;
+                wmax = skip_ws(wmax);
+                fwmax = (float)INPevaluate(&wmax, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            else {
+                continue;
+            }
+
+            char* lmin = strstr(curr_line, " lmin=");
+            if (lmin) {
+                int err;
+                lmin = lmin + 6;
+                lmin = skip_ws(lmin);
+                flmin = (float)INPevaluate(&lmin, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            else {
+                continue;
+            }
+            char* lmax = strstr(curr_line, " lmax=");
+            if (lmax) {
+                int err;
+                lmax = lmax + 6;
+                lmax = skip_ws(lmax);
+                flmax = (float)INPevaluate(&lmax, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            else {
+                continue;
+            }
+
+            nline = nexttok(nline);
+            char* modname = gettok(&nline);
+            struct mlist* newm = TMALLOC(struct mlist, 1);
+            newm->mname = modname;
+            newm->mod = tmpc;
+            newm->prevmod = tmppc;
+            newm->wmin = newm->wmax = newm->lmin = newm->lmax = 0.;
+            newm->nextm = NULL;
+            newm->used = FALSE;
+            newm->checked = FALSE;
+            newm->lmax = flmax;
+            newm->lmin = flmin;
+            newm->wmax = fwmax;
+            newm->wmin = fwmin;
+
+            if (!modellist) {
+                modellist = newm;
+            }
+            else {
+                struct mlist* tmpl = modellist;
+                modellist = newm;
+                modellist->nextm = tmpl;
+            }
+            modellist->prevcard = tmppc;
+        }
+    }
+    for (tmpc = deck; tmpc; tmpc = tmpc->nextcard) {
+        char* curr_line = tmpc->line;
+        /* We only look for MOS devices and extract W, L, nf, and wnflag */
+        if (*curr_line == 'm') {
+            float w = 0., l = 0., nf = 1., wnf = 1.;
+            int wnflag = 0;
+            char* wstr = strstr(curr_line, " w=");
+            if (wstr) {
+                int err;
+                wstr = wstr + 3;
+                wstr = skip_ws(wstr);
+                w = (float)INPevaluate(&wstr, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            char* lstr = strstr(curr_line, " l=");
+            if (lstr) {
+                int err;
+                lstr = lstr + 3;
+                lstr = skip_ws(lstr);
+                l = (float)INPevaluate(&lstr, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            char* nfstr = strstr(curr_line, " nf=");
+            if (nfstr) {
+                int err;
+                nfstr = nfstr + 4;
+                nfstr = skip_ws(nfstr);
+                nf = (float)INPevaluate(&nfstr, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            char* wnstr = strstr(curr_line, " wnflag=");
+            if (wnstr) {
+                int err;
+                wnstr = wnstr + 8;
+                wnstr = skip_ws(wnstr);
+                wnf = (float)INPevaluate(&wnstr, &err, 0);
+                if (err) {
+                    continue;
+                }
+            }
+            if (!cp_getvar("wnflag", CP_NUM, &wnflag, 0)) {
+                if (newcompat.spe || newcompat.hs)
+                    wnflag = 1;
+                else
+                    wnflag = 0;
+            }
+
+            nf = (float)wnflag * wnf > 0.5f ? nf : 1.f;
+            w = w / nf;
+
+            /* what is the device's model name? */
+            char* mname = nexttok(curr_line);
+            int nonodes = 4; /* FIXME: this is a hack! How to really detect the number of nodes? */
+            int jj;
+            for (jj = 0; jj < nonodes; jj++) {
+                mname = nexttok(mname);
+            }
+            mname = gettok(&mname);
+            /* We now check all models */
+            for (tmplist = modellist; tmplist; tmplist = tmplist->nextm) {
+                if (strstr(tmplist->mname, mname)) {
+                    float ls = l * (float)scale;
+                    float ws = w * (float)scale;
+                    if (tmplist->lmin <= ls && tmplist->lmax >= ls && tmplist->wmin <= ws && tmplist->wmax >= ws)
+                        tmplist->used = TRUE;
+                    else
+                        tmplist->checked = TRUE;
+                }
+                else {
+                    tmplist->checked = TRUE;
+                }
+            }
+            tfree(mname);
+        }
+    }
+
+    /* Delete the models that have been checked, but are unused */
+    for (tmplist = modellist; tmplist; tmplist = tmplist->nextm) {
+        if (tmplist->checked && !tmplist->used) {
+            if (tmplist->prevcard == NULL) {
+                struct card* tmpcard = tmplist->mod;
+                tmplist->mod = tmplist->mod->nextcard;
+                line_free_x(tmpcard, FALSE);
+            }
+            else {
+                struct card* tmpcard = tmplist->prevcard;
+                tmpcard->nextcard = tmplist->mod->nextcard;
+                line_free_x(tmplist->mod, FALSE);
+            }
+        }
+    }
+    /* Remove modellist */
+    while (modellist) {
+        struct mlist* tlist = modellist->nextm;
+        tfree(modellist->mname);
+        tfree(modellist);
+        modellist = tlist;
     }
 }

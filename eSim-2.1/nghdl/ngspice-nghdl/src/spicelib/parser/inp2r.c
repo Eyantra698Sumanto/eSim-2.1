@@ -14,6 +14,7 @@ Remarks:  This code is based on a version written by Serban Popescu which
 #include "ngspice/fteext.h"
 #include "inpxx.h"
 #include "ngspice/stringskip.h"
+#include "ngspice/compatmode.h"
 
 /* undefine to add tracing to this file */
 /* #define TRACE */
@@ -63,7 +64,13 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, struct card *current)
     INPtermInsert(ckt, &nname1, tab, &node1);
     INPgetNetTok(&line, &nname2, 1);		/* <node> */
     INPtermInsert(ckt, &nname2, tab, &node2);
-    val = INPevaluate(&line, &error1, 1);	/* [<val>] */
+
+    /* enable reading values like 4k7 */
+    if (newcompat.lt)
+        val = INPevaluateRKM(&line, &error1, 1);	/* [<val>] */
+    else
+        val = INPevaluate(&line, &error1, 1);	/* [<val>] */
+
     /* either not a number -> model, or
      * follows a number, so must be a model name
      * -> MUST be a model name (or null)
@@ -149,7 +156,11 @@ void INP2R(CKTcircuit *ckt, INPtables * tab, struct card *current)
           INPinsert(&model, tab);
           current->error = INPgetMod(ckt, model, &thismodel, tab);
           if (thismodel != NULL) {
-            if (mytype != thismodel->INPmodType) {
+            if ((INPtypelook("Resistor") != thismodel->INPmodType)
+#ifdef ADMS
+               && (INPtypelook("r2_cmc") != thismodel->INPmodType)
+#endif
+            ) {
                 LITERR("incorrect model type for resistor");
                 return;
             }

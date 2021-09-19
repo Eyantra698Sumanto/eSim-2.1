@@ -31,9 +31,17 @@ model_numnodes(int type)
         return 6;
     }
 
+#ifdef ADMS
+    if (type == INPtypelook("BSIMBULK") ||  /* bsimbulk.va */
+        type == INPtypelook("BSIMCMG"))     /* bsimcmg.va */
+    {
+        return 5;
+    }
+#endif
+
     if (type == INPtypelook("VDMOS"))       /* 3 ; VDMOSnames */
     {
-        return 3;
+        return 5;
     }
 
     return 4;
@@ -75,6 +83,7 @@ INP2M(CKTcircuit *ckt, INPtables *tab, struct card *current)
     for (i = 0; ; i++) {
         char *token;
         INPgetNetTok(&line, &token, 1);
+
         if (i >= 3) {
             txfree(INPgetMod(ckt, token, &thismodel, tab));
 
@@ -92,6 +101,12 @@ INP2M(CKTcircuit *ckt, INPtables *tab, struct card *current)
             return;
         }
         INPtermInsert(ckt, &token, tab, &node[i]);
+    }
+
+    /* We have at least 4 nodes, except for VDMOS */
+    if (i == 3 && thismodel->INPmodType != INPtypelook("VDMOS")) {
+        LITERR("not enough nodes");
+        return;
     }
 
     int model_numnodes_ = model_numnodes(thismodel->INPmodType);
@@ -130,6 +145,9 @@ INP2M(CKTcircuit *ckt, INPtables *tab, struct card *current)
 #ifdef ADMS
         thismodel->INPmodType != INPtypelook("ekv") &&
         thismodel->INPmodType != INPtypelook("psp102") &&
+        thismodel->INPmodType != INPtypelook("psp103") &&
+        thismodel->INPmodType != INPtypelook("bsimbulk") &&
+        thismodel->INPmodType != INPtypelook("bsimcmg") &&
 #endif
         thismodel->INPmodType != INPtypelook("HiSIM2") &&
         thismodel->INPmodType != INPtypelook("HiSIMHV1") &&

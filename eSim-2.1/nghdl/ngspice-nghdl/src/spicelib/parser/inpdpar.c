@@ -68,7 +68,12 @@ INPdevParse(char **line, CKTcircuit *ckt, int dev, GENinstance *fast,
         IFparm *p = find_instance_parameter(parameter, device);
 
         if (!p) {
-            errbuf = tprintf(" unknown parameter (%s) \n", parameter);
+            if (cieq(parameter, "$")) {
+                errbuf = copy("  unknown parameter ($). Check the compatibility flag!\n");
+            }
+            else {
+                errbuf = tprintf("  unknown parameter (%s) \n", parameter);
+            }
             rtn = errbuf;
             goto quit;
         }
@@ -82,6 +87,12 @@ INPdevParse(char **line, CKTcircuit *ckt, int dev, GENinstance *fast,
         error = ft_sim->setInstanceParm (ckt, fast, p->id, val, NULL);
         if (error) {
             rtn = INPerror(error);
+            if (rtn && error == E_BADPARM) {
+                /* add the parameter name to error message */
+                char* extended_rtn = tprintf("%s: %s", p->keyword, rtn);
+                tfree(rtn);
+                rtn = extended_rtn;
+            }
             goto quit;
         }
 
@@ -112,7 +123,12 @@ INPdevParse(char **line, CKTcircuit *ckt, int dev, GENinstance *fast,
         IFparm *p = find_instance_parameter(parm, device);
 
         if (!p) {
-            errbuf = tprintf(" unknown parameter (%s) \n", parm);
+            if (eq(parm, "$")) {
+                errbuf = copy("  unknown parameter ($). Check the compatibility flag!\n");
+            }
+            else {
+                errbuf = tprintf("  unknown parameter (%s) \n", parm);
+            }
             rtn = errbuf;
             goto quit;
         }

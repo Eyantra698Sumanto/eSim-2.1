@@ -28,6 +28,9 @@ CKTdestroy(CKTcircuit *ckt)
     CKTnode *node;
     CKTnode *nnode;
 
+    if (!ckt)
+        return (E_NOTFOUND);
+
 
 #ifdef WANT_SENSE2
     if(ckt->CKTsenInfo){
@@ -75,6 +78,10 @@ CKTdestroy(CKTcircuit *ckt)
     }
     ckt->CKTnodes = NULL;
     ckt->CKTlastNode = NULL;
+
+    /* LTRA code addition */
+    if (ckt->CKTtimePoints != NULL)
+        FREE(ckt->CKTtimePoints);
 
     FREE(ckt->CKTrhs);
     FREE(ckt->CKTrhsOld);

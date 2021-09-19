@@ -9393,7 +9393,9 @@ finished: /* returning Values to Calling Routine */
             if (!ChargeComputationNeeded)
                 goto line850;
 
+#ifndef NOBYPASS
 line755:
+#endif
             ag0 = ckt->CKTag[0];
 
             T0 = vgd + DELTA_1;
@@ -10261,14 +10263,7 @@ line900:
                     = gdtotb = ceqgdtot = 0.0;
             }
 
-            if (model->B4SOItype > 0)
-            {
-                ceqqg = ceqqg;
-                ceqqb = ceqqb;
-                ceqqe = ceqqe;
-                ceqqd = ceqqd;
-            }
-            else
+            if (model->B4SOItype < 0)
             {
                 ceqbodcon = -ceqbodcon;
                 ceqbody = -ceqbody;

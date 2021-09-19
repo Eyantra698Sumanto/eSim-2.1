@@ -31,6 +31,7 @@ extern long dynsubst;           /* see inpcom.c */
 #define  S_unop   3
 #define  S_stop   4
 
+static char* sort_idlist(char *list);
 
 static double
 ternary_fcn(double conditional, double if_value, double else_value)
@@ -253,7 +254,7 @@ initdico(dico_t *dico)
 
     dico->inst_symbols = NULL;          /* instance qualified are lazily allocated */
 
-    if (inp_compat_mode == COMPATMODE_HS)
+    if (newcompat.hs)
         dico->hs_compatibility = 1;
     else
         dico->hs_compatibility = 0;
@@ -300,7 +301,6 @@ dicostack_pop(dico_t *dico)
 /* pop operation for nested subcircuit locals */
 {
     char *inst_name;            /* name of subcircuit instance */
-    char *param_p;              /* qualified inst parameter name */
     entry_t *entry;             /* current entry */
     NGHASHPTR htable_p;         /* current hash table */
     NGHASHITER iter;            /* hash iterator - thread safe */
@@ -317,22 +317,23 @@ dicostack_pop(dico_t *dico)
     inst_name = dico->inst_name[dico->stack_depth];
     htable_p = dico->symbols[dico->stack_depth];
     if (htable_p) {
-        SPICE_DSTRING param_name; /* build a qualified name */
-        spice_dstring_init(&param_name);
+        /* build a qualified name */
+        DS_CREATE(param_name, 100);
 
         NGHASH_FIRST(&iter);
         for (entry = (entry_t *) nghash_enumerateRE(htable_p, &iter);
-             entry;
-             entry = (entry_t *) nghash_enumerateRE(htable_p, &iter))
-        {
-            spice_dstring_reinit(&param_name);
-            param_p = spice_dstring_print(&param_name, "%s.%s",
-                                          inst_name, entry->symbol);
-            nupa_add_inst_param(param_p, entry->vl);
+                 entry;
+                 entry = (entry_t *) nghash_enumerateRE(htable_p, &iter)) {
+            ds_clear(&param_name);
+            if (ds_cat_printf(&param_name, "%s.%s",
+                    inst_name, entry->symbol) != DS_E_OK) {
+                controlled_exit(-1);
+            }
+            nupa_add_inst_param(ds_get_buf(&param_name), entry->vl);
             dico_free_entry(entry);
         }
         nghash_free(htable_p, NULL, NULL);
-        spice_dstring_free(&param_name);
+        ds_free(&param_name);
     }
     tfree(inst_name);
 
@@ -494,7 +495,7 @@ nupa_define(dico_t *dico,
 
 
 bool
-defsubckt(dico_t *dico, struct card *card)
+defsubckt(dico_t *dico, const struct card *card)
 /* called on 1st pass of spice source code,
    to enter subcircuit names
 */
@@ -509,23 +510,23 @@ defsubckt(dico_t *dico, struct card *card)
     while (*s && (*s != '.'))
         s++;                    /* skip 1st dotword */
 
-    while (*s && (*s > ' '))
+    while (*s && ((unsigned char) (*s) > ' '))
         s++;
 
-    while (*s && (*s <= ' '))
+    while (*s && ((unsigned char) (*s) <= ' '))
         s++;                    /* skip blank */
 
     s_end = s;
 
-    while (*s_end && (*s_end > ' '))
+    while (*s_end && ((unsigned char) (*s_end) > ' '))
         s_end++;
 
     if (s_end > s) {
-        SPICE_DSTRING ustr;     /* temp user string */
-        spice_dstring_init(&ustr);
+        DS_CREATE(ustr, 200); /* temp user string */
         pscopy(&ustr, s, s_end);
-        err = nupa_define(dico, spice_dstring_value(&ustr), ' ', NUPA_SUBCKT, 0.0, w, NULL);
-        spice_dstring_free(&ustr);
+        err = nupa_define(dico, ds_get_buf(&ustr), ' ',
+                NUPA_SUBCKT, 0.0, w, NULL);
+        ds_free(&ustr);
     } else {
         err = message(dico, "Subcircuit or Model without name.\n");
     }
@@ -542,14 +543,13 @@ findsubckt(dico_t *dico, const char *s)
     const char *name_e = skip_back_ws(s + strlen(s), s);
     const char *name_b = skip_back_non_ws(name_e, s);
 
-    SPICE_DSTRING ustr;         /* u= subckt name is last token in string s */
     entry_t *entry;             /* symbol table entry */
 
-    spice_dstring_init(&ustr);
+    DS_CREATE(ustr, 200); /* u= subckt name is last token in string s */
 
     pscopy(&ustr, name_b, name_e);
-    entry = entrynb(dico, spice_dstring_value(&ustr));
-    spice_dstring_free(&ustr);
+    entry = entrynb(dico, ds_get_buf(&ustr));
+    ds_free(&ustr);
 
     if (entry && (entry->tp == NUPA_SUBCKT)) {
         return entry->ivl;
@@ -575,7 +575,7 @@ keyword(const char *keys, const char *s, const char *s_end)
         const char *p = s;
         while ((p < s_end) && (*p == *keys))
             p++, keys++;
-        if ((p >= s_end) && (*keys <= ' '))
+        if ((p >= s_end) && ((unsigned char) (*keys) <= ' '))
             return j;
         keys = strchr(keys, ' ');
         if (!keys)
@@ -724,7 +724,7 @@ fetchoperator(dico_t *dico,
         level = 8;
     } else {
         state = S_init;
-        if (c > ' ')
+        if ((unsigned char) c > ' ')
             error = message(dico, "Syntax error: letter [%c]\n", c);
     }
 
@@ -850,10 +850,9 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
     char uop[nprece + 1];
     int i, natom;
     bool ok;
-    SPICE_DSTRING tstr;
     const char *s_orig = s;
 
-    spice_dstring_init(&tstr);
+    DS_CREATE(tstr, 200);
 
     for (i = 0; i <= nprece; i++) {
         accu[i] = 0.0;
@@ -861,7 +860,7 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
     }
 
     /* trim trailing whitespace */
-    while ((s_end > s) && (s_end[-1] <= ' '))
+    while ((s_end > s) && ((unsigned char) (s_end[-1]) <= ' '))
         s_end--;
 
     state = S_init;
@@ -922,17 +921,17 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
                 u = formula(dico, s, kptr, &error);
                 state = S_atom;
                 if (fu > 0) {
-                    if ((fu == XFU_TERNARY_FCN))
+                    if (fu == XFU_TERNARY_FCN)
                         u = ternary_fcn(v, w, u);
-                    else if ((fu == XFU_AGAUSS))
+                    else if (fu == XFU_AGAUSS)
                         u = agauss(v, w, u);
-                    else if ((fu == XFU_GAUSS))
+                    else if (fu == XFU_GAUSS)
                         u = gauss(v, w, u);
-                    else if ((fu == XFU_UNIF))
+                    else if (fu == XFU_UNIF)
                         u = unif(v, u);
-                    else if ((fu == XFU_AUNIF))
+                    else if (fu == XFU_AUNIF)
                         u = aunif(v, u);
-                    else if ((fu == XFU_LIMIT))
+                    else if (fu == XFU_LIMIT)
                         u = limit(v, u);
                     else
                         u = mathfunction(fu, v, u);
@@ -946,9 +945,9 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
             if (fu > 0) {
                 state = S_init;  /* S_init means: ignore for the moment */
             } else {
-                spice_dstring_reinit(&tstr);
+                ds_clear(&tstr);
                 pscopy(&tstr, s, s_next);
-                u = fetchnumentry(dico, spice_dstring_value(&tstr), &error);
+                u = fetchnumentry(dico, ds_get_buf(&tstr), &error);
                 state = S_atom;
             }
             s = s_next;
@@ -1043,7 +1042,7 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
 
     *perror = error;
 
-    spice_dstring_free(&tstr);
+    ds_free(&tstr);
 
     if (error)
         return 1.0;
@@ -1061,10 +1060,10 @@ formula(dico_t *dico, const char *s, const char *s_end, bool *perror)
  */
 
 static void
-double_to_string(SPICE_DSTRINGPTR qstr_p, double value)
+double_to_string(DSTRINGPTR qstr_p, double value)
 {
     char buf[ACT_CHARACTS + 1];
-    if (snprintf(buf, sizeof(buf), "% 25.17e", value) != ACT_CHARACTS) {
+    if (snprintf(buf, sizeof(buf), "% 23.15e  ", value) != ACT_CHARACTS) {
         fprintf(stderr, "ERROR: xpressn.c, %s(%d)\n", __FUNCTION__, __LINE__);
         controlled_exit(1);
     }
@@ -1074,12 +1073,12 @@ double_to_string(SPICE_DSTRINGPTR qstr_p, double value)
 
 /* transform exression in string `t' to result q */
 static bool
-evaluate_expr(dico_t *dico, SPICE_DSTRINGPTR qstr_p, const char *t, const char * const t_end)
+evaluate_expr(dico_t *dico, DSTRINGPTR qstr_p, const char *t, const char * const t_end)
 {
     bool err = 0;
     double u;
 
-    spice_dstring_reinit(qstr_p);
+    ds_clear(qstr_p);
 
     u = formula(dico, t, t_end, &err);
     if (err)
@@ -1094,10 +1093,10 @@ evaluate_expr(dico_t *dico, SPICE_DSTRINGPTR qstr_p, const char *t, const char *
 /********* interface functions for spice3f5 extension ***********/
 
 static char *
-insertnumber(dico_t *dico, char * const s, SPICE_DSTRINGPTR ustr_p)
+insertnumber(dico_t *dico, char * const s, DSTRINGPTR ustr_p)
 /* insert u in string s in place of the next placeholder number */
 {
-    const char *u = spice_dstring_value(ustr_p);
+    const char *u = ds_get_buf(ustr_p);
 
     char buf[ACT_CHARACTS+1];
 
@@ -1138,9 +1137,8 @@ nupa_substitute(dico_t *dico, const char *s, char *r)
     const char * const s_end = s + strlen(s);
     bool err = 0;
 
-    SPICE_DSTRING qstr;         /* temp result dynamic string */
+    DS_CREATE(qstr, 200); /* temp result dynamic string */
 
-    spice_dstring_init(&qstr);
 
     while (s < s_end) {
 
@@ -1171,7 +1169,7 @@ nupa_substitute(dico_t *dico, const char *s, char *r)
 
             /* exeption made for .meas */
             if (s + 4 == kptr && strncasecmp(s, "LAST", 4) == 0) {
-                spice_dstring_reinit(&qstr);
+                ds_clear(&qstr);
                 sadd(&qstr, "last");
             } else {
                 err = evaluate_expr(dico, &qstr, s, kptr);
@@ -1188,14 +1186,14 @@ nupa_substitute(dico_t *dico, const char *s, char *r)
     }
 
  Lend:
-    spice_dstring_free(&qstr);
+    ds_free(&qstr);
 
     return err;
 }
 
 
 static const char *
-getword(const char *s, SPICE_DSTRINGPTR tstr_p)
+getword(const char *s, DSTRINGPTR tstr_p)
 {
     const char *s_end = s + strlen(s);
     const char *word;
@@ -1207,7 +1205,7 @@ getword(const char *s, SPICE_DSTRINGPTR tstr_p)
     while (alfa(*s) || isdigit_c(*s))
         s++;
 
-    spice_dstring_reinit(tstr_p);
+    ds_clear(tstr_p);
     pscopy(tstr_p, word, s);
 
     return s;
@@ -1215,7 +1213,7 @@ getword(const char *s, SPICE_DSTRINGPTR tstr_p)
 
 
 static char *
-getexpress(nupa_type *type, SPICE_DSTRINGPTR tstr_p, const char *s)
+getexpress(nupa_type *type, DSTRINGPTR tstr_p, const char *s)
 /* returns expression-like string until next separator
    Input  i=position before expr, output  i=just after expr, on separator.
    returns tpe=='R' if (numeric, 'S' if (string only
@@ -1225,7 +1223,7 @@ getexpress(nupa_type *type, SPICE_DSTRINGPTR tstr_p, const char *s)
     const char *p;
     nupa_type tpe;
 
-    while ((s < s_end - 1) && (*s <= ' '))
+    while ((s < s_end - 1) && ((unsigned char)(* s) <= ' '))
         s++;                    /*white space ? */
 
     if (*s == '"') {            /* string constant */
@@ -1238,7 +1236,7 @@ getexpress(nupa_type *type, SPICE_DSTRINGPTR tstr_p, const char *s)
 
         do
             p++;
-        while ((p < s_end) && (*p <= ' '));
+        while ((p < s_end) && ((unsigned char)(*p) <= ' '));
 
         tpe = NUPA_STRING;
 
@@ -1309,23 +1307,20 @@ nupa_assignment(dico_t *dico, const char *s, char mode)
     double rval = 0.0;
     char *t_p;                  /* dstring contents value */
 
-    SPICE_DSTRING tstr;         /* temporary dstring */
-    SPICE_DSTRING ustr;         /* temporary dstring */
+    DS_CREATE(tstr, 200); /* temporary dstrings */
+    DS_CREATE(ustr, 200);
 
-    spice_dstring_init(&tstr);
-    spice_dstring_init(&ustr);
-
-    while ((p < s_end) && (*p <= ' '))
+    while ((p < s_end) && ((unsigned char) (*p) <= ' '))
         p++;
 
     if (*p == '.')            /* skip any dot keyword */
-        while (*p > ' ')
+        while ((unsigned char) (*p) > ' ')
             p++;
 
     while (p < s_end) {
 
         p = getword(p, &tstr);
-        t_p = spice_dstring_value(&tstr);
+        t_p = ds_get_buf(&tstr);
         if (t_p[0] == '\0') {
             error = message(dico, " Identifier expected\n");
             break;
@@ -1343,7 +1338,7 @@ nupa_assignment(dico_t *dico, const char *s, char mode)
         p = getexpress(&dtype, &ustr, p + 1) + 1;
 
         if (dtype == NUPA_REAL) {
-            const char *tmp = spice_dstring_value(&ustr);
+            const char *tmp = ds_get_buf(&ustr);
             rval = formula(dico, tmp, tmp + strlen(tmp), &error);
             if (error) {
                 message(dico,
@@ -1355,7 +1350,7 @@ nupa_assignment(dico_t *dico, const char *s, char mode)
             wval = (int) (p - s);
         }
 
-        error = nupa_define(dico, spice_dstring_value(&tstr), mode /* was ' ' */ ,
+        error = nupa_define(dico, ds_get_buf(&tstr), mode /* was ' ' */ ,
                             dtype, rval, wval, NULL);
         if (error)
             break;
@@ -1366,8 +1361,8 @@ nupa_assignment(dico_t *dico, const char *s, char mode)
         }
     }
 
-    spice_dstring_free(&tstr);
-    spice_dstring_free(&ustr);
+    ds_free(&tstr);
+    ds_free(&ustr);
 
     return error;
 }
@@ -1406,25 +1401,20 @@ nupa_subcktcall(dico_t *dico, const char *s, const char *x,
 */
 {
     int n, narg = 0;
-    SPICE_DSTRING subname;
-    SPICE_DSTRING tstr;
-    SPICE_DSTRING ustr;
-    SPICE_DSTRING vstr;
-    SPICE_DSTRING idlist;
     bool err = 0;
 
-    spice_dstring_init(&subname);
-    spice_dstring_init(&tstr);
-    spice_dstring_init(&ustr);
-    spice_dstring_init(&vstr);
-    spice_dstring_init(&idlist);
+    DS_CREATE(subname, 200);
+    DS_CREATE(tstr, 200);
+    DS_CREATE(ustr, 200);
+    DS_CREATE(vstr, 200);
+    DS_CREATE(idlist, 200);
 
     /***** first, analyze the subckt definition line */
-    n = 0;                      /* number of parameters if any */
+    n = 0; /* number of parameters if any */
 
     scopys(&tstr, s);
 
-    const char *j2 = strstr(spice_dstring_value(&tstr), "subckt");
+    const char *j2 = strstr(ds_get_buf(&tstr), "subckt");
     if (j2) {
         j2 = skip_ws(j2 + 6);     /* skip subckt and whitespace */
         pscopy(&subname, j2, skip_non_ws(j2));
@@ -1432,18 +1422,15 @@ nupa_subcktcall(dico_t *dico, const char *s, const char *x,
         err = message(dico, " ! a subckt line!\n");
     }
 
-    const char *i2 = strstr(spice_dstring_value(&tstr), "params:");
+    const char *i2 = strstr(ds_get_buf(&tstr), "params:");
 
     if (i2) {
-        const char *optr, *jptr;
-
-        pscopy(&tstr, i2 + 7, NULL);
+        const char* optr, * jptr;
 
         /* search identifier to the left of '=' assignments */
-
-        for (optr = spice_dstring_value(&tstr);
-             (jptr = strchr(optr, '=')) != NULL;
-             optr = jptr + 1)
+        for (optr = i2 + 7;
+                (jptr = strchr(optr, '=')) != NULL;
+                optr = jptr + 1)
         {
             const char *kptr, *hptr;
 
@@ -1486,22 +1473,20 @@ nupa_subcktcall(dico_t *dico, const char *s, const char *x,
         */
         scopys(&tstr, skip_non_ws(x));
 
-        char * const t_p = spice_dstring_value(&tstr);
+        char * const t_p = ds_get_buf(&tstr);
         char *jp = NULL;
 
         /* search for the last occurence of `subname' in the given line */
         for (;;) {
-            char *next_p =
-                search_isolated_identifier(jp ? jp + 1 : t_p,
-                                           spice_dstring_value(&subname));
+            char *next_p = search_isolated_identifier(jp ? jp + 1 : t_p,
+                    ds_get_buf(&subname));
             if (!next_p)
                 break;
             jp = next_p;
         }
 
         if (jp) {
-
-            jp += spice_dstring_length(&subname);
+            jp += ds_get_length(&subname);
 
             while (isspace_c(*jp) || (*jp == ','))
                 jp++;
@@ -1512,7 +1497,7 @@ nupa_subcktcall(dico_t *dico, const char *s, const char *x,
 
                 /* try to fetch valid arguments */
                 char *kp = jp;
-                spice_dstring_reinit(&ustr);
+                ds_clear(&ustr);
 
                 if (alfanum(*kp) || *kp == '.') {
                     /* number, identifier */
@@ -1522,13 +1507,13 @@ nupa_subcktcall(dico_t *dico, const char *s, const char *x,
                     jp = getexpress(NULL, &ustr, jp);
                 } else {
                     jp++;
-                    if (*kp > ' ')
+                    if ((unsigned char) (*kp) > ' ')
                         message(dico, "Subckt call, symbol %c not understood\n", *kp);
                 }
 
-                char * const u_p = spice_dstring_value(&ustr);
+                char * const u_p = ds_get_buf(&ustr);
                 if (*u_p) {
-                    char * const idlist_p = spice_dstring_value(&idlist);
+                    char * const idlist_p = ds_get_buf(&idlist);
                     char *dollar = strchr(idlist_p, '$');
                     if (dollar) {
                         /* replace dollar with expression string u */
@@ -1552,17 +1537,22 @@ nupa_subcktcall(dico_t *dico, const char *s, const char *x,
         err = message(dico,
                       " Mismatch: %d formal but %d actual params.\n"
                       "%s\n",
-                      n, narg, spice_dstring_value(&idlist));
+                      n, narg, ds_get_buf(&idlist));
         /* ;} else { debugwarn(dico, idlist) */
     }
 
-    err = nupa_assignment(dico, spice_dstring_value(&idlist), 'N');
+    /* sort the idlist, so that plain numerical entries like nf=2 move to the front */
+    char* sortedlist = sort_idlist(ds_get_buf(&idlist));
 
-    spice_dstring_free(&subname);
-    spice_dstring_free(&tstr);
-    spice_dstring_free(&ustr);
-    spice_dstring_free(&vstr);
-    spice_dstring_free(&idlist);
+    err = nupa_assignment(dico, sortedlist, 'N');
+
+    ds_free(&subname);
+    ds_free(&tstr);
+    ds_free(&ustr);
+    ds_free(&vstr);
+    ds_free(&idlist);
+
+    tfree(sortedlist);
 
     return err;
 }
@@ -1583,3 +1573,34 @@ const struct nupa_type S_nupa_real = { "NUPA_REAL" };
 const struct nupa_type S_nupa_string = { "NUPA_STRING" };
 const struct nupa_type S_nupa_subckt = { "NUPA_SUBCKT" };
 const struct nupa_type S_nupa_unknown = { "NUPA_UNKNOWN" };
+
+/* get the instance line list, sort numerical entries (eg. nf=1) to the front */
+static char* sort_idlist(char* list) {
+    wordlist* wl = NULL, *wle = NULL;
+    bool start = TRUE;
+    char* cut_list = list, *ret;
+    while (*cut_list != '\0') {
+        int error;
+        char* token = gettok_char(&cut_list, ';', TRUE, FALSE);
+        char* eqstr = strchr(token, '=');
+        eqstr++;
+        INPevaluate(&eqstr, &error, 1);
+        /* num entry, prepend word */
+        if (error == 0 && *eqstr == '\0') {
+            wle = wl_cons(token, wle);
+            if (start)
+                wl = wle;
+            start = FALSE;
+        }
+        /* expression, append word */
+        else {
+            wl_append_word(&wl, &wl, token);
+            if (start)
+                wle = wl;
+            start = FALSE;
+        }
+    }
+    ret = wl_flatten(wle);
+    wl_free(wle);
+    return ret;
+}

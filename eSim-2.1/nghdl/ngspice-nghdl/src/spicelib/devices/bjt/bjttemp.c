@@ -170,11 +170,30 @@ BJTtemp(GENmodel *inModel, CKTcircuit *ckt)
             factlog = ratio1 * model->BJTenergyGap/vt +
                     model->BJTtempExpIS*ratlog;
             if ((model->BJTtlev == 0) || (model->BJTtlev == 1)) {
-              factor = exp(factlog);
-              here->BJTtSatCur = model->BJTsatCur * factor;
-              here->BJTtSubSatCur = model->BJTsubSatCur * factor;
+                factor = exp(factlog);
+                here->BJTtSatCur = model->BJTsatCur * factor;
+                if (model->BJTsubSatCurGiven)
+                    here->BJTtSubSatCur = model->BJTsubSatCur * factor;
             } else if (model->BJTtlev == 3) {
-              here->BJTtSatCur = pow(model->BJTsatCur,(1+model->BJTtis1*dt+model->BJTtis2*dt*dt));
+                here->BJTtSatCur = pow(model->BJTsatCur,(1+model->BJTtis1*dt+model->BJTtis2*dt*dt));
+                if (model->BJTsubSatCurGiven)
+                    here->BJTtSubSatCur = pow(model->BJTsubSatCur,(1+model->BJTtiss1*dt+model->BJTtiss2*dt*dt));
+            }
+
+            if (model->BJTintCollResistGiven) {
+                if (model->BJTquasimod == 1) {
+                    double rT=here->BJTtemp/model->BJTtnom;
+                    here->BJTtintCollResist=model->BJTintCollResist*pow(rT,model->BJTtempExpRCI);
+                    here->BJTtepiSatVoltage=model->BJTepiSatVoltage*pow(rT,model->BJTtempExpVO);
+                    double xvar1=pow(rT,model->BJTtempExpIS);
+                    double xvar2=-model->BJTenergyGapQS*(1.0-rT)/vt;
+                    double xvar3=exp(xvar2);
+                    here->BJTtepiDoping=model->BJTepiDoping*xvar1*xvar3;
+                } else {
+                    here->BJTtintCollResist=model->BJTintCollResist;
+                    here->BJTtepiSatVoltage=model->BJTepiSatVoltage;
+                    here->BJTtepiDoping=model->BJTepiDoping;
+                }
             }
 
             if (model->BJTtlev == 0) {
@@ -213,7 +232,7 @@ BJTtemp(GENmodel *inModel, CKTcircuit *ckt)
                     (4e-4*(here->BJTtemp-REFTEMP)-gmanew);
             } else if (model->BJTtlevc == 1) {
                 here->BJTtBEcap = model->BJTdepletionCapBE*
-                    (1+model->BJTcte*dt);			
+                    (1+model->BJTcte*dt);           
                 here->BJTtBEpot = model->BJTpotentialBE - model->BJTtvje*dt;
             }
             if (model->BJTtlevc == 0) {
@@ -228,7 +247,7 @@ BJTtemp(GENmodel *inModel, CKTcircuit *ckt)
                     (4e-4*(here->BJTtemp-REFTEMP)-gmanew);
             } else if (model->BJTtlevc == 1) {
                 here->BJTtBCcap = model->BJTdepletionCapBC*
-                    (1+model->BJTctc*dt);			
+                    (1+model->BJTctc*dt);           
                 here->BJTtBCpot = model->BJTpotentialBC - model->BJTtvjc*dt;
             }
             if (model->BJTtlevc == 0) {
@@ -243,7 +262,7 @@ BJTtemp(GENmodel *inModel, CKTcircuit *ckt)
                     (4e-4*(here->BJTtemp-REFTEMP)-gmanew);
             } else if (model->BJTtlevc == 1) {
                 here->BJTtSubcap = model->BJTcapSub*
-                    (1+model->BJTcts*dt);			
+                    (1+model->BJTcts*dt);           
                 here->BJTtSubpot = model->BJTpotentialSubstrate - model->BJTtvjs*dt;
             }
 
@@ -257,8 +276,9 @@ BJTtemp(GENmodel *inModel, CKTcircuit *ckt)
                     (1 - here->BJTtjunctionExpBC);
             here->BJTtVcrit = vt *
                      log(vt / (CONSTroot2*here->BJTtSatCur*here->BJTarea));
-            here->BJTtSubVcrit = vt *
-                     log(vt / (CONSTroot2*here->BJTtSubSatCur*here->BJTarea));
+            if (model->BJTsubSatCurGiven)
+                here->BJTtSubVcrit = vt *
+                         log(vt / (CONSTroot2*here->BJTtSubSatCur*here->BJTarea));
             here->BJTtf2 = exp((1 + here->BJTtjunctionExpBE) * xfc);
             here->BJTtf3 = 1 - model->BJTdepletionCapCoeff *
                     (1 + here->BJTtjunctionExpBE);

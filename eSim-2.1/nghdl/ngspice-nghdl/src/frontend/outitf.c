@@ -34,6 +34,7 @@ Modified: 2000 AlansFixes, 2013/2015 patch by Krzysztof Blaszkowski
 
 extern char *spice_analysis_get_name(int index);
 extern char *spice_analysis_get_description(int index);
+extern int EVTsetup_plot(CKTcircuit* ckt, char* plotname);
 
 
 static int beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analName,
@@ -64,7 +65,7 @@ static int InterpPlotAdd(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 #include "ngspice/tclspice.h"
 #elif defined SHARED_MODULE
 extern int sh_ExecutePerLoop(void);
-extern void sh_vecinit(runDesc *run);
+extern int sh_vecinit(runDesc *run);
 #endif
 
 /*Suppressing progress info in -o option */
@@ -81,7 +82,7 @@ int fixme_inoise_type = SV_NOTYPE;
 #define DOUBLE_PRECISION    15
 
 
-static clock_t lastclock, currclock;
+static clock_t lastclock, currclock, startclock;
 static double *rowbuf;
 static size_t column, rowbuflen;
 
@@ -93,7 +94,98 @@ static double *valueold, *valuenew;
 #ifdef SHARED_MODULE
 static bool savenone = FALSE;
 #endif
+static void close_server()
+{	
+	FILE *fptr;
+	char ip_filename[100];
 
+	#ifdef __linux__
+		sprintf(ip_filename, "/tmp/NGHDL_COMMON_IP_%d.txt", getpid());
+	#elif _WIN32
+		WSADATA WSAData;
+    		SOCKADDR_IN addr;
+    		WSAStartup(MAKEWORD(2, 2), &WSAData);
+        	char *base_path = getenv("LocalAppData");
+        	sprintf(ip_filename, "\\Temp\\NGHDL_COMMON_IP_%d.txt", getpid());
+        	sprintf(ip_filename, strcat(base_path, ip_filename));
+	#endif
+
+	fptr = fopen(ip_filename, "r");
+	
+    if(fptr)
+	{
+		char server_ip[20], *message = "CLOSE_FROM_NGSPICE";
+		int port = -1, sock = -1, try_limit = 0, skip_flag = 0;
+	    struct sockaddr_in serv_addr;
+        serv_addr.sin_family = AF_INET;
+
+        /* scan server ip and port to send close message */
+        while(fscanf(fptr, "%s %d\n", server_ip, &port) == 2) 
+		{	
+            /* Create socket descriptor */
+            try_limit = 10, skip_flag = 0;
+            while(try_limit > 0)
+            {
+    			if((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    			{ 
+                    sleep(0.2);
+                    try_limit--;
+                    if(try_limit == 0)
+                    {
+    				    perror("\nClient Termination - Socket Failed: ");
+                        skip_flag = 1;
+    			    }
+                }
+                else
+                    break;
+            }
+
+            if (skip_flag)
+                continue;
+				   
+			serv_addr.sin_port = htons(port);
+			serv_addr.sin_addr.s_addr = inet_addr(server_ip); 
+
+            /* connect with the server */
+            try_limit = 10, skip_flag = 0;
+			while(try_limit > 0)
+            {
+    			if(connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
+    			{ 
+    				sleep(0.2);
+                    try_limit--;
+                    if(try_limit == 0)
+                    {
+                        perror("\nClient Termination - Connection Failed: ");
+                        skip_flag = 1;
+                    }
+    			}
+                else
+                    break;
+            }
+			
+            if (skip_flag)
+                continue;
+
+            /* send close message to the server */
+            #ifdef __linux__
+            	send(sock, message, strlen(message), 0);
+            	close(sock);
+            #elif _WIN32
+            	send(sock, message, strlen(message) + 1, 0);
+            	closesocket(sock);
+            #endif
+		}
+
+        fclose(fptr);
+	}
+
+	#ifdef _WIN32
+		WSACleanup();
+	#endif
+
+	remove(ip_filename);
+}
 /* The two "begin plot" routines share all their internals... */
 
 int
@@ -245,15 +337,25 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
 
         /* Pass 1. */
         if (numsaves && !saveall) {
-            for (i = 0; i < numsaves; i++)
-                if (!savesused[i])
-                    for (j = 0; j < numNames; j++)
+            for (i = 0; i < numsaves; i++) {
+                if (!savesused[i]) {
+                    for (j = 0; j < numNames; j++) {
                         if (name_eq(saves[i].name, dataNames[j])) {
                             addDataDesc(run, dataNames[j], dataType, j, initmem);
                             savesused[i] = TRUE;
                             saves[i].used = 1;
                             break;
                         }
+                        /* generate a vector of real time information */
+                        else if (ft_ngdebug && refName && eq(refName, "time") && eq(saves[i].name, "speedcheck")) {
+                            addDataDesc(run, "speedcheck", IF_REAL, j, initmem);
+                            savesused[i] = TRUE;
+                            saves[i].used = 1;
+                            break;
+                        }
+                    }
+                }
+            }
         } else {
             for (i = 0; i < numNames; i++)
                 if (!refName || !name_eq(dataNames[i], refName))
@@ -267,6 +369,10 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
                     {
                         addDataDesc(run, dataNames[i], dataType, i, initmem);
                     }
+            /* generate a vector of real time information */
+            if (ft_ngdebug && refName && eq(refName, "time")) {
+                 addDataDesc(run, "speedcheck", IF_REAL, numNames, initmem);
+            }
         }
 
         /* Pass 1 and a bit.
@@ -398,6 +504,11 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
             plotInit(run);
             if (refName)
                 run->runPlot->pl_ndims = 1;
+#ifdef XSPICE
+            /* set the current plot name into the event job */
+            if (run->runPlot->pl_typename)
+                EVTsetup_plot(run->circuit, run->runPlot->pl_typename);
+#endif
         }
     }
 
@@ -416,6 +527,7 @@ beginPlot(JOB *analysisPtr, CKTcircuit *circuitPtr, char *cktName, char *analNam
     sh_vecinit(run);
 #endif
 
+    startclock = clock();
     return (OK);
 }
 
@@ -526,7 +638,13 @@ OUTpD_memory(runDesc *run, IFvalue *refValue, IFvalue *valuePtr)
             else if (d->type == IF_COMPLEX)
                 plotAddComplexValue(d, refValue->cValue);
         } else if (d->regular) {
-            if (d->type == IF_REAL)
+            if (ft_ngdebug && d->type == IF_REAL && eq(d->name, "speedcheck")) {
+                /* current time */
+                clock_t cl = clock();
+                double tt = ((double)cl - (double)startclock) / CLOCKS_PER_SEC;
+                plotAddRealValue(d, tt);
+            }
+            else if (d->type == IF_REAL)
                 plotAddRealValue(d, valuePtr->v.vec.rVec[d->outIndex]);
             else if (d->type == IF_COMPLEX)
                 plotAddComplexValue(d, valuePtr->v.vec.cVec[d->outIndex]);
@@ -565,21 +683,22 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 #ifdef TCL_MODULE
     steps_completed = run->pointCount;
 #endif
-    /* interpolated batch mode output to file in transient analysis */
-    if (interpolated && run->circuit->CKTcurJob->JOBtype == 4 && run->writeOut) {
-        InterpFileAdd(run, refValue, valuePtr);
-        return (OK);
+    /* interpolated batch mode output to file/plot in transient analysis */
+    if (interpolated && run->circuit->CKTcurJob->JOBtype == 4) {
+        if (run->writeOut) { /* To file */
+            InterpFileAdd(run, refValue, valuePtr);
+        }
+        else { /* To plot */
+            InterpPlotAdd(run, refValue, valuePtr);
+        }
+        return OK;
     }
-    /* interpolated interactive or control mode output to plot in transient analysis */
-    else if (interpolated && run->circuit->CKTcurJob->JOBtype == 4 && !(run->writeOut)) {
-        InterpPlotAdd(run, refValue, valuePtr);
-        return (OK);
-    }
+
     /* standard batch mode output to file */
     else if (run->writeOut) {
-
-        if (run->pointCount == 1)
+        if (run->pointCount == 1) {
             fileInit_pass2(run);
+        }
 
         fileStartPoint(run->fp, run->binary, run->pointCount);
 
@@ -600,10 +719,8 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
                     }
                 }
 #endif
-            } else {
-
-                /*  And the same for a non-complex value  */
-
+            }
+            else { /* And the same for a non-complex (real) value  */
                 fileAddRealValue(run->fp, run->binary, refValue->rValue);
 #ifndef HAS_WINGUI
                 if (!orflag && !ft_norefprint) {
@@ -620,8 +737,9 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
 
         for (i = 0; i < run->numData; i++) {
             /* we've already printed reference vec first */
-            if (run->data[i].outIndex == -1)
+            if (run->data[i].outIndex == -1) {
                 continue;
+            }
 
 #ifdef TCL_MODULE
             blt_add(i, refValue ? refValue->rValue : NAN);
@@ -630,13 +748,14 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
             if (run->data[i].regular) {
                 if (run->data[i].type == IF_REAL)
                     fileAddRealValue(run->fp, run->binary,
-                                     valuePtr->v.vec.rVec [run->data[i].outIndex]);
+                            valuePtr->v.vec.rVec [run->data[i].outIndex]);
                 else if (run->data[i].type == IF_COMPLEX)
                     fileAddComplexValue(run->fp, run->binary,
-                                        valuePtr->v.vec.cVec [run->data[i].outIndex]);
+                            valuePtr->v.vec.cVec [run->data[i].outIndex]);
                 else
                     fprintf(stderr, "OUTpData: unsupported data type\n");
-            } else {
+            }
+            else {
                 IFvalue val;
                 /* should pre-check instance */
                 if (!getSpecial(&run->data[i], run, &val)) {
@@ -652,7 +771,8 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
                         val.cValue.real = 0;
                         val.cValue.imag = 0;
                         fileAddComplexValue(run->fp, run->binary, val.cValue);
-                    } else {
+                    }
+                    else {
                         val.rValue = 0;
                         fileAddRealValue(run->fp, run->binary, val.rValue);
                     }
@@ -683,8 +803,8 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
             shouldstop = TRUE;
         }
 
-    } else {
-
+    }
+    else {
         OUTpD_memory(run, refValue, valuePtr);
 
         /*  This is interactive mode. Update the screen with the reference
@@ -718,18 +838,18 @@ OUTpData(runDesc *plotPtr, IFvalue *refValue, IFvalue *valuePtr)
     sh_ExecutePerLoop();
 #endif
 
-    return (OK);
-}
+    return OK;
+} /* end of function OUTpData */
 
 
-int
-OUTwReference(void *plotPtr, IFvalue *valuePtr, void **refPtr)
+
+int OUTwReference(runDesc*plotPtr, IFvalue *valuePtr, void **refPtr)
 {
     NG_IGNORE(refPtr);
     NG_IGNORE(valuePtr);
     NG_IGNORE(plotPtr);
 
-    return (OK);
+    return OK;
 }
 
 
@@ -741,7 +861,7 @@ OUTwData(runDesc *plotPtr, int dataIndex, IFvalue *valuePtr, void *refPtr)
     NG_IGNORE(dataIndex);
     NG_IGNORE(plotPtr);
 
-    return (OK);
+    return OK;
 }
 
 
@@ -750,7 +870,7 @@ OUTwEnd(runDesc *plotPtr)
 {
     NG_IGNORE(plotPtr);
 
-    return (OK);
+    return OK;
 }
 
 
@@ -837,8 +957,10 @@ OUTattributes(runDesc *plotPtr, IFuid varName, int param, IFvalue *value)
 }
 
 
-/* The file writing routines. */
-
+/* The file writing routines.
+   Write a raw file in batch mode (-b and -r flags).
+   Writing a raw file in interactive or control  mode is handled
+   by raw_write() in rawfile.c */
 static void
 fileInit(runDesc *run)
 {
@@ -895,6 +1017,8 @@ guess_type(const char *name)
         type = SV_CURRENT;
     else if (cieq(name, "time"))
         type = SV_TIME;
+    else if ( cieq(name, "speedcheck"))
+        type = SV_TIME;
     else if (cieq(name, "frequency"))
         type = SV_FREQUENCY;
     else if (ciprefix("inoise", name))
@@ -905,6 +1029,8 @@ guess_type(const char *name)
         type = SV_TEMP;
     else if (cieq(name, "res-sweep"))
         type = SV_RES;
+    else if (cieq(name, "i-sweep"))
+        type = SV_CURRENT;
     else if ((*name == '@') && substring("[g", name)) /* token starting with [g */
         type = SV_ADMITTANCE;
     else if ((*name == '@') && substring("[c", name))
@@ -1024,6 +1150,7 @@ fileEnd(runDesc *run)
         long place = ftell(run->fp);
         fseek(run->fp, run->pointPos, SEEK_SET);
         fprintf(run->fp, "%d", run->pointCount);
+	close_server();
         fprintf(stdout, "\nNo. of Data Rows : %d\n", run->pointCount);
         fseek(run->fp, place, SEEK_SET);
     } else {
@@ -1171,7 +1298,8 @@ plotAddComplexValue(dataDesc *desc, IFcomplex value)
 
 static void
 plotEnd(runDesc *run)
-{
+{   
+    close_server();
     fprintf(stdout, "\nNo. of Data Rows : %d\n", run->pointCount);
 }
 

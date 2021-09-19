@@ -45,23 +45,20 @@ endif
 CMPP = @CMPP@
 
 LIBS = -lm
-
 ISMINGW = $(shell uname | grep -c "MINGW64")
-ifeq ($(ISMINGW), 1)
-  LIBS = -lm -lws2_32
-endif
+    ifeq ($(ISMINGW), 1)
+      LIBS = -lm -lws2_32
+    endif
 
-ISMINGW = $(shell uname | grep -c "MINGW32")
-ifeq ($(ISMINGW), 1)
-  LIBS = -lm -lws2_32
-endif
+    ISMINGW = $(shell uname | grep -c "MINGW32")
+    ifeq ($(ISMINGW), 1)
+      LIBS = -lm -lws2_32
+    endif
 
-ISMINGW = $(shell uname | grep -c "MSYS")
-ifeq ($(ISMINGW), 1)
-  LIBS = -lm -lws2_32
-endif
-
-
+    ISMINGW = $(shell uname | grep -c "MSYS")
+    ifeq ($(ISMINGW), 1)
+      LIBS = -lm -lws2_32
+    endif
 # Flags to use when linking shared library
 LDFLAGS = -shared
 ifeq ($(ISMINGW), 1)

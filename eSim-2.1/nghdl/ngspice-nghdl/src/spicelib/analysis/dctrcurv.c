@@ -140,7 +140,7 @@ DCtrCurv(CKTcircuit *ckt, int restart)
                     }
         }
 
-        if (!strcmp(job->TRCVvName[i], "temp")) {
+        if (cieq(job->TRCVvName[i], "temp")) {
             job->TRCVvSave[i] = ckt->CKTtemp; /* Saves the old circuit temperature */
             job->TRCVvType[i] = TEMP_CODE;    /* Set the sweep type code */
             ckt->CKTtemp = job->TRCVvStart[i] + CONSTCtoK; /* Set the new circuit temp */
@@ -150,7 +150,9 @@ DCtrCurv(CKTcircuit *ckt, int restart)
         }
 
         SPfrontEnd->IFerrorf (ERR_FATAL,
-                              "DCtrCurv: source / resistor %s not in circuit", job->TRCVvName[i]);
+                "DC Transfer Function: Voltage source, current source, or "
+                "resistor named \"%s\" is not in the circuit",
+                job->TRCVvName[i]);
         return(E_NODEV);
 
     found:;
@@ -476,7 +478,7 @@ DCtrCurv(CKTcircuit *ckt, int restart)
 #ifdef HAS_PROGREP
         if (i == job->TRCVnestLevel) {
             actval += job->TRCVvStep[job->TRCVnestLevel];
-            SetAnalyse("dc", abs((int)(actval * 1000. / actdiff)));
+            SetAnalyse("dc", abs((int)((actval - job->TRCVvStart[job->TRCVnestLevel]) * 1000. / actdiff)));
         }
 #endif
 

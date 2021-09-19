@@ -116,4 +116,6 @@ void  free_pj(const void *ptr);
 
 FILE *fopen_with_path(const char *path, const char *mode);
 
-#endif
+#define CM_IGNORE(x) (void) (x)
+
+#endif /* include guard */

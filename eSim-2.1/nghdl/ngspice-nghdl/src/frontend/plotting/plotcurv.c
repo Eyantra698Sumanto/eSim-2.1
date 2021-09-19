@@ -35,7 +35,6 @@ ft_graf(struct dvec *v, struct dvec *xs, bool nostart)
     register double *xdata, *ydata;
     bool rot, increasing = FALSE;
     double dx = 0.0, dy = 0.0, lx = 0.0, ly = 0.0;
-    int dir;
 
     /* if already started, use saved degree */
     if (nostart) {
@@ -130,14 +129,18 @@ ft_graf(struct dvec *v, struct dvec *xs, bool nostart)
      * interpolation.
      */
     if ((degree == 1) && (gridsize == 0)) {
-        bool mono = (currentgraph->plottype == PLOT_MONOLIN);
-        dir = 0;
+        /* We have to take care of non-monotonic x-axis values.
+        If they occur, plotting is suppressed, except for mono is set
+        to FALSE by flag 'retraceplot' in command 'plot'.
+        Then everything is plotted. */
+        bool mono = (currentgraph->plottype != PLOT_RETLIN);
+        int dir = 0;
         for (i = 0, j = v->v_length; i < j; i++) {
             dx = isreal(xs) ? xs->v_realdata[i] :
                 realpart(xs->v_compdata[i]);
             dy = isreal(v) ? v->v_realdata[i] :
                 realpart(v->v_compdata[i]);
-            if ((i == 0 || (dir > 0 ? lx > dx : dir < 0 ? lx < dx : 0)) &&
+            if ((i == 0 || (dir > 0 ? lx > dx : (dir < 0 ? lx < dx : 0))) &&
                 (mono || (xs->v_plot && xs->v_plot->pl_scale == xs)))
             {
                 gr_point(v, dx, dy, lx, ly, 0);

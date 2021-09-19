@@ -3,11 +3,10 @@ FILE    EVTload.c
 
 MEMBER OF process XSPICE
 
-Copyright 1991
+Public Domain
+
 Georgia Tech Research Corporation
 Atlanta, Georgia 30332
-All Rights Reserved
-
 PROJECT A-8503
 
 AUTHORS
@@ -340,6 +339,7 @@ static void EVTcreate_state(
 	{
         new_state = state_data->free[inst_index];
         state_data->free[inst_index] = new_state->next;
+        new_state->next = NULL; // reusing dirty memory: next must be reset
     }
     else 
 	{

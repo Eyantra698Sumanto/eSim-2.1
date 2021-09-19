@@ -36,7 +36,7 @@ static int nodev(void);
 #include "plotting/plot5.h"
 #include "postsc.h"
 #include "hpgl.h"
-
+#include "svg.h"
 
 DISPDEVICE device[] = {
 
@@ -45,7 +45,7 @@ DISPDEVICE device[] = {
       (disp_fn_Close_t *) nop, (disp_fn_Clear_t *) nop,
       (disp_fn_DrawLine_t *) nop, (disp_fn_Arc_t *) nop, (disp_fn_Text_t *) nop,
       (disp_fn_DefineColor_t *) nop, (disp_fn_DefineLinestyle_t *) nop,
-      (disp_fn_SetLinestyle_t *) nop, (disp_fn_SetColor_t *) nop, (disp_fn_Update_t *) nop,
+      (disp_fn_SetLinestyle_t *) nop, (disp_fn_SetColor_t *) nop, (disp_fn_Update_t *) nop, (disp_fn_Finalize_t *) nop,
       (disp_fn_Track_t *) nop, (disp_fn_MakeMenu_t *) nop, (disp_fn_MakeDialog_t *) nop, gen_Input,
       (disp_fn_DatatoScreen_t *) nop,},
 
@@ -55,7 +55,7 @@ DISPDEVICE device[] = {
       X11_Close, X11_Clear,
       X11_DrawLine, X11_Arc, X11_Text,
       X11_DefineColor, X11_DefineLinestyle,
-      X11_SetLinestyle, X11_SetColor, X11_Update,
+      X11_SetLinestyle, X11_SetColor, X11_Update,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, X11_Input,
       gen_DatatoScreen,},
 #endif
@@ -66,7 +66,7 @@ DISPDEVICE device[] = {
       WIN_Close, WIN_Clear,
       WIN_DrawLine, WIN_Arc, WIN_Text,
       WIN_DefineColor, WIN_DefineLinestyle,
-      WIN_SetLinestyle, WIN_SetColor, WIN_Update,
+      WIN_SetLinestyle, WIN_SetColor, WIN_Update,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, gen_Input,
       gen_DatatoScreen, }, /* WIN_DiagramReady */
 
@@ -76,7 +76,7 @@ DISPDEVICE device[] = {
       WPRINT_Close, WPRINT_Clear,
       WPRINT_DrawLine, WPRINT_Arc, WPRINT_Text,
       WPRINT_DefineColor, WPRINT_DefineLinestyle,
-      WPRINT_SetLinestyle, WPRINT_SetColor, WPRINT_Update,
+      WPRINT_SetLinestyle, WPRINT_SetColor, WPRINT_Update,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, (disp_fn_Input_t *) nodev,
       gen_DatatoScreen, }, /* WPRINT_DiagramReady */
 #endif
@@ -87,7 +87,7 @@ DISPDEVICE device[] = {
       sp_Tk_Close, sp_Tk_Clear,
       sp_Tk_DrawLine, sp_Tk_Arc, sp_Tk_Text,
       sp_Tk_DefineColor, sp_Tk_DefineLinestyle,
-      sp_Tk_SetLinestyle, sp_Tk_SetColor, sp_Tk_Update,
+      sp_Tk_SetLinestyle, sp_Tk_SetColor, sp_Tk_Update,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, (disp_fn_Input_t *) nodev,
       gen_DatatoScreen, },
 #endif
@@ -97,7 +97,7 @@ DISPDEVICE device[] = {
       Plt5_Close, Plt5_Clear,
       Plt5_DrawLine, Plt5_Arc, Plt5_Text,
       (disp_fn_DefineColor_t *) nodev, (disp_fn_DefineLinestyle_t *) nodev,
-      Plt5_SetLinestyle, Plt5_SetColor, Plt5_Update,
+      Plt5_SetLinestyle, Plt5_SetColor, Plt5_Update,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, (disp_fn_Input_t *) nodev,
       gen_DatatoScreen, },
 
@@ -106,8 +106,17 @@ DISPDEVICE device[] = {
       PS_Close, PS_Clear,
       PS_DrawLine, PS_Arc, PS_Text,
       (disp_fn_DefineColor_t *) nodev, (disp_fn_DefineLinestyle_t *) nodev,
-      PS_SetLinestyle, PS_SetColor, PS_Update,
+      PS_SetLinestyle, PS_SetColor, PS_Update, PS_Finalize,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, (disp_fn_Input_t *) nodev,
+      gen_DatatoScreen, },
+
+    { "svg", 0, 0, 1000, 1000, 0, 0,
+      SVG_Init, SVG_NewViewport,
+      SVG_Close, SVG_Clear,
+      SVG_DrawLine, SVG_Arc, SVG_Text,
+      (disp_fn_DefineColor_t*)nodev, (disp_fn_DefineLinestyle_t*)nodev,
+      SVG_SetLinestyle, SVG_SetColor, SVG_Update, SVG_Finalize,
+      (disp_fn_Track_t*)nodev, (disp_fn_MakeMenu_t*)nodev, (disp_fn_MakeDialog_t*)nodev, (disp_fn_Input_t*)nodev,
       gen_DatatoScreen, },
 
     { "hpgl", 0, 0, 1000, 1000, 0, 0,
@@ -115,16 +124,16 @@ DISPDEVICE device[] = {
       GL_Close, GL_Clear,
       GL_DrawLine, GL_Arc, GL_Text,
       (disp_fn_DefineColor_t *) nodev, (disp_fn_DefineLinestyle_t *) nodev,
-      GL_SetLinestyle, GL_SetColor, GL_Update,
+      GL_SetLinestyle, GL_SetColor, GL_Update,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, (disp_fn_Input_t *) nodev,
       gen_DatatoScreen, },
 
-    { "printf", 0, 0, 24, 80, 0, 0,
+    { "PrinterOnly", 0, 0, 24, 80, 0, 0,
       (disp_fn_Init_t *) nodev, (disp_fn_NewViewport_t *)  nodev,
       (disp_fn_Close_t *) nop, (disp_fn_Clear_t *) nodev,
       (disp_fn_DrawLine_t *) nodev, (disp_fn_Arc_t *) nodev, (disp_fn_Text_t *) nodev,
       (disp_fn_DefineColor_t *) nodev, (disp_fn_DefineLinestyle_t *) nodev,
-      (disp_fn_SetLinestyle_t *) nodev, (disp_fn_SetColor_t *) nodev, (disp_fn_Update_t *) nop,
+      (disp_fn_SetLinestyle_t *) nodev, (disp_fn_SetColor_t *) nodev, (disp_fn_Update_t *) nop,  (disp_fn_Finalize_t*) nop,
       (disp_fn_Track_t *) nodev, (disp_fn_MakeMenu_t *) nodev, (disp_fn_MakeDialog_t *) nodev, gen_Input,
       (disp_fn_DatatoScreen_t *) nodev, },
 
@@ -233,9 +242,9 @@ DevClear(void)
 
 
 void
-DevDrawLine(int x1, int y1, int x2, int y2)
+DevDrawLine(int x1, int y1, int x2, int y2, bool isgrid)
 {
-    dispdev->DrawLine (x1, y1, x2, y2);
+    dispdev->DrawLine (x1, y1, x2, y2, isgrid);
 }
 
 
@@ -246,10 +255,9 @@ DevDrawArc(int x0, int y0, int radius, double theta, double delta_theta)
 }
 
 
-void
-DevDrawText(char *text, int x, int y, int angle)
+void DevDrawText(const char *text, int x, int y, int angle)
 {
-    dispdev->DrawText (text, x, y, angle);
+    dispdev->DrawText(text, x, y, angle);
 }
 
 
@@ -277,7 +285,7 @@ SetLinestyle(int linestyleid)
 void
 SetColor(int colorid)
 {
-    dispdev->SetColor (colorid);
+    dispdev->SetColor(colorid);
 }
 
 
@@ -288,6 +296,12 @@ DevUpdate(void)
         dispdev->Update();
 }
 
+void
+DevFinalize(void)
+{
+    if (dispdev)
+        dispdev->Finalize();
+}
 
 /* note: screen coordinates are relative to window
    so need to add viewport offsets */
