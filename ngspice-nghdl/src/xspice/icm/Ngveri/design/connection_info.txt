@@ -1,0 +1,4 @@
+	Y                   output  1
+	D0                  input   1
+	D1                  input   1
+	S                   input   1

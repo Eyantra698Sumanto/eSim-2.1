@@ -1,0 +1,9 @@
+int foo(int,int);
+        int temp_D0[1024];
+        int port_D0;
+        int temp_D1[1024];
+        int port_D1;
+        int temp_S[1024];
+        int port_S;
+        int temp_Y[1024];
+        int port_Y;

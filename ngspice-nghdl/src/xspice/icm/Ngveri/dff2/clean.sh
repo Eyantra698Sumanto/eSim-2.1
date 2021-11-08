@@ -1,0 +1,1 @@
+rm Vdff* sim_main.d sim_main.o verilated.d verilated.o

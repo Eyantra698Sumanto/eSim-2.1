@@ -1,0 +1,4 @@
+	dataout             output  1
+	clock               input   1
+	reset               input   1
+	datain              input   1

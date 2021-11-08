@@ -10,8 +10,6 @@
 //==========
 
 class Vand2__Syms;
-class Vand2_VerilatedVcd;
-
 
 //----------
 

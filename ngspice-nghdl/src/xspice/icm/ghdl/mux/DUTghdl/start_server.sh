@@ -10,4 +10,5 @@ ghdl -a *.vhdl &&
 ghdl -a mux.vhdl &&
 ghdl -a mux_tb.vhdl  &&
 ghdl -e -Wl,ghdlserver.o mux_tb &&
-./mux_tb
+./mux_tb --vcd=mux_tb.vcd
+gtkwave mux_tb.vcd

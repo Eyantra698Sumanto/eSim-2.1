@@ -1,6 +1,6 @@
 
 //#include <memory>
-#include </usr/local/share/verilator/include/verilated.h>
+#include <verilated.h>
 #include "Vand2.h"
 #include <stdio.h>
 #include <stdio.h>
@@ -10,7 +10,7 @@
 #include <iostream>
 #include <cstring>
 using namespace std;
-int in[1000];
+//int in[1000];
 int main(int argc, char** argv, char** env) {
     if (false && argc && argv && env) {}
 

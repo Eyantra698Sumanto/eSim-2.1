@@ -3,3 +3,4 @@ pwmdecrement
 pwmincrement
 nand_gate
 
+mux

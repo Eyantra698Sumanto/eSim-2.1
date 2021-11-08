@@ -1,0 +1,3 @@
+	Clk                 input   1
+	Pi                  input   4
+	Po                  output  4

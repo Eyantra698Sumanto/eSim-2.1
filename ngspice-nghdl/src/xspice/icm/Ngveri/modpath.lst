@@ -1,2 +1,16 @@
-dff
+
+mux21
+dff5
+halfadder
 top
+shiftreg
+
+counter
+shiftregister_pipo
+
+junsignedarraymultiplier
+counter8bit
+jboothmultiplier
+counter4bit
+jfsmmealywithoverlap
+jfsmmoorewithoverlap

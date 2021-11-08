@@ -74,6 +74,20 @@ cm-objs := \
 	$(modlst:%=$(cm)/%/ifspec.o) \
 	$(udnlst:%=$(cm)/%/udnfunc.o)
 
+ifeq ($(cm),Ngveri)
+	cm-objs := \
+		$(cm)/dlmain.o \
+		dstring.o \
+		$(modlst:%=$(cm)/%/sim_main.o) \
+		$(modlst:%=$(cm)/%/verilated.o) \
+		$(modlst:%=$(cm)/%/Vdff__ALL.o) \
+		$(modlst:%=$(cm)/%/cfunc.o) \
+		$(modlst:%=$(cm)/%/ifspec.o) \
+		$(udnlst:%=$(cm)/%/udnfunc.o)
+
+	LIBS := $(LIBS) -lstdc++
+endif
+
 cm-deps := \
 	$(cm)/.deps/dlmain.P \
 	$(modlst:%=$(cm)/%/.deps/cfunc.P) \
