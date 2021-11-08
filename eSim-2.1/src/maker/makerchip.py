@@ -27,7 +27,7 @@ from . import NgVeri
 
 from xml.etree import ElementTree as ET
 
-
+filecount=0
 class  makerchip(QtWidgets.QWidget):
     """
     - This class create KicadtoNgspice window.
@@ -42,11 +42,14 @@ class  makerchip(QtWidgets.QWidget):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self)
         
+        #filecount=int(open("a.txt",'r').read())
+        print(filecount)
         #self.splitter.setOrientation(QtCore.Qt.Vertical)
         print("==================================")
         print("Makerchip and Verilog to Ngspice Converter")
         print("==================================")
         self.createMainWindow()
+        
 
     def createMainWindow(self):
         """
@@ -67,16 +70,17 @@ class  makerchip(QtWidgets.QWidget):
 
     def createWidget(self):
         global obj_Maker
+        global filecount
         self.convertWindow = QtWidgets.QWidget()
         
         self.MakerTab = QtWidgets.QScrollArea()
-        obj_Maker = Maker.Maker(self)
+        obj_Maker = Maker.Maker(filecount)
         self.MakerTab.setWidget(obj_Maker)
         self.MakerTab.setWidgetResizable(True) 
-
+	
         global obj_NgVeri
         self.NgVeriTab = QtWidgets.QScrollArea()
-        obj_NgVeri = NgVeri.NgVeri(self)
+        obj_NgVeri = NgVeri.NgVeri(filecount)
         self.NgVeriTab.setWidget(obj_NgVeri)
         self.NgVeriTab.setWidgetResizable(True) 
         self.tabWidget = QtWidgets.QTabWidget() 
@@ -87,6 +91,7 @@ class  makerchip(QtWidgets.QWidget):
         self.mainLayout.addWidget(self.tabWidget)
         self.convertWindow.setLayout(self.mainLayout)
         self.convertWindow.show()
+        filecount=filecount+1
         return self.convertWindow
 
     

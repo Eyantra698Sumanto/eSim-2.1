@@ -1,0 +1,12 @@
+* Subcircuit invert
+.lib "../sky130_fd_pr/models/sky130.lib.spice" tt
+.include sky130nfet.lib
+.include sky130pfet.lib
+
+.subckt invert net-_m1-pad2_ net-_m2-pad3_ net-_m1-pad3_ net-_m1-pad1_ 
+* /home/sumanto/esim-2.1/library/subcircuitlibrary/invert/invert.cir
+xm2 net-_m1-pad1_ net-_m1-pad2_ net-_m2-pad3_ net-_m2-pad3_  sky130_fd_pr__pfet_01v8  L=0.3 W=1.2 M=1
+xm1 net-_m1-pad1_ net-_m1-pad2_ net-_m1-pad3_ net-_m1-pad3_  sky130_fd_pr__nfet_01v8  L=0.15 W=0.6 M=1
+* Control Statements
+
+.ends invert

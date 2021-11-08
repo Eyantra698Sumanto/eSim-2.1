@@ -1,2 +1,0 @@
-clk, rst in 1
-val out 4

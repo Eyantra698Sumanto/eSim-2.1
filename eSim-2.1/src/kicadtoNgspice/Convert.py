@@ -525,6 +525,7 @@ class Convert:
                     # print("Library Path :", libpath)
                     # Copying library from devicemodelLibrary to Project Path
                     # Special case for MOSFET
+                    print(eachline[1]+" Sk " +eachline)
                     if eachline[0] == 'm':
                         # For mosfet library name come along with MOSFET
                         # dimension information
@@ -533,12 +534,21 @@ class Convert:
                         dimension = tempStr[1]
                         # Replace last word with library name
                         # words[-1] = libname.split('.')[0]
-                        words[-1] = self.getRefrenceName(libname, libpath)
+                        if self.getRefrenceName(libname, libpath)=="sky130nfet":
+                            words[-1] = " sky130_fd_pr__nfet_01v8"#self.getRefrenceName(libname, libpath)
+                        elif self.getRefrenceName(libname, libpath)=="sky130pfet":
+                                words[-1] = " sky130_fd_pr__pfet_01v8"
+                        else:
+                            words[-1] = self.getRefrenceName(libname, libpath)
                         # Appending Dimension of MOSFET
+                        print("Hello")
+                        print(dimension)
+                        #dimension.replace("u","")
                         words.append(dimension)
+                        words[0]=words[0].replace('m','xm')
                         deviceLine[index] = words
                         includeLine.append(".include " + libname)
-
+                        includeLine.append('''.lib "../sky130_fd_pr/models/sky130.lib.spice" tt''')
                         # src = completeLibPath.split(':')[0] # <----- Not
                         # working in Windows
 
@@ -558,6 +568,7 @@ class Convert:
                         dst = projpath
                         shutil.copy2(src, dst)
 
+
             # Adding device line to schematicInfo
             for index, value in deviceLine.items():
                 # Update the device line
@@ -568,6 +579,7 @@ class Convert:
             # Adding .include line to Schematic Info at the start of line
             for item in list(set(includeLine)):
                 schematicInfo.insert(0, item)
+
 
         return schematicInfo
 

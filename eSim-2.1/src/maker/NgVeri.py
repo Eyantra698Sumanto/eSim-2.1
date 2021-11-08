@@ -1,21 +1,26 @@
 from PyQt5 import QtCore, QtWidgets
 from . import Maker
+from . import ModelGeneration
 import os
 import subprocess
-from xml.etree import ElementTree as ET
+from configuration.Appconfig import Appconfig
+
 
 
 class NgVeri(QtWidgets.QWidget):
 
-    def __init__(self, clarg1):
-        self.clarg1 = clarg1
+    def __init__(self,filecount):
+        print(self)
         QtWidgets.QWidget.__init__(self)
-        
-        self.count = 0
+        #Maker.addverilog(self)
+        self.count=0
         self.text= "" 
         self.entry_var = {}
-        self.createAnalysisWidget()
-        #self.fname=Maker.verilogfile
+        self.createAnalysisWidget()       
+        self.fname=""
+        self.filecount=filecount
+        self.obj_Appconfig = Appconfig()
+
 
     def createAnalysisWidget(self):
 
@@ -33,30 +38,52 @@ class NgVeri(QtWidgets.QWidget):
         init_path = '../../../'
         if os.name == 'nt':
             init_path = ''
-        
-        
+        #b=Maker.Maker(self)
+        if len(Maker.verilogFile)<(self.filecount+1):
+            reply=QtWidgets.QMessageBox.critical(
+                    None, "Error Message",
+                    "<b>Error: No Verilog File Chosen. Please chose a Verilog file in Makerchip Tab</b>",
+                    QtWidgets.QMessageBox.Ok
+                )
+            if reply == QtWidgets.QMessageBox.Ok:
+                self.obj_Appconfig.print_error('No VerilogFile. Please add a File in Makerchip Tab')
+                return
 
-    def runverilog(self):        
-        init_path = '../../'
-        if os.name == 'nt':
-            init_path = ''
-        try:      
-            print("Running Makerchip..............................")        
-            self.file = open(init_path+"design.tlv","w")
-            self.file.write(self.entry_var[1].toPlainText())
-            self.file.close()
-            self.process = QtCore.QProcess(self)
-            cmd='makerchip '+init_path+"design.tlv"
-            self.process.start(cmd)  
-            print("Makerchip command process pid ---------- >", self.process.pid())
-        except BaseException:
-            self.msg = QtWidgets.QErrorMessage(self)
-            self.msg.setModal(True)
-            self.msg.setWindowTitle("Error Message")
-            self.msg.showMessage(
-                "No .tlv File Chosen.")
-            self.msg.exec_()
-            print("No .tlv File Chosen")
+
+
+        self.fname=Maker.verilogFile[self.filecount]
+        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[2])
+        model.verilogfile()
+        error=model.verilogParse()
+        if not error is "Error":           
+            model.getPortInfo()
+            model.cfuncmod()
+            model.ifspecwrite()
+            model.sim_main_header()
+            model.sim_main()
+            model.modpathlst()
+            model.run_verilator()
+            model.make_verilator()
+            model.copy_verilator()
+            model.runMake()
+            model.runMakeInstall()
+
+
+        
+    def addfile(self):
+        if len(Maker.verilogFile)<(self.filecount+1):
+            reply=QtWidgets.QMessageBox.critical(
+                    None, "Error Message",
+                    "<b>Error: No Verilog File Chosen. Please chose a Verilog file in Makerchip Tab</b>",
+                    QtWidgets.QMessageBox.Ok
+                )
+            if reply == QtWidgets.QMessageBox.Ok:
+                self.obj_Appconfig.print_error('No VerilogFile. Please chose a Verilog in Makerchip Tab')
+                return
+        self.fname=Maker.verilogFile[self.filecount]
+        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[2])
+        model.verilogfile()
+        model.addfile()
         
 
 
@@ -69,13 +96,19 @@ class NgVeri(QtWidgets.QWidget):
 
         self.optionsgroupbtn = QtWidgets.QButtonGroup()
 
-        self.addoptions = QtWidgets.QPushButton("Run Verilog to NgSpice Converter")
-        self.optionsgroupbtn.addButton(self.addoptions)
-        self.addoptions.clicked.connect(self.addverilog)
-        self.optionsgrid.addWidget(self.addoptions, 0, 1)
+        self.addverilogbutton = QtWidgets.QPushButton("Run Verilog to NgSpice Converter")
+        self.optionsgroupbtn.addButton(self.addverilogbutton)
+        self.addverilogbutton.clicked.connect(self.addverilog)
+        self.optionsgrid.addWidget(self.addverilogbutton, 0, 1)
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
+        self.addfilebutton = QtWidgets.QPushButton("Adding Other files")
+        self.optionsgroupbtn.addButton(self.addfilebutton)
+        self.addfilebutton.clicked.connect(self.addfile)
+        self.optionsgrid.addWidget(self.addfilebutton, 0, 2)
+        self.optionsbox.setLayout(self.optionsgrid)
+        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         return self.optionsbox
 
     
@@ -86,7 +119,7 @@ class NgVeri(QtWidgets.QWidget):
     def creategroup(self):
 
         self.trbox = QtWidgets.QGroupBox()
-        self.trbox.setTitle("Console")
+        self.trbox.setTitle("Terminal")
         # self.trbox.setDisabled(True)
         # self.trbox.setVisible(False)
         self.trgrid = QtWidgets.QGridLayout()
@@ -94,9 +127,10 @@ class NgVeri(QtWidgets.QWidget):
 
 
 
-        self.start = QtWidgets.QLabel("Console")
+        self.start = QtWidgets.QLabel("Terminal")
         #self.trgrid.addWidget(self.start, 2,0)
         self.entry_var[self.count] = QtWidgets.QTextEdit()
+        self.entry_var[self.count].setReadOnly(1)
         self.trgrid.addWidget(self.entry_var[self.count], 2,1)
         self.entry_var[self.count].setMaximumWidth(1000)
         self.entry_var[self.count].setMaximumHeight(1000)

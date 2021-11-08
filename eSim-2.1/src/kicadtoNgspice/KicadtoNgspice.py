@@ -621,7 +621,6 @@ class MainWindow(QtWidgets.QWidget):
             self.obj_track.source_entry_var["ITEMS"],
             store_schematicInfo, self.clarg1
         )
-
         try:
             # Adding Source Value to Schematic Info
             store_schematicInfo = self.obj_convert.addSourceParameter()
@@ -819,7 +818,7 @@ class MainWindow(QtWidgets.QWidget):
         data = f.read()
         # Close the file
         f.close()
-
+        includelist = []
         newNetlist = []
         netlist = iter(data.splitlines())
         for eachline in netlist:
@@ -854,18 +853,29 @@ class MainWindow(QtWidgets.QWidget):
                         continue
                     words = eachline.split()
             else:
-                newNetlist.append(eachline)
+                if (words[0]==".include" or
+                    words[0]==".lib"):
+                    includelist.append(eachline)
+                else:
+                    newNetlist.append(eachline)
 
         outfile = self.project + ".sub"
         out = open(outfile, "w")
         out.writelines("* Subcircuit " + self.projName)
-        out.writelines('\n')
-        out.writelines(subcktInfo)
-        out.writelines('\n')
+        
+
+        for i in range(len(includelist), 0, -1):
+            includelist.insert(i, '\n')
 
         for i in range(len(newNetlist), 0, -1):
             newNetlist.insert(i, '\n')
 
+        out.writelines('\n')
+        out.writelines(includelist)
+        out.writelines('\n')
+
+        out.writelines(subcktInfo)
+        out.writelines('\n')
         out.writelines(newNetlist)
         out.writelines('\n')
 

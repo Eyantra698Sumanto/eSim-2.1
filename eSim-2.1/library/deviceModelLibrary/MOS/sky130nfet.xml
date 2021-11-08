@@ -1,0 +1,4 @@
+<library>
+<model_name>NMOS</model_name>
+<ref_model>sky130nfet</ref_model>
+</library>

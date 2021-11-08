@@ -371,7 +371,7 @@ class DeviceModel(QtWidgets.QWidget):
         self.libfile = QtCore.QDir.toNativeSeparators(
             QtWidgets.QFileDialog.getOpenFileName(
                 self, "Open Library Directory",
-                init_path + "library/deviceModelLibrary", "*.lib"
+                init_path + "library/deviceModelLibrary"#, "*.lib"
             )[0]
         )
 
@@ -395,7 +395,7 @@ class DeviceModel(QtWidgets.QWidget):
                 multifactor = "1"
 
             self.obj_trac.deviceModelTrack[self.deviceName] = self.libfile + \
-                ":" + "W=" + width + " L=" + length + " M=" + multifactor
+                ":" +  " L=" + length + " W=" + width +" M=" + multifactor
 
         else:
             self.obj_trac.deviceModelTrack[self.deviceName] = self.libfile
@@ -426,6 +426,6 @@ class DeviceModel(QtWidgets.QWidget):
             if multifactor == "":
                 multifactor = "1"
             self.obj_trac.deviceModelTrack[self.deviceName] = self.libfile + \
-                ":" + "W=" + width + " L=" + length + " M=" + multifactor
+                ":" + " L=" + length+" W=" + width  + " M=" + multifactor
         else:
             self.obj_trac.deviceModelTrack[self.deviceName] = self.libfile

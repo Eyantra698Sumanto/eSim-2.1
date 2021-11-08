@@ -1,0 +1,4 @@
+<library>
+<model_name>PMOS</model_name>
+<ref_model>sky130pfet</ref_model>
+</library>
