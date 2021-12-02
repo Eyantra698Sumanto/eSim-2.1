@@ -1,0 +1,5 @@
+&cm_attiny_85_nghdl_info,
+&cm_pwmdecrement_info,
+&cm_pwmincrement_info,
+&cm_nand_gate_info,
+&cm_mux_info,

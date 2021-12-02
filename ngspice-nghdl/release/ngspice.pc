@@ -1,0 +1,11 @@
+prefix=/home/sumanto/ngspice-nghdl/install_dir
+exec_prefix=/home/sumanto/ngspice-nghdl/install_dir
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libngspice
+Description: General-purpose circuit simulator
+Version: 35
+Libs: -L${libdir} -lngspice
+Cflags: -I${includedir}
+
