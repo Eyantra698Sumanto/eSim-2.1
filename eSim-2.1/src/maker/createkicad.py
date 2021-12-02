@@ -1,3 +1,23 @@
+# =========================================================================
+#             FILE: createkicad.py
+#
+#            USAGE: ---
+#
+#      DESCRIPTION: This define all components of to create the Kicad Library.
+#
+#          OPTIONS: ---
+#     REQUIREMENTS: ---
+#             BUGS: ---
+#            NOTES: ---
+#           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
+# ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
+#                   Digvjay Singh, chrl3hr5@gmail.com, FOSSEE, IIT Bombay
+#                   Prof. Maheswari R., VIT Chennai
+#     GUIDED BY: Steve Hoover, Founder Redwood EDA
+#  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
+#       CREATED: Monday 29, November 2021
+#      REVISION: Monday 29, November 2021
+# =========================================================================
 from . import Appconfig
 import re
 import os,sys
@@ -279,10 +299,16 @@ class PortInfo:
                 in_items = re.findall(
                     "INPUT", line, re.MULTILINE | re.IGNORECASE
                 )
+                inout_items = re.findall(
+                    "INOUT", line, re.MULTILINE | re.IGNORECASE
+                )
+                
                 out_items = re.findall(
                     "OUTPUT", line, re.MULTILINE | re.IGNORECASE
                 )
             if in_items:
+                input_list.append(line.split())
+            if inout_items:
                 input_list.append(line.split())
             if out_items:
                 output_list.append(line.split())

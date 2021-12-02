@@ -27,7 +27,7 @@ from . import DeviceModel
 from . import SubcircuitTab
 from . import Convert
 from . import TrackWidget
-from . import Maker
+#from . import Maker
 from xml.etree import ElementTree as ET
 
 
@@ -214,10 +214,10 @@ class MainWindow(QtWidgets.QWidget):
             schematicInfo, self.clarg1)
         self.subcircuitTab.setWidget(obj_subcircuitTab)
         self.subcircuitTab.setWidgetResizable(True)
-        self.MakerTab = QtWidgets.QScrollArea()
-        obj_Maker = Maker.Maker( self.clarg1)
-        self.MakerTab.setWidget(obj_Maker)
-        self.MakerTab.setWidgetResizable(True)
+        # self.MakerTab = QtWidgets.QScrollArea()
+        # obj_Maker = Maker.Maker( self.clarg1)
+        # self.MakerTab.setWidget(obj_Maker)
+        # self.MakerTab.setWidgetResizable(True)
 
         self.tabWidget = QtWidgets.QTabWidget()
         # self.tabWidget.TabShape(QtWidgets.QTabWidget.Rounded)
@@ -226,7 +226,7 @@ class MainWindow(QtWidgets.QWidget):
         self.tabWidget.addTab(self.modelTab, "Ngspice Model")
         self.tabWidget.addTab(self.deviceModelTab, "Device Modeling")
         self.tabWidget.addTab(self.subcircuitTab, "Subcircuits")
-        self.tabWidget.addTab(self.MakerTab, "Makerchip")
+        #self.tabWidget.addTab(self.MakerTab, "Makerchip")
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.mainLayout.addWidget(self.tabWidget)
         # self.mainLayout.addStretch(1)

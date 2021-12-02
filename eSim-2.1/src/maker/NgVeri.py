@@ -1,9 +1,31 @@
-from PyQt5 import QtCore, QtWidgets
+# =========================================================================
+#             FILE: NgVeri.py
+#
+#            USAGE: ---
+#
+#      DESCRIPTION: This define all components of the NgVeri Tab.
+#
+#          OPTIONS: ---
+#     REQUIREMENTS: ---
+#             BUGS: ---
+#            NOTES: ---
+#           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
+# ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
+#                   Digvjay Singh, chrl3hr5@gmail.com, FOSSEE, IIT Bombay
+#                   Prof. Maheswari R., VIT Chennai
+#     GUIDED BY: Steve Hoover, Founder Redwood EDA
+#  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
+#       CREATED: Monday 29, November 2021
+#      REVISION: Monday 29, November 2021
+# =========================================================================
+from PyQt5 import QtCore, QtWidgets, QtGui
 from . import Maker
 from . import ModelGeneration
 import os
 import subprocess
 from configuration.Appconfig import Appconfig
+from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 
 
@@ -13,13 +35,26 @@ class NgVeri(QtWidgets.QWidget):
         print(self)
         QtWidgets.QWidget.__init__(self)
         #Maker.addverilog(self)
+        self.obj_Appconfig = Appconfig()
+        self.home = os.path.expanduser("~")
+        self.parser = SafeConfigParser()
+        self.parser.read(os.path.join(
+            self.home, os.path.join('.nghdl', 'config.ini')))
+        self.ngspice_home = self.parser.get('NGSPICE', 'NGSPICE_HOME')
+        self.release_dir = self.parser.get('NGSPICE', 'RELEASE')
+        self.src_home = self.parser.get('SRC', 'SRC_HOME')
+        self.licensefile = self.parser.get('SRC', 'LICENSE')
+        self.digital_home = self.parser.get('NGSPICE', 'DIGITAL_MODEL')       
+        self.digital_home=self.digital_home.split("/ghdl")[0]+"/Ngveri"
         self.count=0
         self.text= "" 
         self.entry_var = {}
         self.createAnalysisWidget()       
         self.fname=""
         self.filecount=filecount
-        self.obj_Appconfig = Appconfig()
+        
+        
+       
 
 
     def createAnalysisWidget(self):
@@ -39,7 +74,8 @@ class NgVeri(QtWidgets.QWidget):
         if os.name == 'nt':
             init_path = ''
         #b=Maker.Maker(self)
-        if len(Maker.verilogFile)<(self.filecount+1):
+        print(Maker.verilogFile)
+        if Maker.verilogFile[self.filecount]=="":
             reply=QtWidgets.QMessageBox.critical(
                     None, "Error Message",
                     "<b>Error: No Verilog File Chosen. Please chose a Verilog file in Makerchip Tab</b>",
@@ -52,7 +88,10 @@ class NgVeri(QtWidgets.QWidget):
 
 
         self.fname=Maker.verilogFile[self.filecount]
-        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[2])
+        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[0])
+        file=(os.path.basename(self.fname)).split('.')[0]
+        if self.entry_var[1].findText(file)==-1:
+            self.entry_var[1].addItem(file)
         model.verilogfile()
         error=model.verilogParse()
         if not error is "Error":           
@@ -78,17 +117,20 @@ class NgVeri(QtWidgets.QWidget):
                     QtWidgets.QMessageBox.Ok
                 )
             if reply == QtWidgets.QMessageBox.Ok:
-                self.obj_Appconfig.print_error('No VerilogFile. Please chose a Verilog in Makerchip Tab')
+                self.obj_Appconfig.print_error('No VerilogFile. Please chose a Verilog File in Makerchip Tab')
                 return
         self.fname=Maker.verilogFile[self.filecount]
-        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[2])
-        model.verilogfile()
+        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[0])
+        #model.verilogfile()
         model.addfile()
         
 
 
-
+    def clearTerminal(self):
+        self.entry_var[0].setText("")
+        
     def createoptionsBox(self):
+        
 
         self.optionsbox = QtWidgets.QGroupBox()
         self.optionsbox.setTitle("Select Options")
@@ -109,9 +151,48 @@ class NgVeri(QtWidgets.QWidget):
         self.optionsgrid.addWidget(self.addfilebutton, 0, 2)
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+
+        self.clearTerminalBtn = QtWidgets.QPushButton("Clear Terminal")
+        self.optionsgroupbtn.addButton(self.clearTerminalBtn)
+        self.clearTerminalBtn.clicked.connect(self.clearTerminal)
+        self.optionsgrid.addWidget(self.clearTerminalBtn, 0, 3)
+        self.optionsbox.setLayout(self.optionsgrid)
+        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+
+
+        
+        
         return self.optionsbox
 
-    
+    def style_choice(self, text):
+        if text=="Edit modlst":
+            return
+        index=self.entry_var[1].findText(text)
+        self.entry_var[1].removeItem(index)
+        self.entry_var[1].setCurrentIndex(0)
+        ret = QtWidgets.QMessageBox.warning(
+                None, "Warning", '''<b>Do you want to remove model:''' +
+                text,
+                QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Cancel
+            )
+        if ret == QtWidgets.QMessageBox.Ok:
+            mod = open(self.digital_home+'/modpath.lst', 'r')
+            data = mod.readlines()
+            mod.close()
+
+            data.remove(text+"\n")
+            mod = open(self.digital_home+'/modpath.lst', 'w')
+            for item in data:
+                mod.write(item)
+            self.fname=Maker.verilogFile[self.filecount]
+            model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[0])
+            model.runMake()
+            model.runMakeInstall()
+            return
+
+        else:
+            return 
+
 
 
    
@@ -124,6 +205,7 @@ class NgVeri(QtWidgets.QWidget):
         # self.trbox.setVisible(False)
         self.trgrid = QtWidgets.QGridLayout()
         self.trbox.setLayout(self.trgrid)
+        self.count=0
 
 
 
@@ -134,6 +216,17 @@ class NgVeri(QtWidgets.QWidget):
         self.trgrid.addWidget(self.entry_var[self.count], 2,1)
         self.entry_var[self.count].setMaximumWidth(1000)
         self.entry_var[self.count].setMaximumHeight(1000)
+        self.count += 1
+        self.entry_var[self.count] = QtWidgets.QComboBox()
+        self.entry_var[self.count].addItem("Edit modlst")
+        self.modlst= open(self.digital_home+'/modpath.lst', 'r')
+        self.data=self.modlst.readlines()
+        self.modlst.close()
+        for item in self.data:
+            if item != "\n":
+                self.entry_var[self.count].addItem(item.strip())
+        self.entry_var[self.count].activated[str].connect(self.style_choice)
+        self.trgrid.addWidget(self.entry_var[self.count], 1,4)
         self.count += 1
 
 

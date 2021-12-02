@@ -1,3 +1,23 @@
+# =========================================================================
+#             FILE: Maker.py
+#
+#            USAGE: ---
+#
+#      DESCRIPTION: This define all components of the Makerchip Tab.
+#
+#          OPTIONS: ---
+#     REQUIREMENTS: ---
+#             BUGS: ---
+#            NOTES: ---
+#           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
+# ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
+#                   Digvjay Singh, chrl3hr5@gmail.com, FOSSEE, IIT Bombay
+#                   Prof. Maheswari R., VIT Chennai
+#     GUIDED BY: Steve Hoover, Founder Redwood EDA
+#  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
+#       CREATED: Monday 29, November 2021
+#      REVISION: Monday 29, November 2021
+# =========================================================================
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import  QThread, Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
@@ -12,6 +32,8 @@ class Maker(QtWidgets.QWidget):
 
     def __init__(self,filecount):
         print(self)
+
+        
         QtWidgets.QWidget.__init__(self)
         self.count = 0
         self.text= "" 
@@ -19,6 +41,7 @@ class Maker(QtWidgets.QWidget):
         self.entry_var = {}
         self.createAnalysisWidget()
         self.obj_Appconfig = Appconfig()
+        verilogFile.append("")
   
 
     def createAnalysisWidget(self):
@@ -63,10 +86,9 @@ class Maker(QtWidgets.QWidget):
         self.entry_var[0].setText(self.verilogfile)
         self.entry_var[1].setText(self.text)
         global verilogFile
-        if len(verilogFile)<(self.filecount+1):
-            verilogFile.append(self.verilogfile)
-        else:
-            verilogFile[self.filecount]=self.verilogfile
+        
+        verilogFile[self.filecount]=self.verilogfile
+        if self.refreshoption in toggle_flag:
             toggle_flag.remove(self.refreshoption)
 
         self.notify=notify(self.verilogfile,self.refreshoption)#,self.obj_Appconfig)
@@ -74,13 +96,16 @@ class Maker(QtWidgets.QWidget):
         #open("filepath.txt","w").write(self.verilogfile)
         
     def refresh(self):
+        if not hasattr(self, 'verilogfile'):
+            return
         self.text = open(self.verilogfile).read()
         self.entry_var[1].setText(self.text)
         print("NgVeri File: "+self.verilogfile+" Refreshed")
         self.obj_Appconfig.print_info("NgVeri File: "+self.verilogfile+" Refreshed")
         self.notify.start()
         global toggle_flag
-        toggle_flag.remove(self.refreshoption)
+        if self.refreshoption in toggle_flag:
+            toggle_flag.remove(self.refreshoption)
 
     def save(self):
         wr=self.entry_var[1].toPlainText()
@@ -240,7 +265,10 @@ class notify(QThread):
         i.add_watch(self.verilogfile)
 
         for event in i.event_gen():
+            if not self.refreshoption.isVisible():
+                break
             if event!=None:
+                print(event)
                 if "IN_CLOSE_WRITE" in event[1] :
                         msg = QtWidgets.QErrorMessage()
                         msg.setModal(True)
@@ -273,6 +301,8 @@ class toggle(QThread):
             self.option.setStyleSheet("background-color: none")
             self.sleep(1)
             print(toggle_flag)
+            if not self.option.isVisible():
+                break
             if not self.option in toggle_flag:
                 break
                 

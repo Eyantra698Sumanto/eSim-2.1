@@ -1,3 +1,23 @@
+# =========================================================================
+#             FILE: ModelGeneration.py
+#
+#            USAGE: ---
+#
+#      DESCRIPTION: This define all model generation processes of NgVeri.
+#
+#          OPTIONS: ---
+#     REQUIREMENTS: ---
+#             BUGS: ---
+#            NOTES: ---
+#           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
+# ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
+#                   Digvjay Singh, chrl3hr5@gmail.com, FOSSEE, IIT Bombay
+#                   Prof. Maheswari R., VIT Chennai
+#     GUIDED BY: Steve Hoover, Founder Redwood EDA
+#  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
+#       CREATED: Monday 29, November 2021
+#      REVISION: Monday 29, November 2021
+# =========================================================================
 import re
 import os
 import sys
@@ -17,7 +37,7 @@ class ModelGeneration(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self)
         super().__init__()
         self.obj_Appconfig = Appconfig.Appconfig()
-        print("Arguement is : ", file)
+        print("Argument is : ", file)
         self.file=file
         self.termedit=termedit
         self.cur_dir = os.getcwd()
@@ -40,8 +60,10 @@ class ModelGeneration(QtWidgets.QWidget):
     def verilogfile(self):
         Text = "<span style=\" font-size:25pt; font-weight:1000; color:#008000;\" >"
         Text += ".................Running NgVeri..................."
-        Text += "</span>"           
+        Text += "</span>"
         self.termedit.append(Text)
+                   
+        
         read_verilog = open(self.file, 'r')
         verilog_data = read_verilog.readlines()
         read_verilog.close()
@@ -55,10 +77,32 @@ class ModelGeneration(QtWidgets.QWidget):
             verilog_data = read_verilog.readlines()
             read_verilog.close()
         f= open(self.modelpath+self.fname,'w')
-        f.write("/* verilator lint_off UNUSED */\n")
-        #f.write("/* verilator lint_off EOFNEWLINE */\n")
+        f.write('''
+/* verilator lint_off UNUSED */
+/* verilator lint_off EOFNEWLINE */
+/* verilator lint_off DECLFILENAME */
+/* verilator lint_off BLKSEQ */
+/* verilator lint_off WIDTH */
+/* verilator lint_off LATCH */
+/* verilator lint_off SELRANGE */
+/* verilator lint_off PINCONNECTEMPTY */
+/* verilator lint_off DEFPARAM */
+/* verilator lint_off IMPLICIT */
+/* verilator lint_off TIMESCALEMOD */
+/* verilator lint_off COMBDLY */
+/* verilator lint_off SYNCASYNCNET */
+/* verilator lint_off UNOPTFLAT */
+/* verilator lint_off UNSIGNED */
+/* verilator lint_off CASEINCOMPLETE */
+/* verilator lint_off UNDRIVEN */
+    ''')
+
         for item in verilog_data:
-            f.write(item)
+            if self.fname.split('.')[1]=="sv":
+                string=item.replace("top",self.fname.split('.')[0])
+            else:
+                string=item
+            f.write(string)
         f.write("\n")
         f.close() 
         
@@ -105,6 +149,7 @@ class ModelGeneration(QtWidgets.QWidget):
 
 
     def verilogParse(self):
+        
 
         with open(self.modelpath+self.fname, 'rt') as fh:
             code = fh.read()
@@ -118,15 +163,16 @@ class ModelGeneration(QtWidgets.QWidget):
             if m.name.lower()==self.fname.split('.')[0] :
                 print(str(m.name)+" "+self.fname.split('.')[0])
                 for p in m.ports:
-                    if str(p.data_type)=="":
-                        p.data_type="1"
+                    print(p.data_type)
+                    if str(p.data_type).find(':')==-1 :
+                        p.port_number="1"
                     else:
                         x = p.data_type.split(":")
                         print(x)
                         y= x[0].split("[")
                         z= x[1].split("]")
                         z=int(y[1])-int(z[0])
-                        p.data_type=z+1
+                        p.port_number=z+1
         
         for m in vlog_mods:
             if m.name.lower()==self.fname.split('.')[0] :
@@ -136,8 +182,8 @@ class ModelGeneration(QtWidgets.QWidget):
                     print('\t{:20}{:8}{}'.format(p.name, p.mode, p.data_type))
                 print('  Ports:')
                 for p in m.ports:
-                    print('\t{:20}{:8}{}'.format(p.name, p.mode, p.data_type))
-                    f.write('\t{:20}{:8}{}\n'.format(p.name, p.mode, p.data_type))
+                    print('\t{:20}{:8}{}'.format(p.name, p.mode, p.port_number))
+                    f.write('\t{:20}{:8}{}\n'.format(p.name, p.mode, p.port_number))
                 break
         f.close()
         if m.name.lower()!=self.fname.split(".")[0] :
@@ -170,10 +216,15 @@ class ModelGeneration(QtWidgets.QWidget):
                 in_items = re.findall(
                     "INPUT", line, re.MULTILINE | re.IGNORECASE
                 )
+                inout_items = re.findall(
+                    "INOUT", line, re.MULTILINE | re.IGNORECASE
+                )
                 out_items = re.findall(
                     "OUTPUT", line, re.MULTILINE | re.IGNORECASE
                 )
             if in_items:
+                self.input_list.append(line.split())
+            if inout_items:
                 self.input_list.append(line.split())
             if out_items:
                 self.output_list.append(line.split())
@@ -681,7 +732,7 @@ and set the load for input ports */
         mod.close()
         mod = open(self.digital_home+'/modpath.lst', 'a+')
         if not self.fname.split('.')[0]  in text:
-            mod.write("\n"+self.fname.split('.')[0])
+            mod.write(self.fname.split('.')[0]+"\n")
         mod.close()
 
 
@@ -693,9 +744,8 @@ and set the load for input ports */
         #print(self.modelpath)
         self.cmd="verilator -Wall --cc --exe --Mdir . -CFLAGS -fPIC  sim_main_"+self.fname.split('.')[0]+".cpp "+self.fname
         self.process = QtCore.QProcess(self)
-        self.args = ['-c', self.cmd]
         self.process.readyReadStandardOutput.connect(self.readAllStandard)
-        self.process.start('sh',self.args)
+        self.process.start('sh',['-c', self.cmd])
         Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
         Text += "<br>================================<br>"
         Text += "RUN VERILATOR"
@@ -704,10 +754,13 @@ and set the load for input ports */
         self.termedit.append(Text)
         self.termedit.append("Current Directory: "+self.modelpath)
         self.termedit.append("Command: "+self.cmd)
+        #self.process.setProcessChannelMode(QtCore.QProcess.MergedChannels)
         self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
+        self.process \
+                .readyReadStandardError.connect(self.readAllStandard)
         self.process.waitForFinished(50000)
-        print("Verilator Executed successfully")
+        print("Verilator Executed")
         os.chdir(self.cur_dir)
 
     def make_verilator(self):
@@ -716,9 +769,8 @@ and set the load for input ports */
         os.chdir(self.modelpath)    
         self.cmd="make -f V"+self.fname.split('.')[0]+".mk V"+self.fname.split('.')[0]+"__ALL.a sim_main_"+self.fname.split('.')[0]+".o verilated.o"
         self.process = QtCore.QProcess(self)
-        self.args = ['-c', self.cmd]
         self.process.readyReadStandardOutput.connect(self.readAllStandard)
-        self.process.start('sh',self.args)
+        self.process.start('sh',['-c',self.cmd])
         Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
         Text += "<br>================================<br>"
         Text += "MAKE VERILATOR"
@@ -729,8 +781,11 @@ and set the load for input ports */
         self.termedit.append("Command: "+self.cmd)
         self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
+        self.process \
+                .readyReadStandardError.connect(self.readAllStandard)
         self.process.waitForFinished(50000)
-        print("Make Verilator Run successfully")
+
+        print("Make Verilator Executed")
         os.chdir(self.cur_dir)
 
     def copy_verilator(self):
@@ -749,29 +804,34 @@ and set the load for input ports */
         if os.path.exists(path_icm+"V"+self.fname.split('.')[0]+"__ALL.o"):
             os.remove(path_icm+"V"+self.fname.split('.')[0]+"__ALL.o")
         #print(self.modelpath)
-        self.cmd="cp sim_main_"+self.fname.split('.')[0]+".o V"+self.fname.split('.')[0]+"__ALL.o "+path_icm
-        self.process = QtCore.QProcess(self)
-        self.args = ['-c', self.cmd]
-        self.process.readyReadStandardOutput.connect(self.readAllStandard)
-        self.process.start('sh',self.args)
-        Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-        Text += "<br>================================<br>"
-        Text += "COPYING FILES"
-        Text += "<br>================================<br>"
-        Text += "</span>"           
-        self.termedit.append(Text)
-        self.termedit.append("Current Directory: "+self.modelpath)
-        self.termedit.append("Command: "+self.cmd)
-        self.process.waitForFinished(50000)
-        self.cmd="cp verilated.o "+self.release_home+"/src/xspice/icm/"
-        self.args = ['-c', self.cmd]
-        self.process.start('sh',self.args)
-        self.termedit.append("Command: "+self.cmd)
-        self.process \
+        try: 
+            self.cmd="cp sim_main_"+self.fname.split('.')[0]+".o V"+self.fname.split('.')[0]+"__ALL.o "+path_icm
+            self.process = QtCore.QProcess(self)
+            self.args = ['-c', self.cmd]
+            self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
-        self.process.waitForFinished(50000)
-        print("Copied the files successfully")
-        os.chdir(self.cur_dir)
+            self.process \
+                .readyReadStandardError.connect(self.readAllStandard)
+            self.process.start('sh',self.args)
+            Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
+            Text += "<br>================================<br>"
+            Text += "COPYING FILES"
+            Text += "<br>================================<br>"
+            Text += "</span>"           
+            self.termedit.append(Text)
+            self.termedit.append("Current Directory: "+self.modelpath)
+            self.termedit.append("Command: "+self.cmd)
+            self.process.waitForFinished(50000)
+            self.cmd="cp verilated.o "+self.release_home+"/src/xspice/icm/"
+            self.process.start('sh',['-c',self.cmd])
+            self.termedit.append("Command: "+self.cmd)
+            self.process \
+                    .readyReadStandardOutput.connect(self.readAllStandard)
+            self.process.waitForFinished(50000)
+            print("Copied the files")
+            os.chdir(self.cur_dir)
+        except BaseException:
+            print("There is error in Copying Files ")
         
     def runMake(self):
         print("run Make Called")
@@ -786,7 +846,7 @@ and set the load for input ports */
                 self.cmd = self.msys_bin+"\\make.exe"
             else:
                 self.cmd = "make"
-            args=['-c',self.cmd]
+            
             print("Running Make command in " + path_icm)
             path = os.getcwd()  # noqa
             self.process = QtCore.QProcess(self)
@@ -803,6 +863,8 @@ and set the load for input ports */
             self.termedit.append("Command: "+self.cmd)
             self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
+            self.process \
+                .readyReadStandardError.connect(self.readAllStandard)
             self.process.waitForFinished(50000)
             os.chdir(self.cur_dir)
         except BaseException:
@@ -840,7 +902,10 @@ and set the load for input ports */
             self.termedit.append(Text)
             self.termedit.append("Current Directory: "+path_icm)
             self.termedit.append("Command: "+self.cmd)
-            self.process.readyReadStandardOutput.connect(self.readAllStandard)
+            self.process \
+                .readyReadStandardOutput.connect(self.readAllStandard)
+            self.process \
+                .readyReadStandardError.connect(self.readAllStandard)
             self.process.waitForFinished(50000)
             os.chdir(self.cur_dir)
 
@@ -850,19 +915,102 @@ and set the load for input ports */
             #sys.exit()
     def addfile(self):
         print("Adding the files required by the top level module file")
+        
+        init_path = '../../../'
+        if os.name == 'nt':
+            init_path = ''
+        includefile = QtCore.QDir.toNativeSeparators(QtWidgets.QFileDialog.getOpenFileName(
+                self, "Open adding other necessary files to be included",
+                    init_path + "home"
+               )[0]
+            )
+        if includefile=="":
+            reply=QtWidgets.QMessageBox.critical(
+                    None, "Error Message",
+                    "<b>Error: No File Chosen. Please chose a file</b>",
+                    QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+                )
+            if reply == QtWidgets.QMessageBox.Ok:
+                self.addfile()
+                self.obj_Appconfig.print_info('Add Other Files Called')
+
+            elif reply == QtWidgets.QMessageBox.Cancel:
+                self.obj_Appconfig.print_info('No File Chosen')
+        filename = os.path.basename(includefile)
+        self.modelpath=self.digital_home+"/"+self.fname.split('.')[0]+"/"
+
+        if not os.path.isdir(self.modelpath):
+            os.mkdir(self.modelpath)
+        text = open(includefile).read()
+        text = text+'\n'
+        f=open(self.modelpath+filename,'w')
+        f.write('''
+/* verilator lint_off UNUSED */
+/* verilator lint_off EOFNEWLINE */
+/* verilator lint_off DECLFILENAME */
+/* verilator lint_off BLKSEQ */
+/* verilator lint_off WIDTH */
+/* verilator lint_off LATCH */
+/* verilator lint_off SELRANGE */
+/* verilator lint_off PINCONNECTEMPTY */
+/* verilator lint_off DEFPARAM */
+/* verilator lint_off IMPLICIT */
+/* verilator lint_off TIMESCALEMOD */
+/* verilator lint_off COMBDLY */
+/* verilator lint_off SYNCASYNCNET */
+/* verilator lint_off UNOPTFLAT */
+/* verilator lint_off UNSIGNED */
+/* verilator lint_off CASEINCOMPLETE */
+    ''')
+
+
+        for item in text:
+            f.write(item)
+        f.write("\n")
+        f.close()
+        print("Added the File:"+filename)
+        Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
+        Text += "<br>================================<br>"
+        Text += "Added the File:"+filename
+        Text += "<br>================================<br>"
+        Text += "</span>"           
+        self.termedit.append(Text)
+        
+
     @QtCore.pyqtSlot()
     def readAllStandard(self):
         #self.termedit = termedit
-        self.termedit.append(str(self.process.readAll().data(), encoding='utf-8'))
-        
+        #self.termedit.append(str(self.process.readAll().data(), encoding='utf-8'))
+        stdoutput =self.process.readAll()
+        TextStdOut = "<span style=\" font-size:12pt; font-weight:300; color:#000000;\" >"
+        for line in str(stdoutput.data(), encoding='utf-8').split("\n"):
+            TextStdOut += "<br>"+line
+        TextStdOut += "</span>"
+        self.termedit.append(TextStdOut)
+        print(str(self.process.readAll().data(), encoding='utf-8'))
+
         stderror = self.process.readAllStandardError()
         if stderror.toUpper().contains(b"ERROR"):
             self.errorFlag = True
-        Text = "<span style=\" font-size:12pt; font-weight:1000; color:#ff0000;\" >"
+        TextErr = "<span style=\" font-size:12pt; font-weight:1000; color:#ff0000;\" >"
         for line in str(stderror.data(), encoding='utf-8').split("\n"):
-            Text += "<br>"+line+"<br>"
-        Text += "</span>" 
-        self.termedit.append(Text+"\n")
+            TextErr += "<br>"+line
+        TextErr += "</span>" 
+        self.termedit.append(TextErr)
+    # @QtCore.pyqtSlot()
+    # def readAllStandard(self):
+    #     #self.termedit = termedit
+    #     self.termedit.append(str(self.process.readAll().data(), encoding='utf-8'))
+        
+    #     print(str(self.process.readAll().data(), encoding='utf-8'))
+    #     stderror = self.process.readAllStandardError()
+    #     if stderror.toUpper().contains(b"ERROR"):
+    #         self.errorFlag = True
+    #     Text = "<span style=\" font-size:12pt; font-weight:1000; color:#ff0000;\" >"
+    #     for line in str(stderror.data(), encoding='utf-8').split("\n"):
+    #         Text += "<br>"+line+"<br>"
+    #     Text += "</span>" 
+    #     self.termedit.append(Text+"\n")
 
     
         # init_path = '../../../'

@@ -49,6 +49,7 @@ class  makerchip(QtWidgets.QWidget):
         print("Makerchip and Verilog to Ngspice Converter")
         print("==================================")
         self.createMainWindow()
+
         
 
     def createMainWindow(self):
@@ -86,7 +87,7 @@ class  makerchip(QtWidgets.QWidget):
         self.tabWidget = QtWidgets.QTabWidget() 
         self.tabWidget.addTab(self.MakerTab, "Makerchip")
         self.tabWidget.addTab(self.NgVeriTab, "NgVeri")
-
+        self.tabWidget.currentChanged.connect(obj_Maker.refresh)
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.mainLayout.addWidget(self.tabWidget)
         self.convertWindow.setLayout(self.mainLayout)
