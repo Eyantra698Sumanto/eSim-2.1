@@ -1,0 +1,21 @@
+* /home/sumanto/Desktop/verilog/eSim/spi/spi.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Mon Nov 29 19:34:25 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U2  Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ Net-_U1-Pad1_ Net-_U2-Pad10_ Net-_U2-Pad11_ Net-_U2-Pad12_ Net-_U2-Pad13_ Net-_U2-Pad14_ Net-_U2-Pad15_ Net-_U2-Pad16_ Net-_U2-Pad17_ ? ? ? ? ? ? Net-_U2-Pad24_ Net-_U2-Pad25_ spi		
+U1  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ counter8bit		
+v1  Net-_U3-Pad1_ GND pulse		
+v2  Net-_U3-Pad2_ GND pulse		
+U4  Net-_U3-Pad6_ Net-_U1-Pad2_ Net-_U2-Pad10_ Net-_U2-Pad11_ Net-_U2-Pad12_ Net-_U2-Pad13_ Net-_U2-Pad14_ Net-_U2-Pad15_ Net-_U2-Pad16_ Net-_U2-Pad17_ counter8bit		
+U6  out0 plot_v1		
+U5  Net-_U2-Pad25_ out0 dac_bridge_1		
+U7  Net-_U2-Pad24_ out1 dac_bridge_1		
+U8  out1 plot_v1		
+U3  Net-_U3-Pad1_ Net-_U3-Pad2_ Net-_U3-Pad3_ Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U3-Pad6_ adc_bridge_3		
+v3  Net-_U3-Pad3_ GND pulse		
+
+.end

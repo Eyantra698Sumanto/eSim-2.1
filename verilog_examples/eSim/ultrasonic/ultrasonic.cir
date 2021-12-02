@@ -1,0 +1,30 @@
+* /home/sumanto/Desktop/verilog/eSim/ultrasonic/ultrasonic.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Sun Nov 28 19:19:10 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U1  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ Net-_U1-Pad11_ Net-_U1-Pad12_ Net-_U1-Pad13_ Net-_U1-Pad14_ us_sensor		
+U2  clk echo Net-_U1-Pad1_ Net-_U1-Pad2_ adc_bridge_2		
+v1  clk GND pulse		
+v2  echo GND pulse		
+U6  Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ trig ss7 ss6 ss5 ss4 ss3 ss2 ss1 dac_bridge_8		
+U5  Net-_U1-Pad11_ Net-_U1-Pad12_ Net-_U1-Pad13_ Net-_U1-Pad14_ ss0 en2 en1 en0 dac_bridge_4		
+U3  clk plot_v1		
+U4  echo plot_v1		
+U7  trig plot_v1		
+U8  ss7 plot_v1		
+U9  ss6 plot_v1		
+U10  ss5 plot_v1		
+U11  ss4 plot_v1		
+U12  ss3 plot_v1		
+U13  ss2 plot_v1		
+U14  ss1 plot_v1		
+U15  ss0 plot_v1		
+U16  en2 plot_v1		
+U17  en1 plot_v1		
+U18  en0 plot_v1		
+
+.end

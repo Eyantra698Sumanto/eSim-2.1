@@ -1,0 +1,35 @@
+* /home/sumanto/desktop/verilog/esim/boothmultiplier/boothmultiplier.cir
+
+v1  net-_u4-pad1_ gnd pulse(0 5 0.1m 0.1m 0.1m 1 2)
+v2  net-_u4-pad2_ gnd pulse(0 5 0.1m 0.1m 0.1m 1 1000)
+* u6  out plot_v1
+* u4  net-_u4-pad1_ net-_u4-pad2_ net-_u1-pad1_ net-_u1-pad2_ adc_bridge_2
+* u5  net-_u3-pad9_ out dac_bridge_1
+* u1  net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ counter4bit
+* u2  net-_u1-pad1_ net-_u1-pad2_ net-_u2-pad3_ net-_u2-pad4_ net-_u2-pad5_ net-_u2-pad6_ counter4bit
+* u3  net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u2-pad3_ net-_u2-pad4_ net-_u2-pad5_ net-_u2-pad6_ net-_u3-pad9_ ? ? ? ? ? ? ? jboothmultiplier
+a1 [net-_u4-pad1_ net-_u4-pad2_ ] [net-_u1-pad1_ net-_u1-pad2_ ] u4
+a2 [net-_u3-pad9_ ] [out ] u5
+a3 [net-_u1-pad1_ ] [net-_u1-pad2_ ] [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ ] u1
+a4 [net-_u1-pad1_ ] [net-_u1-pad2_ ] [net-_u2-pad3_ net-_u2-pad4_ net-_u2-pad5_ net-_u2-pad6_ ] u2
+a5 [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ ] [net-_u2-pad3_ net-_u2-pad4_ net-_u2-pad5_ net-_u2-pad6_ ] [net-_u3-pad9_ ? ? ? ? ? ? ? ] u3
+* Schematic Name:                             adc_bridge_2, NgSpice Name: adc_bridge
+.model u4 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
+* Schematic Name:                             dac_bridge_1, NgSpice Name: dac_bridge
+.model u5 dac_bridge(out_low=0.0 out_high=5.0 out_undef=0.5 input_load=1.0e-12 t_rise=1.0e-9 t_fall=1.0e-9 ) 
+* Schematic Name:                             counter4bit, NgSpice Name: counter4bit
+.model u1 counter4bit(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             counter4bit, NgSpice Name: counter4bit
+.model u2 counter4bit(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             jboothmultiplier, NgSpice Name: jboothmultiplier
+.model u3 jboothmultiplier(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+.tran 1e-00 15e-00 0e-00
+
+* Control Statements 
+.control
+run
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+plot v(out)
+.endc
+.end

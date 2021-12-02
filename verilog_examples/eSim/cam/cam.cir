@@ -1,0 +1,21 @@
+* /home/sumanto/Desktop/verilog/eSim/cam/cam.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Sun Nov 21 21:10:56 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U3  Net-_U1-Pad1_ Net-_U2-Pad4_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ Net-_U1-Pad11_ Net-_U1-Pad12_ Net-_U1-Pad13_ Net-_U1-Pad14_ Net-_U1-Pad15_ Net-_U1-Pad16_ Net-_U1-Pad17_ Net-_U1-Pad18_ Net-_U3-Pad19_ ? ? ? ? ? ? ? ? cam		
+U1  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ Net-_U1-Pad11_ Net-_U1-Pad12_ Net-_U1-Pad13_ Net-_U1-Pad14_ Net-_U1-Pad15_ Net-_U1-Pad16_ Net-_U1-Pad17_ Net-_U1-Pad18_ counter16bit		
+v1  cam_enable GND pulse		
+v2  clk GND pulse		
+v3  rst GND pulse		
+U2  cam_enable clk rst Net-_U2-Pad4_ Net-_U1-Pad1_ Net-_U1-Pad2_ adc_bridge_3		
+U7  Net-_U3-Pad19_ cam_hit_out dac_bridge_1		
+U9  cam_hit_out plot_v1		
+U4  cam_enable plot_v1		
+U5  clk plot_v1		
+U6  rst plot_v1		
+
+.end

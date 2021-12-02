@@ -1,0 +1,27 @@
+* /home/sumanto/Desktop/verilog/eSim/arbiter/arbiter.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Sun Nov 21 15:15:18 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U5  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U5-Pad7_ Net-_U5-Pad8_ Net-_U5-Pad9_ Net-_U5-Pad10_ arbiter		
+U1  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ counter4bit		
+U6  Net-_U5-Pad7_ Net-_U5-Pad8_ Net-_U5-Pad9_ Net-_U5-Pad10_ gnt3 gnt2 gnt1 gnt0 dac_bridge_4		
+U4  clk rst Net-_U1-Pad1_ Net-_U1-Pad2_ adc_bridge_2		
+U3  clk plot_v1		
+U2  rst plot_v1		
+U7  gnt3 plot_v1		
+U8  gnt2 plot_v1		
+U9  gnt1 plot_v1		
+U10  gnt0 plot_v1		
+v1  rst GND pulse		
+v2  clk GND pulse		
+U11  Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ req3 req2 req1 req0 dac_bridge_4		
+U12  req3 plot_v1		
+U13  req2 plot_v1		
+U14  req1 plot_v1		
+U15  req0 plot_v1		
+
+.end

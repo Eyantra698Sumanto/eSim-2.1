@@ -1,0 +1,44 @@
+* /home/sumanto/desktop/verilog/esim/ultrasonic/ultrasonic.cir
+
+* u1  net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ us_sensor
+* u2  clk echo net-_u1-pad1_ net-_u1-pad2_ adc_bridge_2
+v1  clk gnd pulse(0 5 0.1n 0.1n 0.1n 1 2)
+v2  echo gnd pulse(0 5 600  0.1n 0.1n 10 3000)
+* u6  net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ trig ss7 ss6 ss5 ss4 ss3 ss2 ss1 dac_bridge_8
+* u5  net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ ss0 en2 en1 en0 dac_bridge_4
+* u3  clk plot_v1
+* u4  echo plot_v1
+* u7  trig plot_v1
+* u8  ss7 plot_v1
+* u9  ss6 plot_v1
+* u10  ss5 plot_v1
+* u11  ss4 plot_v1
+* u12  ss3 plot_v1
+* u13  ss2 plot_v1
+* u14  ss1 plot_v1
+* u15  ss0 plot_v1
+* u16  en2 plot_v1
+* u17  en1 plot_v1
+* u18  en0 plot_v1
+a1 [net-_u1-pad1_ ] [net-_u1-pad2_ ] [net-_u1-pad3_ ] [net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u1-pad11_ ] [net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ ] u1
+a2 [clk echo ] [net-_u1-pad1_ net-_u1-pad2_ ] u2
+a3 [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ ] [trig ss7 ss6 ss5 ss4 ss3 ss2 ss1 ] u6
+a4 [net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ ] [ss0 en2 en1 en0 ] u5
+* Schematic Name:                             us_sensor, NgSpice Name: us_sensor
+.model u1 us_sensor(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             adc_bridge_2, NgSpice Name: adc_bridge
+.model u2 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
+* Schematic Name:                             dac_bridge_8, NgSpice Name: dac_bridge
+.model u6 dac_bridge(out_low=0.0 out_high=5.0 out_undef=0.5 input_load=1.0e-12 t_rise=1.0e-9 t_fall=1.0e-9 ) 
+* Schematic Name:                             dac_bridge_4, NgSpice Name: dac_bridge
+.model u5 dac_bridge(out_low=0.0 out_high=5.0 out_undef=0.5 input_load=1.0e-12 t_rise=1.0e-9 t_fall=1.0e-9 ) 
+.tran 0.1e-00 11000e-00 0e-00
+
+* Control Statements 
+.control
+run
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+plot v(echo)+6 v(trig)+12 v(ss7)+18 v(ss6)+24 v(ss5)+30 v(ss4)+36 v(ss3)+42 v(ss2)+48 v(ss1)+54 v(ss0)+60 v(en2)+66 v(en1)+72 v(en0)+78
+.endc
+.end

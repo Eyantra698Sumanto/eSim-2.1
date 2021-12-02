@@ -1,0 +1,18 @@
+* /home/sumanto/Desktop/verilog/eSim/nor/nor.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Mon Nov  8 23:32:46 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U4  Net-_U3-Pad3_ Net-_U3-Pad4_ Net-_U4-Pad3_ d_xnor		
+U3  in1 in2 Net-_U3-Pad3_ Net-_U3-Pad4_ adc_bridge_2		
+U5  Net-_U4-Pad3_ out dac_bridge_1		
+v1  in1 GND pulse		
+v2  in2 GND pulse		
+U6  out plot_v1		
+U1  in1 plot_v1		
+U2  in2 plot_v1		
+
+.end

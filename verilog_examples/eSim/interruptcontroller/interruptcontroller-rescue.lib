@@ -1,0 +1,37 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#
+# intr_cntrl-RESCUE-interruptcontroller
+#
+DEF intr_cntrl-RESCUE-interruptcontroller U 0 40 Y Y 1 F N
+F0 "U" 2850 1800 60 H V C CNN
+F1 "intr_cntrl-RESCUE-interruptcontroller" 2850 2000 60 H V C CNN
+F2 "" 2850 1950 60 H V C CNN
+F3 "" 2850 1950 60 H V C CNN
+DRAW
+S 2350 2100 3350 -100 0 1 0 N
+X clk_in0 1 2150 1900 200 R 50 50 1 1 I
+X rst_in0 2 2150 1800 200 R 50 50 1 1 I
+X intr_rq7 3 2150 1700 200 R 50 50 1 1 I
+X intr_rq6 4 2150 1600 200 R 50 50 1 1 I
+X intr_rq5 5 2150 1500 200 R 50 50 1 1 I
+X intr_rq4 6 2150 1400 200 R 50 50 1 1 I
+X intr_rq3 7 2150 1300 200 R 50 50 1 1 I
+X intr_rq2 8 2150 1200 200 R 50 50 1 1 I
+X intr_rq1 9 2150 1100 200 R 50 50 1 1 I
+X intr_rq0 10 2150 1000 200 R 50 50 1 1 I
+X intr_out0 20 3550 1900 200 L 50 50 1 1 O
+X intr_bus7 11 2150 900 200 R 50 50 1 1 B
+X bus_oe0 21 3550 1800 200 L 50 50 1 1 O
+X intr_bus6 12 2150 800 200 R 50 50 1 1 B
+X intr_bus5 13 2150 700 200 R 50 50 1 1 B
+X intr_bus4 14 2150 600 200 R 50 50 1 1 B
+X intr_bus3 15 2150 500 200 R 50 50 1 1 B
+X intr_bus2 16 2150 400 200 R 50 50 1 1 B
+X intr_bus1 17 2150 300 200 R 50 50 1 1 B
+X intr_bus0 18 2150 200 200 R 50 50 1 1 B
+X intr_in0 19 2150 100 200 R 50 50 1 1 B
+ENDDRAW
+ENDDEF
+#
+#End Library

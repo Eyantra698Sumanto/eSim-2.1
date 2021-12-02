@@ -1,0 +1,38 @@
+* /home/sumanto/desktop/verilog/esim/cam/cam.cir
+
+* u3  net-_u1-pad1_ net-_u2-pad4_ net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ net-_u1-pad15_ net-_u1-pad16_ net-_u1-pad17_ net-_u1-pad18_ net-_u3-pad19_ ? ? ? ? ? ? ? ? cam
+* u1  net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ net-_u1-pad15_ net-_u1-pad16_ net-_u1-pad17_ net-_u1-pad18_ counter16bit
+v1  cam_enable gnd pulse(0 5 1 0.1n 0.1n 1 2)
+v2  clk gnd pulse(5 0 0.1n 0.1n 0.1n 1 2)
+v3  rst gnd pulse(0 5 0.1n 0.1n 0.1n 1 10000)
+* u2  cam_enable clk rst net-_u2-pad4_ net-_u1-pad1_ net-_u1-pad2_ adc_bridge_3
+* u7  net-_u3-pad19_ cam_hit_out dac_bridge_1
+* u9  cam_hit_out plot_v1
+* u4  cam_enable plot_v1
+* u5  clk plot_v1
+* u6  rst plot_v1
+a1 [net-_u1-pad1_ ] [net-_u2-pad4_ ] [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ net-_u1-pad15_ net-_u1-pad16_ net-_u1-pad17_ net-_u1-pad18_ ] [net-_u3-pad19_ ] [? ? ? ? ? ? ? ? ] u3
+a2 [net-_u1-pad1_ ] [net-_u1-pad2_ ] [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u1-pad11_ net-_u1-pad12_ net-_u1-pad13_ net-_u1-pad14_ net-_u1-pad15_ net-_u1-pad16_ net-_u1-pad17_ net-_u1-pad18_ ] u1
+a3 [cam_enable clk rst ] [net-_u2-pad4_ net-_u1-pad1_ net-_u1-pad2_ ] u2
+a4 [net-_u3-pad19_ ] [cam_hit_out ] u7
+* Schematic Name:                             cam, NgSpice Name: cam
+.model u3 cam(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             counter16bit, NgSpice Name: counter16bit
+.model u1 counter16bit(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             adc_bridge_3, NgSpice Name: adc_bridge
+.model u2 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
+* Schematic Name:                             dac_bridge_1, NgSpice Name: dac_bridge
+.model u7 dac_bridge(out_low=0.0 out_high=5.0 out_undef=0.5 input_load=1.0e-12 t_rise=1.0e-9 t_fall=1.0e-9 ) 
+.tran 0.1e-00 200e-00 0e-00
+
+* Control Statements 
+.control
+run
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+plot v(cam_hit_out)
+plot v(cam_enable)
+plot v(clk)
+plot v(rst)
+.endc
+.end

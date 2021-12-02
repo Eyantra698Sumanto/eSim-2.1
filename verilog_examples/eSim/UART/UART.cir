@@ -1,0 +1,37 @@
+* /home/sumanto/Desktop/verilog/eSim/UART/UART.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Sun Nov 21 11:33:45 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U13  Net-_U12-Pad12_ Net-_U12-Pad9_ Net-_U12-Pad10_ Net-_U13-Pad4_ Net-_U13-Pad5_ Net-_U13-Pad6_ Net-_U13-Pad7_ Net-_U13-Pad8_ Net-_U13-Pad9_ Net-_U13-Pad10_ Net-_U13-Pad11_ Net-_U12-Pad13_ Net-_U12-Pad14_ Net-_U12-Pad15_ Net-_U12-Pad16_ Net-_U11-Pad2_ Net-_U13-Pad17_ Net-_U13-Pad18_ ? ? ? ? ? ? ? ? Net-_U13-Pad27_ uart		
+U9  Net-_U12-Pad11_ Net-_U12-Pad12_ Net-_U13-Pad4_ Net-_U13-Pad5_ Net-_U13-Pad6_ Net-_U13-Pad7_ Net-_U13-Pad8_ Net-_U13-Pad9_ Net-_U13-Pad10_ Net-_U13-Pad11_ counter8bit		
+U15  Net-_U13-Pad17_ Net-_U13-Pad18_ tx_out tx_empty dac_bridge_2		
+U14  Net-_U13-Pad27_ rx_empty dac_bridge_1		
+U16  tx_out plot_v1		
+U18  tx_empty plot_v1		
+U17  rx_empty plot_v1		
+U8  ldtxdata plot_v1		
+U10  txclk plot_v1		
+U7  countclk plot_v1		
+U6  reset plot_v1		
+U5  txen plot_v1		
+U4  rxclk plot_v1		
+U3  uldtxen plot_v1		
+U2  rxen plot_v1		
+U1  rxin plot_v1		
+U12  txclk ldtxdata countclk reset txen rxclk uldtxen rxen Net-_U12-Pad9_ Net-_U12-Pad10_ Net-_U12-Pad11_ Net-_U12-Pad12_ Net-_U12-Pad13_ Net-_U12-Pad14_ Net-_U12-Pad15_ Net-_U12-Pad16_ adc_bridge_8		
+U11  rxin Net-_U11-Pad2_ adc_bridge_1		
+v1  rxin GND pulse		
+v2  rxen GND pulse		
+v3  uldtxen GND pulse		
+v4  rxclk GND pulse		
+v5  txen GND pulse		
+v6  reset GND pulse		
+v7  countclk GND pulse		
+v8  ldtxdata GND pulse		
+v9  txclk GND pulse		
+
+.end

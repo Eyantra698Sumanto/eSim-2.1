@@ -1,0 +1,22 @@
+* /home/sumanto/desktop/verilog/esim/lfsr/lfsr.cir
+
+* u1  net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ ? ? ? ? ? ? ? ? lfsr
+v1  net-_u2-pad1_ gnd pulse(0 5 1 0.1n 0.1n 1000 1000)
+v2  net-_u2-pad2_ gnd pulse(0 5 0.1n 0.1n 0.1n 1 2)
+v3  net-_u2-pad3_ gnd pulse(0 5 0.1n 0.1n 0.1n 1 1000)
+* u2  net-_u2-pad1_ net-_u2-pad2_ net-_u2-pad3_ net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ adc_bridge_3
+a1 [net-_u1-pad1_ ] [net-_u1-pad2_ ] [net-_u1-pad3_ ] [? ? ? ? ? ? ? ? ] u1
+a2 [net-_u2-pad1_ net-_u2-pad2_ net-_u2-pad3_ ] [net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ ] u2
+* Schematic Name:                             lfsr, NgSpice Name: lfsr
+.model u1 lfsr(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             adc_bridge_3, NgSpice Name: adc_bridge
+.model u2 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
+.tran 0.1e-00 100e-00 0e-00
+
+* Control Statements 
+.control
+run
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+.endc
+.end

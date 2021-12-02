@@ -1,0 +1,28 @@
+* /home/sumanto/Desktop/verilog/eSim/TrafficController/TrafficController.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Tue Nov 30 12:24:14 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U2  Net-_U2-Pad1_ Net-_U2-Pad2_ Net-_U2-Pad3_ Net-_U2-Pad4_ Net-_U2-Pad5_ Net-_U2-Pad6_ Net-_U2-Pad7_ Net-_U2-Pad8_ Net-_U2-Pad9_ Net-_U2-Pad10_ Net-_U2-Pad11_ Net-_U2-Pad12_ traffic_light_controller		
+U4  clk rst Net-_U2-Pad1_ Net-_U2-Pad2_ adc_bridge_2		
+U6  Net-_U2-Pad3_ Net-_U2-Pad4_ Net-_U2-Pad5_ Net-_U2-Pad6_ Net-_U2-Pad7_ Net-_U2-Pad8_ Net-_U2-Pad9_ Net-_U2-Pad10_ M12 M11 M10 S2 S1 S0 MT2 MT1 dac_bridge_8		
+U5  Net-_U2-Pad11_ Net-_U2-Pad12_ MT0 M20 dac_bridge_2		
+v1  clk GND pulse		
+v2  rst GND pulse		
+U3  rst plot_v1		
+U1  clk plot_v1		
+U7  M12 plot_v1		
+U8  M11 plot_v1		
+U9  M10 plot_v1		
+U10  S2 plot_v1		
+U11  S1 plot_v1		
+U12  S0 plot_v1		
+U13  MT2 plot_v1		
+U14  MT1 plot_v1		
+U15  MT0 plot_v1		
+U16  M20 plot_v1		
+
+.end

@@ -1,0 +1,22 @@
+* /home/sumanto/Desktop/verilog/eSim/ledmaker/ledmaker.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Sat Nov 27 18:40:26 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U5  Net-_U1-Pad35_ Net-_U1-Pad36_ passed failed dac_bridge_2		
+U4  clk reset Net-_U1-Pad1_ Net-_U1-Pad2_ adc_bridge_2		
+v1  clk GND pulse		
+v2  reset GND pulse		
+U2  clk plot_v1		
+U3  reset plot_v1		
+U6  passed plot_v1		
+U7  failed plot_v1		
+U9  count0 plot_v1		
+U10  Net-_U1-Pad34_ count0 dac_bridge_1		
+U8  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ Net-_U1-Pad11_ Net-_U1-Pad12_ Net-_U1-Pad13_ Net-_U1-Pad14_ Net-_U1-Pad15_ Net-_U1-Pad16_ Net-_U1-Pad17_ Net-_U1-Pad18_ Net-_U1-Pad19_ Net-_U1-Pad20_ Net-_U1-Pad21_ Net-_U1-Pad22_ Net-_U1-Pad23_ Net-_U1-Pad24_ Net-_U1-Pad25_ Net-_U1-Pad26_ Net-_U1-Pad27_ Net-_U1-Pad28_ Net-_U1-Pad29_ Net-_U1-Pad30_ Net-_U1-Pad31_ Net-_U1-Pad32_ Net-_U1-Pad33_ Net-_U1-Pad34_ counter32bit		
+U1  Net-_U1-Pad1_ Net-_U1-Pad2_ Net-_U1-Pad3_ Net-_U1-Pad4_ Net-_U1-Pad5_ Net-_U1-Pad6_ Net-_U1-Pad7_ Net-_U1-Pad8_ Net-_U1-Pad9_ Net-_U1-Pad10_ Net-_U1-Pad11_ Net-_U1-Pad12_ Net-_U1-Pad13_ Net-_U1-Pad14_ Net-_U1-Pad15_ Net-_U1-Pad16_ Net-_U1-Pad17_ Net-_U1-Pad18_ Net-_U1-Pad19_ Net-_U1-Pad20_ Net-_U1-Pad21_ Net-_U1-Pad22_ Net-_U1-Pad23_ Net-_U1-Pad24_ Net-_U1-Pad25_ Net-_U1-Pad26_ Net-_U1-Pad27_ Net-_U1-Pad28_ Net-_U1-Pad29_ Net-_U1-Pad30_ Net-_U1-Pad31_ Net-_U1-Pad32_ Net-_U1-Pad33_ Net-_U1-Pad34_ Net-_U1-Pad35_ Net-_U1-Pad36_ ledmaker		
+
+.end

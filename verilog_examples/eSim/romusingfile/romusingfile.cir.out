@@ -1,0 +1,27 @@
+* /home/sumanto/desktop/verilog/esim/romusingfile/romusingfile.cir
+
+* u2  net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ net-_u2-pad9_ net-_u2-pad10_ ? ? ? ? ? ? ? ? rom_using_file
+* u1  net-_u1-pad1_ net-_u1-pad2_ net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ counter8bit
+* u3  net-_u3-pad1_ net-_u3-pad2_ net-_u3-pad3_ net-_u3-pad4_ net-_u1-pad1_ net-_u1-pad2_ net-_u2-pad9_ net-_u2-pad10_ adc_bridge_4
+v1  net-_u3-pad1_ gnd pulse(0 5 0.1n 0.1n 0.1n 1 2)
+v2  net-_u3-pad2_ gnd pulse(5 0 0.1n 0.1n 0.1n 1000 2000)
+v3  net-_u3-pad3_ gnd pulse(5 0 1m 0.1n 0.1n 1 1000)
+v4  net-_u3-pad4_ gnd pulse(5 0 0.1n 0.1n 0.1n 1 1000)
+a1 [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ ] [net-_u2-pad9_ ] [net-_u2-pad10_ ] [? ? ? ? ? ? ? ? ] u2
+a2 [net-_u1-pad1_ ] [net-_u1-pad2_ ] [net-_u1-pad3_ net-_u1-pad4_ net-_u1-pad5_ net-_u1-pad6_ net-_u1-pad7_ net-_u1-pad8_ net-_u1-pad9_ net-_u1-pad10_ ] u1
+a3 [net-_u3-pad1_ net-_u3-pad2_ net-_u3-pad3_ net-_u3-pad4_ ] [net-_u1-pad1_ net-_u1-pad2_ net-_u2-pad9_ net-_u2-pad10_ ] u3
+* Schematic Name:                             rom_using_file, NgSpice Name: rom_using_file
+.model u2 rom_using_file(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             counter8bit, NgSpice Name: counter8bit
+.model u1 counter8bit(rise_delay=1.0e-9 fall_delay=1.0e-9 input_load=1.0e-12 instance_id=1 ) 
+* Schematic Name:                             adc_bridge_4, NgSpice Name: adc_bridge
+.model u3 adc_bridge(in_low=1.0 in_high=2.0 rise_delay=1.0e-9 fall_delay=1.0e-9 ) 
+.tran 0.1e-00 100e-00 0e-00
+
+* Control Statements 
+.control
+run
+print allv > plot_data_v.txt
+print alli > plot_data_i.txt
+.endc
+.end

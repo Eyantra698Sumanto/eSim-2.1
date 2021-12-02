@@ -1,0 +1,21 @@
+* /home/sumanto/Desktop/verilog/eSim/intel_state_machine/intel_state_machine.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Mon Nov 15 10:00:59 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U2  Net-_U2-Pad1_ Net-_U2-Pad2_ Net-_U2-Pad3_ Net-_U2-Pad4_ Net-_U2-Pad5_ state_machine		
+U6  Net-_U2-Pad4_ Net-_U2-Pad5_ dout1 dout0 dac_bridge_2		
+U5  clk data_in reset Net-_U2-Pad1_ Net-_U2-Pad2_ Net-_U2-Pad3_ adc_bridge_3		
+U1  clk plot_v1		
+U3  data_in plot_v1		
+U4  reset plot_v1		
+U7  dout1 plot_v1		
+U8  dout0 plot_v1		
+v1  clk GND pulse		
+v2  data_in GND pulse		
+v3  reset GND pulse		
+
+.end

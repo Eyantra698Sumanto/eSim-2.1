@@ -1,0 +1,34 @@
+* /home/sumanto/Desktop/verilog/eSim/serialadder/serialadder.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Mon Nov  8 19:27:40 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U4  Net-_U4-Pad1_ Net-_U4-Pad2_ Net-_U4-Pad3_ Net-_U4-Pad4_ Net-_U4-Pad5_ Net-_U4-Pad6_ Net-_U4-Pad7_ Net-_U4-Pad8_ Net-_U4-Pad9_ Net-_U4-Pad10_ Net-_U4-Pad11_ Net-_U4-Pad12_ Net-_U4-Pad13_ Net-_U4-Pad14_ Net-_U4-Pad15_ jserialadder		
+U7  clk rst a b carryin Net-_U4-Pad1_ Net-_U4-Pad2_ Net-_U4-Pad3_ Net-_U4-Pad4_ Net-_U4-Pad5_ adc_bridge_5		
+U9  Net-_U4-Pad6_ Net-_U4-Pad7_ Net-_U4-Pad8_ Net-_U4-Pad9_ Net-_U4-Pad10_ Net-_U4-Pad11_ Net-_U4-Pad12_ Net-_U4-Pad13_ y3 y2 y1 y0 carryout isValid currentsum currentcarry dac_bridge_8		
+U8  Net-_U4-Pad14_ Net-_U4-Pad15_ currentbitcount1 currentbitcount0 dac_bridge_2		
+U10  y3 plot_v1		
+U11  y2 plot_v1		
+U12  y1 plot_v1		
+U13  y0 plot_v1		
+U14  carryout plot_v1		
+U15  isValid plot_v1		
+U16  currentsum plot_v1		
+U17  currentcarry plot_v1		
+U6  clk plot_v1		
+U5  rst plot_v1		
+U3  a plot_v1		
+U2  b plot_v1		
+U1  carryin plot_v1		
+v1  carryin GND pulse		
+v2  b GND pulse		
+v3  a GND pulse		
+v4  rst GND pulse		
+v5  clk GND pulse		
+U18  currentbitcount1 plot_v1		
+U19  currentbitcount0 plot_v1		
+
+.end

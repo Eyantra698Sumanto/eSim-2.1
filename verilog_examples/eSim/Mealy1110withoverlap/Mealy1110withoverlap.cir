@@ -1,0 +1,20 @@
+* /home/sumanto/Desktop/verilog/eSim/Mealy1110/Mealy1110.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Mon Nov  8 11:18:59 2021
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+U2  Net-_U2-Pad1_ Net-_U2-Pad2_ Net-_U2-Pad3_ Net-_U2-Pad4_ jfsmmealywithoverlap		
+v1  clock GND pulse		
+v2  reset GND pulse		
+v3  datain GND pulse		
+U5  clock reset datain Net-_U2-Pad1_ Net-_U2-Pad2_ Net-_U2-Pad3_ adc_bridge_3		
+U6  Net-_U2-Pad4_ dataout dac_bridge_1		
+U7  dataout plot_v1		
+U1  clock plot_v1		
+U3  reset plot_v1		
+U4  datain plot_v1		
+
+.end
