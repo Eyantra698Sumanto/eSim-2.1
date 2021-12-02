@@ -1,0 +1,9 @@
+int foosev_seg(int,int);
+        int temp_dist[1024];
+        int port_dist;
+        int temp_clk[1024];
+        int port_clk;
+        int temp_seg[1024];
+        int port_seg;
+        int temp_en[1024];
+        int port_en;

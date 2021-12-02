@@ -1,0 +1,10 @@
+// Verilated -*- C++ -*-
+// DESCRIPTION: Verilator output: Constant pool
+//
+
+#include "verilated_heavy.h"
+
+extern const VlUnpacked<CData/*6:0*/, 16> Vcalculator__ConstPool__TABLE_6baa9510_0 = {{
+    0x01, 0x4f, 0x12, 0x06, 0x4c, 0x24, 0x20, 0x0f,
+    0x00, 0x04, 0x7e, 0x7e, 0x7e, 0x7e, 0x7e, 0x7e
+}};

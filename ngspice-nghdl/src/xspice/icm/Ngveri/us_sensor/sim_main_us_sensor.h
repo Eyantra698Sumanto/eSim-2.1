@@ -1,0 +1,11 @@
+int foous_sensor(int,int);
+        int temp_clk[1024];
+        int port_clk;
+        int temp_echo[1024];
+        int port_echo;
+        int temp_atrigger[1024];
+        int port_atrigger;
+        int temp_ss[1024];
+        int port_ss;
+        int temp_en[1024];
+        int port_en;

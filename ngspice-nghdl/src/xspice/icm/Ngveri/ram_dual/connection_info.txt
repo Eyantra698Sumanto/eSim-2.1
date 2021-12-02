@@ -1,0 +1,7 @@
+	data                input   8
+	read_addr           input   6
+	write_addr          input   6
+	we                  input   1
+	read_clock          input   1
+	write_clock         input   1
+	q                   output  8

@@ -1,0 +1,17 @@
+int fooaes_top(int,int);
+        int temp_clk[1024];
+        int port_clk;
+        int temp_start[1024];
+        int port_start;
+        int temp_rstn[1024];
+        int port_rstn;
+        int temp_plain_text[1024];
+        int port_plain_text;
+        int temp_cipher_key[1024];
+        int port_cipher_key;
+        int temp_done[1024];
+        int port_done;
+        int temp_completed_round[1024];
+        int port_completed_round;
+        int temp_cipher_text[1024];
+        int port_cipher_text;

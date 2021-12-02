@@ -1,0 +1,6 @@
+	rx_in               input   2
+	rx_inclock          input   1
+	rx_data_align       input   1
+	tx_out              output  2
+	rx_locked           output  1
+	tx_outclock         output  1

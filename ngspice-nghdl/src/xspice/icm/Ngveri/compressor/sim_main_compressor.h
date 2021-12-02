@@ -1,0 +1,13 @@
+int foocompressor(int,int);
+        int temp_clock[1024];
+        int port_clock;
+        int temp_UnCompressedCache[1024];
+        int port_UnCompressedCache;
+        int temp_h[1024];
+        int port_h;
+        int temp_n[1024];
+        int port_n;
+        int temp_CompressedCache[1024];
+        int port_CompressedCache;
+        int temp_DeCompressedCache[1024];
+        int port_DeCompressedCache;

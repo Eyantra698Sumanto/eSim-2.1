@@ -1,0 +1,5 @@
+	clk                 input   1
+	cam_enable          input   1
+	cam_data_in         input   16
+	cam_hit_out         output  1
+	cam_addr_out        output  8

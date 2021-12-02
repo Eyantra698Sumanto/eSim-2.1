@@ -1,0 +1,1 @@
+./Vspi.cpp ./Vspi.h ./Vspi.mk ./Vspi__Syms.cpp ./Vspi__Syms.h ./Vspi___024root.cpp ./Vspi___024root.h ./Vspi___024root__Slow.cpp ./Vspi__ver.d ./Vspi_classes.mk  : /usr/local/bin/verilator_bin /usr/local/bin/verilator_bin spi.v 

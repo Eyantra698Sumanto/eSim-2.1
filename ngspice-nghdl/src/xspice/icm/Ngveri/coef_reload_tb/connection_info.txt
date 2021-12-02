@@ -1,0 +1,7 @@
+	_file               input   1
+	fopen               input   1
+	coef_reload_input   input   1
+	txt                 input   1
+	r                   input   1
+	d                   input   1
+	din_int             input   1

@@ -1,0 +1,1 @@
+./Vus_sensor.cpp ./Vus_sensor.h ./Vus_sensor.mk ./Vus_sensor__ConstPool_0.cpp ./Vus_sensor__Syms.cpp ./Vus_sensor__Syms.h ./Vus_sensor___024root.cpp ./Vus_sensor___024root.h ./Vus_sensor___024root__Slow.cpp ./Vus_sensor__ver.d ./Vus_sensor_classes.mk  : /usr/local/bin/verilator_bin /usr/local/bin/verilator_bin sev_seg.v us_sensor.v 

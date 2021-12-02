@@ -1,0 +1,1 @@
+./Vcpu.cpp ./Vcpu.h ./Vcpu.mk ./Vcpu__ConstPool_0.cpp ./Vcpu__Syms.cpp ./Vcpu__Syms.h ./Vcpu___024root.cpp ./Vcpu___024root.h ./Vcpu___024root__Slow.cpp ./Vcpu__ver.d ./Vcpu_classes.mk  : /usr/local/bin/verilator_bin /usr/local/bin/verilator_bin ALU.v IC.v PC.v RAM.v bcd2sevenseg.v cpu.v register4.v register8.v triBuff4.v tristateBuff.v 

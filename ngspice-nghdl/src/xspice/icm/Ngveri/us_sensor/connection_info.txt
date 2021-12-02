@@ -1,0 +1,5 @@
+	clk                 input   1
+	echo                input   1
+	atrigger            output  1
+	ss                  output  8
+	en                  output  3

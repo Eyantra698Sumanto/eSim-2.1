@@ -1,0 +1,7 @@
+	clk_in              input   1
+	rst_in              input   1
+	intr_rq             input   8
+	intr_bus            inout   8
+	intr_in             input   1
+	intr_out            output  1
+	bus_oe              output  1

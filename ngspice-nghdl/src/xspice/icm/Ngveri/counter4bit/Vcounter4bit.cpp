@@ -57,7 +57,7 @@ static void _eval_initial_loop(Vcounter4bit__Syms* __restrict vlSymsp) {
             Verilated::debug(1);
             __Vchange = Vcounter4bit___024root___change_request(&(vlSymsp->TOP));
             Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("counter4bit.v", 2, "",
+            VL_FATAL_MT("counter4bit.v", 8, "",
                 "Verilated model didn't DC converge\n"
                 "- See https://verilator.org/warn/DIDNOTCONVERGE");
         } else {
@@ -87,7 +87,7 @@ void Vcounter4bit::eval_step() {
             Verilated::debug(1);
             __Vchange = Vcounter4bit___024root___change_request(&(vlSymsp->TOP));
             Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("counter4bit.v", 2, "",
+            VL_FATAL_MT("counter4bit.v", 8, "",
                 "Verilated model didn't converge\n"
                 "- See https://verilator.org/warn/DIDNOTCONVERGE");
         } else {

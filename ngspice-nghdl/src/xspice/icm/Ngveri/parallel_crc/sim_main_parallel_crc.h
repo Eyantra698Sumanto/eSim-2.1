@@ -1,0 +1,13 @@
+int fooparallel_crc(int,int);
+        int temp_clk[1024];
+        int port_clk;
+        int temp_reset[1024];
+        int port_reset;
+        int temp_enable[1024];
+        int port_enable;
+        int temp_init[1024];
+        int port_init;
+        int temp_data_in[1024];
+        int port_data_in;
+        int temp_crc_out[1024];
+        int port_crc_out;

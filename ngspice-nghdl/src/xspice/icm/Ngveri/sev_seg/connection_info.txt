@@ -1,0 +1,4 @@
+	dist                input   10
+	clk                 input   1
+	seg                 output  8
+	en                  output  3

@@ -1,0 +1,9 @@
+int foodivision(int,int);
+        int temp_a[1024];
+        int port_a;
+        int temp_b[1024];
+        int port_b;
+        int temp_exception[1024];
+        int port_exception;
+        int temp_res[1024];
+        int port_res;

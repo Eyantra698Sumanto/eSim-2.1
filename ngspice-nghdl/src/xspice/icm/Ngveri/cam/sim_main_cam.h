@@ -1,0 +1,11 @@
+int foocam(int,int);
+        int temp_clk[1024];
+        int port_clk;
+        int temp_cam_enable[1024];
+        int port_cam_enable;
+        int temp_cam_data_in[1024];
+        int port_cam_data_in;
+        int temp_cam_hit_out[1024];
+        int port_cam_hit_out;
+        int temp_cam_addr_out[1024];
+        int port_cam_addr_out;

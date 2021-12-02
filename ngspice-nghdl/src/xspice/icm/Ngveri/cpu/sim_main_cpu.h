@@ -1,0 +1,9 @@
+int foocpu(int,int);
+        int temp_clkin[1024];
+        int port_clkin;
+        int temp_OutPut[1024];
+        int port_OutPut;
+        int temp_LED1[1024];
+        int port_LED1;
+        int temp_LED2[1024];
+        int port_LED2;

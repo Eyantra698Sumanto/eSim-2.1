@@ -1,0 +1,4 @@
+	clkin               input   1
+	OutPut              output  8
+	LED1                output  7
+	LED2                output  7

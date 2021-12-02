@@ -1,0 +1,15 @@
+int foointr_cntrl(int,int);
+        int temp_clk_in[1024];
+        int port_clk_in;
+        int temp_rst_in[1024];
+        int port_rst_in;
+        int temp_intr_rq[1024];
+        int port_intr_rq;
+        int temp_intr_bus[1024];
+        int port_intr_bus;
+        int temp_intr_in[1024];
+        int port_intr_in;
+        int temp_intr_out[1024];
+        int port_intr_out;
+        int temp_bus_oe[1024];
+        int port_bus_oe;

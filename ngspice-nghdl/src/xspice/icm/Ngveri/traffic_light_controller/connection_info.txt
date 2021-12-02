@@ -1,0 +1,6 @@
+	clk                 input   1
+	rst                 input   1
+	light_M1            output  3
+	light_S             output  3
+	light_MT            output  3
+	light_M2            output  1

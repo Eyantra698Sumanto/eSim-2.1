@@ -1,0 +1,4 @@
+	address             input   8
+	data                output  8
+	read_en             input   1
+	ce                  input   1

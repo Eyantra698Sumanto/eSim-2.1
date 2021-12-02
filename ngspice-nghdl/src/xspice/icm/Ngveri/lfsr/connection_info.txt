@@ -1,0 +1,4 @@
+	out                 output  8
+	enable              input   1
+	clk                 input   1
+	reset               input   1

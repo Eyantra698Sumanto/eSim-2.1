@@ -1,0 +1,5 @@
+	clk                 input   1
+	reset               input   1
+	cyc_cnt             input   32
+	passed              output  1
+	failed              output  1

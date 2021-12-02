@@ -1,0 +1,9 @@
+int foostate_machine(int,int);
+        int temp_clk[1024];
+        int port_clk;
+        int temp_data_in[1024];
+        int port_data_in;
+        int temp_reset[1024];
+        int port_reset;
+        int temp_data_out[1024];
+        int port_data_out;

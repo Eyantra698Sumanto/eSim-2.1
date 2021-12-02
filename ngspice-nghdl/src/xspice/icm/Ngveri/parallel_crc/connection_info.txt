@@ -1,0 +1,6 @@
+	clk                 input   1
+	reset               input   1
+	enable              input   1
+	init                input   1
+	data_in             input   8
+	crc_out             output  16

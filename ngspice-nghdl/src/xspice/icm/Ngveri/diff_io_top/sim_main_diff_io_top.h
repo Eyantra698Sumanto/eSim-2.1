@@ -1,0 +1,13 @@
+int foodiff_io_top(int,int);
+        int temp_rx_in[1024];
+        int port_rx_in;
+        int temp_rx_inclock[1024];
+        int port_rx_inclock;
+        int temp_rx_data_align[1024];
+        int port_rx_data_align;
+        int temp_tx_out[1024];
+        int port_tx_out;
+        int temp_rx_locked[1024];
+        int port_rx_locked;
+        int temp_tx_outclock[1024];
+        int port_tx_outclock;

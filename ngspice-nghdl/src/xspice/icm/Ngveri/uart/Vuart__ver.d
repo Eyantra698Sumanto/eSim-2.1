@@ -1,0 +1,1 @@
+./Vuart.cpp ./Vuart.h ./Vuart.mk ./Vuart__Syms.cpp ./Vuart__Syms.h ./Vuart___024root.cpp ./Vuart___024root.h ./Vuart___024root__Slow.cpp ./Vuart__ver.d ./Vuart_classes.mk  : /usr/local/bin/verilator_bin /usr/local/bin/verilator_bin uart.v 

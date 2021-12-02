@@ -1,0 +1,9 @@
+int foorom_using_file(int,int);
+        int temp_address[1024];
+        int port_address;
+        int temp_read_en[1024];
+        int port_read_en;
+        int temp_ce[1024];
+        int port_ce;
+        int temp_data[1024];
+        int port_data;

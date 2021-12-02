@@ -28,15 +28,15 @@
         {   
             for (int i = 0; i < n && num>=0; i++) 
             {
-                array[i] = num % 10;
-                num /= 10;
+                array[n-i-1] = num % 2;
+                num /= 2;
                 }
         }
         int arr2inthalfadder(int array[],int n)
         {   
             int i,k=0;
             for (i = 0; i < n; i++) 
-                k = 10 * k + array[i];
+                k = 2 * k + array[i];
             return k;
         }
         
@@ -53,7 +53,8 @@
             else
             {
                 contextp->timeInc(1);
-                printf("=============New Iteration===========");
+                printf("=============halfadder : New Iteration===========");
+                printf("\nInstance : %d\n",count);
                 printf("\nInside foo before eval.....\n");
 				printf("a=%d\n", halfadder[count] ->a);
 				printf("b=%d\n", halfadder[count] ->b);

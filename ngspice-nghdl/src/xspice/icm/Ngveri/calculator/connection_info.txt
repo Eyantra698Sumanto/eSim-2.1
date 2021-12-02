@@ -1,0 +1,3 @@
+	astr                input   14
+	res                 output  4
+	seven_out           output  7
