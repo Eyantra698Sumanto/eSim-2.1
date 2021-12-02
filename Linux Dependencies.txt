@@ -1,0 +1,7 @@
+Linux Dependencies:
+1. inotify
+2. HDL parse
+3. verilator
+4. Makerchip
+5. Sandpiper
+6. chrome
