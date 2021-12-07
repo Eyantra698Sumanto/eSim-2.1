@@ -11,7 +11,7 @@
 #            NOTES: ---
 #           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
 # ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
-#                   Digvjay Singh, chrl3hr5@gmail.com, FOSSEE, IIT Bombay
+#                   Digvjay Singh, digvijay.singh@iitb.ac.in, FOSSEE, IIT Bombay
 #                   Prof. Maheswari R., VIT Chennai
 #     GUIDED BY: Steve Hoover, Founder Redwood EDA
 #  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay

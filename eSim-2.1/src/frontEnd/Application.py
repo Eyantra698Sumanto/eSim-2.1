@@ -18,6 +18,10 @@
 
 import os
 import traceback
+# Adding path for importing modules
+import sys
+sys.path.append(sys.path[0].replace("frontEnd",""))
+print(sys.path)
 if os.name == 'nt':     # noqa
     from frontEnd import pathmagic  # noqa:F401
     init_path = ''

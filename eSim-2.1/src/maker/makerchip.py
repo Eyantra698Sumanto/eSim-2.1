@@ -1,19 +1,22 @@
 # =========================================================================
-#          FILE: kicadtoNgspice.py
+#             FILE: makerchip.py
 #
-#         USAGE: ---
+#            USAGE: ---
 #
-#   DESCRIPTION: This define all configuration used in Application.
+#      DESCRIPTION: This defines all components of the Makerchip.
 #
-#       OPTIONS: ---
-#  REQUIREMENTS: ---
-#          BUGS: ---
-#         NOTES: ---
-#        AUTHOR: Fahim Khan, fahim.elex@gmail.com
-#      MODIFIED: Rahul Paknikar, rahulp@iitb.ac.in
+#          OPTIONS: ---
+#     REQUIREMENTS: ---
+#             BUGS: ---
+#            NOTES: ---
+#           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
+# ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
+#                   Digvjay Singh, digvijay.singh@iitb.ac.in, FOSSEE, IIT Bombay
+#                   Prof. Maheswari R., VIT Chennai
+#     GUIDED BY: Steve Hoover, Founder Redwood EDA
 #  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
-#       CREATED: Wednesday 04 March 2015
-#      REVISION: Saturday 25 July 2020
+#       CREATED: Monday 29, November 2021
+#      REVISION: Monday 29, November 2021
 # =========================================================================
 
 import sys
