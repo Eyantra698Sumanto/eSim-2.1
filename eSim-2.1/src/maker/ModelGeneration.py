@@ -77,25 +77,6 @@ class ModelGeneration(QtWidgets.QWidget):
             verilog_data = read_verilog.readlines()
             read_verilog.close()
         f= open(self.modelpath+self.fname,'w')
-        f.write('''
-/* verilator lint_off UNUSED */
-/* verilator lint_off EOFNEWLINE */
-/* verilator lint_off DECLFILENAME */
-/* verilator lint_off BLKSEQ */
-/* verilator lint_off WIDTH */
-/* verilator lint_off LATCH */
-/* verilator lint_off SELRANGE */
-/* verilator lint_off PINCONNECTEMPTY */
-/* verilator lint_off DEFPARAM */
-/* verilator lint_off IMPLICIT */
-/* verilator lint_off TIMESCALEMOD */
-/* verilator lint_off COMBDLY */
-/* verilator lint_off SYNCASYNCNET */
-/* verilator lint_off UNOPTFLAT */
-/* verilator lint_off UNSIGNED */
-/* verilator lint_off CASEINCOMPLETE */
-/* verilator lint_off UNDRIVEN */
-    ''')
 
         for item in verilog_data:
             if self.fname.split('.')[1]=="sv":
@@ -113,11 +94,7 @@ class ModelGeneration(QtWidgets.QWidget):
 ../maker/tlv/sandpiper.vh ../maker/tlv/sandpiper_gen.vh \
 ../maker/tlv/sp_default.vh ../maker/tlv/pseudo_rand_gen.sv ../maker/tlv/pseudo_rand.m4out.tlv "+self.file+" "+self.modelpath
             
-        Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-        Text += "<br>================================<br>"
-        Text += "Running Sandpiper-saas"
-        Text += "<br>================================<br>"
-        Text += "</span>"           
+                   
         self.termedit.append(Text)
         self.process = QtCore.QProcess(self)
         self.args = ['-c', self.cmd]
@@ -738,22 +715,22 @@ and set the load for input ports */
 
     def run_verilator(self):
         self.cur_dir = os.getcwd()
+        file = open("../maker/lint_off.txt").readlines()
+        wno=" "
+        for item in file:
+            wno += " -Wno-"+item.strip("\n")
         print("Running Verilator.............")
         os.chdir(self.modelpath)    
         self.release_home = self.parser.get('NGSPICE', 'RELEASE')
         #print(self.modelpath)
-        self.cmd="verilator -Wall --cc --exe --Mdir . -CFLAGS -fPIC  sim_main_"+self.fname.split('.')[0]+".cpp "+self.fname
+        
+        self.cmd="verilator -Wall "+wno+" --cc --exe --Mdir . -CFLAGS -fPIC  sim_main_"+self.fname.split('.')[0]+".cpp "+self.fname
         self.process = QtCore.QProcess(self)
         self.process.readyReadStandardOutput.connect(self.readAllStandard)
         self.process.start('sh',['-c', self.cmd])
-        Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-        Text += "<br>================================<br>"
-        Text += "RUN VERILATOR"
-        Text += "<br>================================<br>"
-        Text += "</span>"           
-        self.termedit.append(Text)
-        self.termedit.append("Current Directory: "+self.modelpath)
-        self.termedit.append("Command: "+self.cmd)
+        self.termtitle("RUN VERILATOR")           
+        self.termtext("Current Directory: "+self.modelpath)
+        self.termtext("Command: "+self.cmd)
         #self.process.setProcessChannelMode(QtCore.QProcess.MergedChannels)
         self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
@@ -771,14 +748,9 @@ and set the load for input ports */
         self.process = QtCore.QProcess(self)
         self.process.readyReadStandardOutput.connect(self.readAllStandard)
         self.process.start('sh',['-c',self.cmd])
-        Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-        Text += "<br>================================<br>"
-        Text += "MAKE VERILATOR"
-        Text += "<br>================================<br>"
-        Text += "</span>"           
-        self.termedit.append(Text)
-        self.termedit.append("Current Directory: "+self.modelpath)
-        self.termedit.append("Command: "+self.cmd)
+        self.termtitle("MAKE VERILATOR")           
+        self.termtext("Current Directory: "+self.modelpath)
+        self.termtext("Command: "+self.cmd)
         self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
         self.process \
@@ -813,18 +785,13 @@ and set the load for input ports */
             self.process \
                 .readyReadStandardError.connect(self.readAllStandard)
             self.process.start('sh',self.args)
-            Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-            Text += "<br>================================<br>"
-            Text += "COPYING FILES"
-            Text += "<br>================================<br>"
-            Text += "</span>"           
-            self.termedit.append(Text)
-            self.termedit.append("Current Directory: "+self.modelpath)
-            self.termedit.append("Command: "+self.cmd)
+            self.termtitle("COPYING FILES")
+            self.termtext("Current Directory: "+self.modelpath)
+            self.termtext("Command: "+self.cmd)
             self.process.waitForFinished(50000)
             self.cmd="cp verilated.o "+self.release_home+"/src/xspice/icm/"
             self.process.start('sh',['-c',self.cmd])
-            self.termedit.append("Command: "+self.cmd)
+            self.termtext("Command: "+self.cmd)
             self.process \
                     .readyReadStandardOutput.connect(self.readAllStandard)
             self.process.waitForFinished(50000)
@@ -853,14 +820,9 @@ and set the load for input ports */
             self.process.start('sh',['-c',self.cmd])
             print("make command process pid ---------- >", self.process.pid())
             
-            Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-            Text += "<br>================================<br>"
-            Text += "MAKE COMMAND"
-            Text += "<br>================================<br>"
-            Text += "</span>"           
-            self.termedit.append(Text)
-            self.termedit.append("Current Directory: "+path_icm)
-            self.termedit.append("Command: "+self.cmd)
+            self.termtitle("MAKE COMMAND")       
+            self.termtext("Current Directory: "+path_icm)
+            self.termtext("Command: "+self.cmd)
             self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
             self.process \
@@ -894,14 +856,9 @@ and set the load for input ports */
             self.process = QtCore.QProcess(self)
             self.process.start('sh',['-c',self.cmd])
             #text="<span style=\" font-size:8pt; font-weight:600; color:#000000;\" >"
-            Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
-            Text += "<br>================================<br>"
-            Text += "MAKE INSTALL COMMAND"
-            Text += "<br>================================<br>"
-            Text += "</span>"           
-            self.termedit.append(Text)
-            self.termedit.append("Current Directory: "+path_icm)
-            self.termedit.append("Command: "+self.cmd)
+            self.termtitle("MAKE INSTALL COMMAND")           
+            self.termtext("Current Directory: "+path_icm)
+            self.termtext("Command: "+self.cmd)
             self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
             self.process \
@@ -913,6 +870,8 @@ and set the load for input ports */
             print(e)
             print("There is error in 'make install' ")
             #sys.exit()
+
+
     def addfile(self):
         print("Adding the files required by the top level module file")
         
@@ -944,36 +903,80 @@ and set the load for input ports */
         text = open(includefile).read()
         text = text+'\n'
         f=open(self.modelpath+filename,'w')
-        f.write('''
-/* verilator lint_off UNUSED */
-/* verilator lint_off EOFNEWLINE */
-/* verilator lint_off DECLFILENAME */
-/* verilator lint_off BLKSEQ */
-/* verilator lint_off WIDTH */
-/* verilator lint_off LATCH */
-/* verilator lint_off SELRANGE */
-/* verilator lint_off PINCONNECTEMPTY */
-/* verilator lint_off DEFPARAM */
-/* verilator lint_off IMPLICIT */
-/* verilator lint_off TIMESCALEMOD */
-/* verilator lint_off COMBDLY */
-/* verilator lint_off SYNCASYNCNET */
-/* verilator lint_off UNOPTFLAT */
-/* verilator lint_off UNSIGNED */
-/* verilator lint_off CASEINCOMPLETE */
-    ''')
-
-
         for item in text:
             f.write(item)
         f.write("\n")
         f.close()
         print("Added the File:"+filename)
+        self.termtitle("Added the File:"+filename)
+
+    def addfolder(self):
+        #self.cur_dir = os.getcwd()
+        print("Adding the folder required by the top level module file")
+        
+        init_path = '../../../'
+        if os.name == 'nt':
+            init_path = ''
+        includefolder = QtCore.QDir.toNativeSeparators(
+            QtWidgets.QFileDialog.getExistingDirectory(
+                self, "open", "home"
+            )
+        )
+        if includefolder=="":
+            reply=QtWidgets.QMessageBox.critical(
+                    None, "Error Message",
+                    "<b>Error: No Folder Chosen. Please chose a folder</b>",
+                    QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+                )
+            if reply == QtWidgets.QMessageBox.Ok:
+                self.addfolder()
+                self.obj_Appconfig.print_info('Add Folder Called')
+
+            elif reply == QtWidgets.QMessageBox.Cancel:
+                self.obj_Appconfig.print_info('No File Chosen')
+        
+        self.modelpath=self.digital_home+"/"+self.fname.split('.')[0]+"/"
+
+        reply=QtWidgets.QMessageBox.question(
+                    None, "Message",
+                    '''<b>If you want only the contents of the foler to be added press "Yes".\
+                    If you want complete folder to be added, press "No". </b>''',
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                )
+        if reply == QtWidgets.QMessageBox.Yes:
+                self.cmd="cp -a "+includefolder+"/. "+self.modelpath
+                self.obj_Appconfig.print_info('Adding Contents of the Folder')
+        elif reply == QtWidgets.QMessageBox.No:
+                self.cmd="cp -R "+includefolder+" "+self.modelpath
+                self.obj_Appconfig.print_info('Adding the Folder')
+        
+
+        print("Adding the Folder:"+includefolder.split('/')[-1])
+        self.termtitle("Adding the Folder:"+includefolder.split('/')[-1])
+        
+        self.process = QtCore.QProcess(self)
+        self.process.start('sh',['-c',self.cmd])
+        self.termtext("Command: "+self.cmd)
+        self.process \
+                .readyReadStandardOutput.connect(self.readAllStandard)
+        self.process.waitForFinished(50000)
+        print("Added the folder")
+        #os.chdir(self.cur_dir)
+
+    def termtitle(self,textin):
+
         Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
         Text += "<br>================================<br>"
-        Text += "Added the File:"+filename
+        Text += textin
         Text += "<br>================================<br>"
-        Text += "</span>"           
+        Text += "</span>"
+        self.termedit.append(Text)
+
+    def termtext(self,textin):
+
+        Text = "<span style=\" font-size:12pt; font-weight:500; color:#000000;\" >"
+        Text += textin
+        Text += "</span>"
         self.termedit.append(Text)
         
 

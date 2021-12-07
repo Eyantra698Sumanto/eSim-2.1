@@ -123,6 +123,21 @@ class NgVeri(QtWidgets.QWidget):
         model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[0])
         #model.verilogfile()
         model.addfile()
+
+    def addfolder(self):
+        if len(Maker.verilogFile)<(self.filecount+1):
+            reply=QtWidgets.QMessageBox.critical(
+                    None, "Error Message",
+                    "<b>Error: No Verilog File Chosen. Please chose a Verilog file in Makerchip Tab</b>",
+                    QtWidgets.QMessageBox.Ok
+                )
+            if reply == QtWidgets.QMessageBox.Ok:
+                self.obj_Appconfig.print_error('No VerilogFile. Please chose a Verilog File in Makerchip Tab')
+                return
+        self.fname=Maker.verilogFile[self.filecount]
+        model=ModelGeneration.ModelGeneration(self.fname,self.entry_var[0])
+        #model.verilogfile()
+        model.addfolder()
         
 
 
@@ -145,17 +160,24 @@ class NgVeri(QtWidgets.QWidget):
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
-        self.addfilebutton = QtWidgets.QPushButton("Adding Other files")
+        self.addfilebutton = QtWidgets.QPushButton("Add Other file")
         self.optionsgroupbtn.addButton(self.addfilebutton)
         self.addfilebutton.clicked.connect(self.addfile)
         self.optionsgrid.addWidget(self.addfilebutton, 0, 2)
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
+        self.addfolderbutton = QtWidgets.QPushButton("Add Folder")
+        self.optionsgroupbtn.addButton(self.addfolderbutton)
+        self.addfolderbutton.clicked.connect(self.addfolder)
+        self.optionsgrid.addWidget(self.addfolderbutton, 0, 3)
+        self.optionsbox.setLayout(self.optionsgrid)
+        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+
         self.clearTerminalBtn = QtWidgets.QPushButton("Clear Terminal")
         self.optionsgroupbtn.addButton(self.clearTerminalBtn)
         self.clearTerminalBtn.clicked.connect(self.clearTerminal)
-        self.optionsgrid.addWidget(self.clearTerminalBtn, 0, 3)
+        self.optionsgrid.addWidget(self.clearTerminalBtn, 0, 4)
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
@@ -164,7 +186,7 @@ class NgVeri(QtWidgets.QWidget):
         
         return self.optionsbox
 
-    def style_choice(self, text):
+    def edit_modlst(self, text):
         if text=="Edit modlst":
             return
         index=self.entry_var[1].findText(text)
@@ -193,6 +215,42 @@ class NgVeri(QtWidgets.QWidget):
         else:
             return 
 
+    def lint_off_edit(self, text):
+        if text=="Edit lint_off":
+            return
+        index=self.entry_var[2].findText(text)
+        self.entry_var[2].removeItem(index)
+        self.entry_var[2].setCurrentIndex(0)
+        ret = QtWidgets.QMessageBox.warning(
+                None, "Warning", '''<b>Do you want to remove the lint off error:''' +
+                text,
+                QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Cancel
+            )
+        if ret == QtWidgets.QMessageBox.Ok:
+            file = open("../maker/lint_off.txt", 'r')
+            data = file.readlines()
+            file.close()
+
+            data.remove(text+"\n")
+            file = open("../maker/lint_off.txt", 'w')
+            for item in data:
+                file.write(item)
+            return
+
+        else:
+            return
+
+    def add_lint_off(self):
+        text=self.entry_var[3].text()
+        
+        if self.entry_var[2].findText(text)==-1:
+            self.entry_var[2].addItem(text)
+            file = open("../maker/lint_off.txt", 'a+')
+            file.write(text+"\n")
+            file.close()
+        self.entry_var[3].setText("")
+        
+
 
 
    
@@ -213,10 +271,11 @@ class NgVeri(QtWidgets.QWidget):
         #self.trgrid.addWidget(self.start, 2,0)
         self.entry_var[self.count] = QtWidgets.QTextEdit()
         self.entry_var[self.count].setReadOnly(1)
-        self.trgrid.addWidget(self.entry_var[self.count], 2,1)
+        self.trgrid.addWidget(self.entry_var[self.count], 1,1,5,3)
         self.entry_var[self.count].setMaximumWidth(1000)
         self.entry_var[self.count].setMaximumHeight(1000)
         self.count += 1
+        
         self.entry_var[self.count] = QtWidgets.QComboBox()
         self.entry_var[self.count].addItem("Edit modlst")
         self.modlst= open(self.digital_home+'/modpath.lst', 'r')
@@ -225,8 +284,29 @@ class NgVeri(QtWidgets.QWidget):
         for item in self.data:
             if item != "\n":
                 self.entry_var[self.count].addItem(item.strip())
-        self.entry_var[self.count].activated[str].connect(self.style_choice)
-        self.trgrid.addWidget(self.entry_var[self.count], 1,4)
+        self.entry_var[self.count].activated[str].connect(self.edit_modlst)
+        self.trgrid.addWidget(self.entry_var[self.count], 1,4,1,2)
+        self.count += 1
+        self.entry_var[self.count] = QtWidgets.QComboBox()
+        self.entry_var[self.count].addItem("Edit lint_off")
+        self.lint_off= open("../maker/lint_off.txt", 'r')
+        self.data=self.lint_off.readlines()
+        self.lint_off.close()
+        for item in self.data:
+            if item != "\n":
+                self.entry_var[self.count].addItem(item.strip())
+        self.entry_var[self.count].activated[str].connect(self.lint_off_edit)
+        self.trgrid.addWidget(self.entry_var[self.count], 2,4,1,2)
+        self.count += 1
+        self.entry_var[self.count] = QtWidgets.QLineEdit(self)
+        self.trgrid.addWidget(self.entry_var[self.count], 3,4)
+        self.entry_var[self.count].setMaximumWidth(100)
+        self.count += 1
+        self.entry_var[self.count] = QtWidgets.QPushButton("Add Lint_Off")
+        self.entry_var[self.count].setMaximumWidth(100)
+        self.trgrid.addWidget(self.entry_var[self.count], 3,5)
+        self.entry_var[self.count].clicked.connect(self.add_lint_off)
+
         self.count += 1
 
 
