@@ -24,7 +24,11 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
 from configuration.Appconfig import Appconfig
 import os
 import subprocess
-import inotify.adapters
+import watchdog.events
+import watchdog.observers
+#import inotify.adapters
+import time
+import hdlparse.verilog_parser as vlog
 from xml.etree import ElementTree as ET
 verilogFile=[]
 toggle_flag=[]
@@ -91,8 +95,13 @@ class Maker(QtWidgets.QWidget):
         if self.refreshoption in toggle_flag:
             toggle_flag.remove(self.refreshoption)
 
-        self.notify=notify(self.verilogfile,self.refreshoption)#,self.obj_Appconfig)
-        self.notify.start()
+        self.observer = watchdog.observers.Observer()
+        self.event_handler = Handler(self.verilogfile,self.refreshoption,self.observer)
+        
+        self.observer.schedule(self.event_handler, path=self.verilogfile, recursive=True)
+        self.observer.start()
+        # self.notify=notify(self.verilogfile,self.refreshoption)
+        # self.notify.start()
         #open("filepath.txt","w").write(self.verilogfile)
         
     def refresh(self):
@@ -102,7 +111,12 @@ class Maker(QtWidgets.QWidget):
         self.entry_var[1].setText(self.text)
         print("NgVeri File: "+self.verilogfile+" Refreshed")
         self.obj_Appconfig.print_info("NgVeri File: "+self.verilogfile+" Refreshed")
-        self.notify.start()
+        self.observer = watchdog.observers.Observer()
+        self.event_handler = Handler(self.verilogfile,self.refreshoption,self.observer)
+        
+        self.observer.schedule(self.event_handler, path=self.verilogfile, recursive=True)
+        self.observer.start()
+        #self.notify.start()
         global toggle_flag
         if self.refreshoption in toggle_flag:
             toggle_flag.remove(self.refreshoption)
@@ -112,23 +126,56 @@ class Maker(QtWidgets.QWidget):
         open(self.verilogfile,"w+").write(wr)
 
 
-    def runverilog(self):        
+    def runmakerchip(self):        
         init_path = '../../'
         if os.name == 'nt':
             init_path = ''
-        try:      
+        try:     
             print("Running Makerchip..............................")        
             #self.file = open(self.verilogfile,"w")
             #self.file.write(self.entry_var[1].toPlainText())
             #self.file.close()
-            self.process = QtCore.QProcess(self)
-            cmd='makerchip '+self.verilogfile
-            print(self.verilogfile)
-            self.process.start(cmd)  
-            print("Makerchip command process pid ---------- >", self.process.pid())
-        #   initial = self.read_file()
-            
-
+            filename=self.verilogfile
+            if self.verilogfile.split('.')[1]!="tlv":
+                reply=QtWidgets.QMessageBox.critical(
+                        None, "Do you want to automate top module?",
+                        "<b>Click on YES if you want top module to be automatically added. NOTE: a .tlv file will be created in the directory of current verilog file\
+                        and the makerchip will be running on this file. Otherwise click on NO.</b>",
+                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                    )
+                if reply == QtWidgets.QMessageBox.Yes:
+                    self.text = open(self.verilogfile).readlines()
+                    code = open(self.verilogfile).read()
+                    filename=self.verilogfile.split('.')[0]+".tlv"
+                    f=open(filename,'w')
+                    flag=1
+                    ports=""
+                    code=code.replace("wire"," ")
+                    code=code.replace("reg"," ")
+                    vlog_ex = vlog.VerilogExtractor()
+                    vlog_mods = vlog_ex.extract_objects_from_source(code)
+                    
+                    for item in self.text:
+                        if item.find(os.path.basename(self.verilogfile).split('.')[0])!=-1:
+                            flag=0
+                            string=""
+                        elif flag==0 and item.find(");"):
+                            flag=2
+                        elif flag==2:
+                            string="module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, output logic failed);\n"
+                            for m in vlog_mods:
+                                for p in m.ports:
+                                    if str(p.name)!="clk" and str(p.name)!="reset" and str(p.name)!="cyc_cnt" and str(p.name)!="passed" and str(p.name)!="failed":
+                                        string+='logic '+p.data_type+" "+p.name+";\n"
+                            flag=1
+                        else:
+                            string=item
+                        f.write(string)
+                self.process = QtCore.QProcess(self)
+                cmd='makerchip '+filename
+                print("File: "+filename)
+                self.process.start(cmd)  
+                print("Makerchip command process pid ---------- >", self.process.pid())
         except BaseException:
             self.msg = QtWidgets.QErrorMessage(self)
             self.msg.setModal(True)
@@ -137,6 +184,10 @@ class Maker(QtWidgets.QWidget):
                 "No Verilog File Chosen.")
             self.msg.exec_()
             print("No Verilog File Chosen")
+        #   initial = self.read_file()
+            
+
+        
         # while True:
         #     current = self.read_file()
         #     if initial != current:
@@ -182,7 +233,7 @@ class Maker(QtWidgets.QWidget):
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         self.runoptions = QtWidgets.QPushButton("Edit in Makerchip")
         self.optionsgroupbtn.addButton(self.runoptions)
-        self.runoptions.clicked.connect(self.runverilog)
+        self.runoptions.clicked.connect(self.runmakerchip)
         self.optionsgrid.addWidget(self.runoptions, 0, 4)
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
@@ -247,42 +298,66 @@ class Maker(QtWidgets.QWidget):
 
         return self.trbox
 
-class notify(QThread):
-    def __init__(self,verilogfile,refreshoption):#,obj_Appconfig):
-        QThread.__init__(self)
+class Handler(watchdog.events.PatternMatchingEventHandler):
+    def __init__(self,verilogfile,refreshoption,observer):
+        # Set the patterns for PatternMatchingEventHandler
+        watchdog.events.PatternMatchingEventHandler.__init__(self, ignore_directories=True, case_sensitive=False)
         self.verilogfile=verilogfile
         self.refreshoption=refreshoption
         self.obj_Appconfig = Appconfig()
+        self.observer=observer
         self.toggle=toggle(self.refreshoption)
+  
+    def on_modified(self, event):
+        print("Watchdog received modified event - % s." % event.src_path)
+        msg = QtWidgets.QErrorMessage()
+        msg.setWindowTitle("eSim Message")
+        msg.showMessage("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
+        msg.exec_()
+        print("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
+        # self.obj_Appconfig.print_info("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
+        global toggle_flag
+        toggle_flag.append(self.refreshoption)
+        #i.rm_watch()
+        self.observer.stop()
+        self.toggle.start()
+        
+# class notify(QThread):
+#     def __init__(self,verilogfile,refreshoption):#,obj_Appconfig):
+#         QThread.__init__(self)
+#         self.verilogfile=verilogfile
+#         self.refreshoption=refreshoption
+#         self.obj_Appconfig = Appconfig()
+#         self.toggle=toggle(self.refreshoption)
 
 
-    def __del__(self):
-        self.wait()
+#     def __del__(self):
+#         self.wait()
 
-    def run(self):
-        i = inotify.adapters.Inotify()
+#     def run(self):
+#         i = inotify.adapters.Inotify()
 
-        i.add_watch(self.verilogfile)
+#         i.add_watch(self.verilogfile)
 
-        for event in i.event_gen():
-            if not self.refreshoption.isVisible():
-                break
-            if event!=None:
-                print(event)
-                if "IN_CLOSE_WRITE" in event[1] :
-                        msg = QtWidgets.QErrorMessage()
-                        msg.setModal(True)
-                        msg.setWindowTitle("eSim Message")
-                        msg.showMessage(
-                            "NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
-                        msg.exec_()
-                        print("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
-                        # self.obj_Appconfig.print_info("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
-                        global toggle_flag
-                        toggle_flag.append(self.refreshoption)
-                        #i.rm_watch()
-                        self.toggle.start()
-                        break
+#         for event in i.event_gen():
+#             if not self.refreshoption.isVisible():
+#                 break
+#             if event!=None:
+#                 print(event)
+#                 if "IN_CLOSE_WRITE" in event[1] :
+#                         msg = QtWidgets.QErrorMessage()
+#                         msg.setModal(True)
+#                         msg.setWindowTitle("eSim Message")
+#                         msg.showMessage(
+#                             "NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
+#                         msg.exec_()
+#                         print("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
+#                         # self.obj_Appconfig.print_info("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
+#                         global toggle_flag
+#                         toggle_flag.append(self.refreshoption)
+#                         #i.rm_watch()
+#                         self.toggle.start()
+#                         break
 class toggle(QThread):
     def __init__(self,option):
         QThread.__init__(self)
