@@ -939,7 +939,7 @@ and set the load for input ports */
 
         reply=QtWidgets.QMessageBox.question(
                     None, "Message",
-                    '''<b>If you want only the contents of the foler to be added press "Yes".\
+                    '''<b>If you want only the contents of the folder to be added press "Yes".\
                     If you want complete folder to be added, press "No". </b>''',
                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
                 )

@@ -75,7 +75,45 @@ function installNghdl
 
 }
 
+function verilator
+{   
+    if [[ -e ./verilator ]]
+    then
+        echo "$(pwd)/verilator exists."
+        echo "Removing Verilator..........................."
+        rm -rf $(pwd)/verilator
+    echo "Installing Verilator Dependencies..........................."
+    if [[ -n "$(which apt-get 2> /dev/null)" ]]
+    then
+    # Ubuntu
+        sudo apt-get install make autoconf g++ flex bison
+    else [[ -n "$(which yum 2> /dev/null)" ]]
+    # Ubuntu
+        sudo yum install make autoconf flex bison which -y
+        sudo yum groupinstall 'Development Tools'  -y
+    fi
+    echo "Installing Verilator..........................."
+    sudo apt install -y curl
+    curl https://www.veripool.org/ftp/verilator-4.210.tgz | tar -zx
+    cd verilator
+    ./configure
+    make -j$(nproc)
+    sudo make install
+}
+function Ngveri_dependencies
+{.
+    echo "Installing Chrome.........................."
+    sudo apt install -y chromium-browser
+    echo "Installing watchdog..........................."
+    pip install watchdog
+    echo "Installing HDLParse..........................."
+    pip install hdlparse
+    echo "Installing Makerchip-App..........................."
+    pip install makerchip-app
+    echo "Installing Sandpiper-Saas..........................."
+    pip install sandpiper-saas
 
+}
 function addKicadPPA
 {
 

@@ -76,9 +76,9 @@ function installDependency
     echo "Changing directory to $ghdl installation"
     cd $ghdl/
     echo "Configuring $ghdl build as per requirements"
-    chmod +x configure
+    chmod +x configure 
     # Other configure flags can be found at - https://github.com/ghdl/ghdl/blob/master/configure
-    sudo ./configure --with-llvm-config=/usr/bin/llvm-config-8
+    sudo ./configure --with-llvm-config=/usr/bin/llvm-config-8  
     echo "Building the install file for $ghdl LLVM"
     sudo make
     sudo make install
@@ -123,6 +123,7 @@ function installNgspice
             
     # Adding patch to Ngspice base code
     cp $src_dir/src/outitf.c $HOME/$ngspice/src/frontend
+    cp $src_dir/src/verilated.o $HOME/$ngspice/release/src/xspice/icm/
 
     make -j$(nproc)
     make install

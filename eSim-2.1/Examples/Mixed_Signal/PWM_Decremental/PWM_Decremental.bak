@@ -418,6 +418,12 @@ Wire Wire Line
 	7400 1850 7750 1850
 Wire Wire Line
 	9300 6400 9300 4500
+Wire Wire Line
+	6400 2150 6300 2150
+Wire Wire Line
+	6300 2150 6300 1950
+Wire Wire Line
+	6300 1950 6150 1950
 $Comp
 L dff U2
 U 1 1 6123E15B
@@ -429,10 +435,4 @@ F 3 "" H 6900 5700 60  0000 C CNN
 	1    4050 3750
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6400 2150 6300 2150
-Wire Wire Line
-	6300 2150 6300 1950
-Wire Wire Line
-	6300 1950 6150 1950
 $EndSCHEMATC

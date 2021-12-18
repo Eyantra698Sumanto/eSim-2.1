@@ -90,7 +90,7 @@ class  makerchip(QtWidgets.QWidget):
         self.tabWidget = QtWidgets.QTabWidget() 
         self.tabWidget.addTab(self.MakerTab, "Makerchip")
         self.tabWidget.addTab(self.NgVeriTab, "NgVeri")
-        self.tabWidget.currentChanged.connect(obj_Maker.refresh)
+        self.tabWidget.currentChanged.connect(obj_Maker.refresh_change)
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.mainLayout.addWidget(self.tabWidget)
         self.convertWindow.setLayout(self.mainLayout)

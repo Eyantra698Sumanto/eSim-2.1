@@ -56,7 +56,6 @@ class Maker(QtWidgets.QWidget):
         self.grid.addWidget(self.createoptionsBox(), 0, 0, QtCore.Qt.AlignTop)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-       
         self.show()
 
     def addverilog(self):
@@ -104,6 +103,11 @@ class Maker(QtWidgets.QWidget):
         # self.notify.start()
         #open("filepath.txt","w").write(self.verilogfile)
         
+    def refresh_change(self):
+        if self.refreshoption in toggle_flag:
+            self.toggle=toggle(self.refreshoption)
+            self.toggle.start()
+            
     def refresh(self):
         if not hasattr(self, 'verilogfile'):
             return
@@ -144,9 +148,10 @@ class Maker(QtWidgets.QWidget):
                         QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
                     )
                 if reply == QtWidgets.QMessageBox.Yes:
-                    self.text = open(self.verilogfile).readlines()
                     code = open(self.verilogfile).read()
+                    text = code
                     filename=self.verilogfile.split('.')[0]+".tlv"
+                    file=os.path.basename(self.verilogfile.split('.')[0])
                     f=open(filename,'w')
                     flag=1
                     ports=""
@@ -154,23 +159,46 @@ class Maker(QtWidgets.QWidget):
                     code=code.replace("reg"," ")
                     vlog_ex = vlog.VerilogExtractor()
                     vlog_mods = vlog_ex.extract_objects_from_source(code)
+                    lint_off = open("../maker/lint_off.txt").readlines()
+                    string='''\\TLV_version 1d: tl-x.org\n\\SV\n'''
+                    for item in lint_off:
+                        string+="/* verilator lint_off "+item.strip("\n")+"*/  "
+                    string+='''\n\n//Your Verilog/System Verilog Code Starts Here:\n'''+text\
++'''\n\n//Top Module Code Starts here:\n\tmodule top(input \
+logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, output logic failed);\n'''
+                    print(file)
+                    for m in vlog_mods:
+                        if m.name.lower()==file.lower() :
+                            for p in m.ports:
+                                if str(p.name)!="clk" and str(p.name)!="reset" \
+                                and str(p.name)!="cyc_cnt" and str(p.name)!="passed" and str(p.name)!="failed":
+                                    string+='\t\tlogic '+p.data_type+" "+p.name+";//"+p.mode+"\n"
+                    string+="//The $random() can be replaced if user wants to assign values\n"
+                    for m in vlog_mods:
+                        if m.name.lower()==file.lower() :
+                            for p in m.ports:
+                                if str(p.mode)=="input" or str(p.mode)=="inout":
+                                    if str(p.name)!="clk" and str(p.name)!="reset"\
+                                     and str(p.name)!="cyc_cnt" and str(p.name)!="passed" and str(p.name)!="failed":
+                                        string+='\t\tassign '+p.name+" = "+"$random();\n"
                     
-                    for item in self.text:
-                        if item.find(os.path.basename(self.verilogfile).split('.')[0])!=-1:
-                            flag=0
-                            string=""
-                        elif flag==0 and item.find(");"):
-                            flag=2
-                        elif flag==2:
-                            string="module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, output logic failed);\n"
-                            for m in vlog_mods:
-                                for p in m.ports:
-                                    if str(p.name)!="clk" and str(p.name)!="reset" and str(p.name)!="cyc_cnt" and str(p.name)!="passed" and str(p.name)!="failed":
-                                        string+='logic '+p.data_type+" "+p.name+";\n"
-                            flag=1
-                        else:
-                            string=item
-                        f.write(string)
+                    
+                    for m in vlog_mods:
+                        if m.name.lower()==file.lower() :
+                            string+='\t\t'+m.name+" "+m.name+'('
+                            i=0
+                            for p in m.ports:
+                                i=i+1
+                                string+=p.name
+                                if i==len(m.ports): 
+                                    string+=");\n\t\n\\TLV\n// Add \TLV here if desired\n\\SV\nendmodule\n\n"
+                                else:
+                                    string+=", "
+                    f.write(string)
+                    
+
+                            
+
                 self.process = QtCore.QProcess(self)
                 cmd='makerchip '+filename
                 print("File: "+filename)
@@ -181,9 +209,9 @@ class Maker(QtWidgets.QWidget):
             self.msg.setModal(True)
             self.msg.setWindowTitle("Error Message")
             self.msg.showMessage(
-                "No Verilog File Chosen.")
+                "Error in running Makerchip. Please check if Verilog File Chosen.")
             self.msg.exec_()
-            print("No Verilog File Chosen")
+            print("Error in running Makerchip. Please check if Verilog File Chosen.")
         #   initial = self.read_file()
             
 
@@ -317,10 +345,12 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         print("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
         # self.obj_Appconfig.print_info("NgVeri File: "+self.verilogfile+" modified. Please click on Refresh")
         global toggle_flag
-        toggle_flag.append(self.refreshoption)
+        if not(self.refreshoption in toggle_flag):
+            toggle_flag.append(self.refreshoption)
         #i.rm_watch()
         self.observer.stop()
         self.toggle.start()
+
         
 # class notify(QThread):
 #     def __init__(self,verilogfile,refreshoption):#,obj_Appconfig):

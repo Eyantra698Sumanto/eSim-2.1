@@ -1,0 +1,45 @@
+model BJT_amplifier
+import Modelica.Electrical.*;
+Analog.Sources.ConstantVoltage v1(V = 10);
+Analog.Sources.SineVoltage v2(offset = 0, V = 10e-3, f = 1e3, startTime = 0, phase = 0);
+Analog.Semiconductors.NPN q1(Is=14.34e-15 ,Vak=0.013508037282182899 ,Bf=400 ,Br=6.092 ,Cjc=7.306e-12 ,Mc=0.3416 ,Phic=0.75 ,Cje=22.01e-12 ,Me=0.377 ,Phie=0.75 ,Taur=46.91e-9 ,Tauf=411.1e-12 ,Ccs=1e-12 );
+Analog.Basic.Resistor r1(R = 50);
+Analog.Basic.Resistor r2(R = 200e3);
+Analog.Basic.Capacitor c1(C = 40e-6);
+Analog.Basic.Resistor r3(R = 50e3);
+Analog.Basic.Resistor r6(R = 1e3);
+Analog.Basic.Capacitor c2(C = 100e-6);
+Analog.Basic.Capacitor c3(C = 40e-6);
+Analog.Basic.Resistor r5(R = 2e3);
+Analog.Basic.Resistor r4(R = 1.5e3);
+Analog.Basic.Ground g;
+protected
+Modelica.Electrical.Analog.Interfaces.Pin nnet_r2pad1_, ngnd, nnet_c1pad1_, nin, na, nout, nnet_c2pad2_, nnet_c3pad2_;
+equation
+connect(v1.p,nnet_r2pad1_);
+connect(v1.n,ngnd);
+connect(r1.p,nnet_c1pad1_);
+connect(r1.n,nin);
+connect(r2.p,nnet_r2pad1_);
+connect(r2.n,na);
+connect(c1.p,nnet_c1pad1_);
+connect(c1.n,na);
+connect(r3.p,na);
+connect(r3.n,ngnd);
+connect(r6.p,nout);
+connect(r6.n,ngnd);
+connect(c2.p,ngnd);
+connect(c2.n,nnet_c2pad2_);
+connect(c3.p,nout);
+connect(c3.n,nnet_c3pad2_);
+connect(r5.p,nnet_r2pad1_);
+connect(r5.n,nnet_c3pad2_);
+connect(r4.p,nnet_c2pad2_);
+connect(r4.n,ngnd);
+connect(v2.p,nin);
+connect(v2.n,ngnd);
+connect(q1.C,nnet_c3pad2_);
+connect(q1.B,na);
+connect(q1.E,nnet_c2pad2_);
+connect(g.p,ngnd);
+end BJT_amplifier;

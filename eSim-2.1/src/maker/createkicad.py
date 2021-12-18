@@ -27,10 +27,11 @@ from PyQt5 import QtWidgets
 class AutoSchematic:
 
     def init(self,modelname,modelpath):
+        self.App_obj=Appconfig.Appconfig()
         self.modelname = modelname.split('.')[0]
-        self.template = Appconfig.Appconfig.kicad_lib_template.copy()
-        self.xml_loc = Appconfig.Appconfig.xml_loc
-        self.lib_loc = Appconfig.Appconfig.lib_loc
+        self.template = self.App_obj.kicad_lib_template.copy()
+        self.xml_loc = self.App_obj.xml_loc
+        self.lib_loc = self.App_obj.lib_loc
         self.modelpath=modelpath
         if os.name == 'nt':
             eSim_src = Appconfig.src_home
@@ -39,7 +40,7 @@ class AutoSchematic:
                 inst_dir + '/KiCad/share/kicad/library/eSim_Ngveri.lib'
         else:
             self.kicad_ngveri_lib = '/usr/share/kicad/library/eSim_Ngveri.lib'
-        self.parser = Appconfig.Appconfig.parser_ngveri
+        #self.parser = self.App_obj.parser_ngveri
 
     def createkicad(self):
         

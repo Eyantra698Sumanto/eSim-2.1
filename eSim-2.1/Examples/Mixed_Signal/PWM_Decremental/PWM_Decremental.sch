@@ -425,14 +425,16 @@ Wire Wire Line
 Wire Wire Line
 	6300 1950 6150 1950
 $Comp
-L dff U2
-U 1 1 6123E15B
+L pwmdecrement U?
+U 1 1 61BDAA39
 P 4050 3750
-F 0 "U2" H 6900 5550 60  0000 C CNN
-F 1 "dff" H 6900 5750 60  0000 C CNN
+F 0 "U?" H 6900 5550 60  0000 C CNN
+F 1 "pwmdecrement" H 6900 5750 60  0000 C CNN
 F 2 "" H 6900 5700 60  0000 C CNN
 F 3 "" H 6900 5700 60  0000 C CNN
 	1    4050 3750
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	6400 2150 6400 1950
 $EndSCHEMATC
