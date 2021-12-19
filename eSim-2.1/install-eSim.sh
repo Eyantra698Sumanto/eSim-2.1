@@ -77,11 +77,7 @@ function installNghdl
 
 function verilator
 {   
-    if [[ -e ./verilator ]]
-    then
-        echo "$(pwd)/verilator exists."
-        echo "Removing Verilator..........................."
-        rm -rf $(pwd)/verilator
+
     echo "Installing Verilator Dependencies..........................."
     if [[ -n "$(which apt-get 2> /dev/null)" ]]
     then
@@ -100,8 +96,8 @@ function verilator
     make -j$(nproc)
     sudo make install
 }
-function Ngveri_dependencies
-{.
+function Ngveridependencies
+{
     echo "Installing Chrome.........................."
     sudo apt install -y chromium-browser
     echo "Installing watchdog..........................."
@@ -363,6 +359,8 @@ if [ $option == "--install" ];then
             copyKicadLibrary
             installNghdl
             createDesktopStartScript
+	    verilator
+	    Ngveridependencies
 
     elif [ $getProxy == "n" -o $getProxy == "N" ];then
             echo "Install without proxy"
