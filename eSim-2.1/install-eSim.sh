@@ -77,11 +77,7 @@ function installNghdl
 
 function verilator
 {   
-    if [[ -e ./verilator ]]
-    then
-        echo "$(pwd)/verilator exists."
-        echo "Removing Verilator..........................."
-        rm -rf $(pwd)/verilator
+
     echo "Installing Verilator Dependencies..........................."
     if [[ -n "$(which apt-get 2> /dev/null)" ]]
     then
