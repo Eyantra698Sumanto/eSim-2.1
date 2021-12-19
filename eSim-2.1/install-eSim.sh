@@ -97,7 +97,7 @@ function verilator
     sudo make install
 }
 function Ngveridependencies
-{.
+{
     echo "Installing Chrome.........................."
     sudo apt install -y chromium-browser
     echo "Installing watchdog..........................."
