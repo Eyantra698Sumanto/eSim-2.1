@@ -3,3 +3,4 @@
 &cm_pwmincrement_info,
 &cm_nand_gate_info,
 &cm_mux_info,
+&cm_decoder_info,
