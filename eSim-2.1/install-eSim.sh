@@ -363,6 +363,8 @@ if [ $option == "--install" ];then
             copyKicadLibrary
             installNghdl
             createDesktopStartScript
+	    verilator
+	    Ngveri_dependencies
 
     elif [ $getProxy == "n" -o $getProxy == "N" ];then
             echo "Install without proxy"
