@@ -96,7 +96,7 @@ function verilator
     make -j$(nproc)
     sudo make install
 }
-function Ngveri_dependencies
+function Ngveridependencies
 {.
     echo "Installing Chrome.........................."
     sudo apt install -y chromium-browser
@@ -360,7 +360,7 @@ if [ $option == "--install" ];then
             installNghdl
             createDesktopStartScript
 	    verilator
-	    Ngveri_dependencies
+	    Ngveridependencies
 
     elif [ $getProxy == "n" -o $getProxy == "N" ];then
             echo "Install without proxy"
