@@ -101,15 +101,15 @@ function Ngveridependencies
     echo "Installing Chrome.........................."
     sudo apt install -y chromium-browser
     echo "Installing python3 pip.........................."
-    apt-get install python3-pip
+    sudo apt install python3-pip
     echo "Installing watchdog..........................."
-    pip install watchdog
+    pip3 install watchdog
     echo "Installing HDLParse..........................."
-    pip install hdlparse
+    pip3 install hdlparse
     echo "Installing Makerchip-App..........................."
-    pip install makerchip-app
+    pip3 install makerchip-app
     echo "Installing Sandpiper-Saas..........................."
-    pip install sandpiper-saas
+    pip3 install sandpiper-saas
 
 }
 function addKicadPPA
