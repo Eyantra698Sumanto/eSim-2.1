@@ -26,6 +26,8 @@ import os
 import subprocess
 import watchdog.events
 import watchdog.observers
+from os.path import expanduser
+home = expanduser("~")
 #import inotify.adapters
 import time
 import hdlparse.verilog_parser as vlog
@@ -134,14 +136,28 @@ class Maker(QtWidgets.QWidget):
         init_path = '../../'
         if os.name == 'nt':
             init_path = ''
-        try:     
+        try:    
+            if not os.path.isfile(home+"/.makerchip_accepted"):
+                reply=QtWidgets.QMessageBox.warning(
+                        None, "Terms of Services","Please review the makerchip\
+                         Terms of Service (<a href='https://www.makerchip.com/terms/'>\
+                         https://www.makerchip.com/terms/</a> ).\
+                          Have you read and do you accept these Terms of Service? [y/N]:",
+                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                    )
+
+                if reply == QtWidgets.QMessageBox.Yes:
+                    f=open(home+"/.makerchip_accepted","w")
+                    f.close()
+                else:
+                    return
             print("Running Makerchip..............................")        
             #self.file = open(self.verilogfile,"w")
             #self.file.write(self.entry_var[1].toPlainText())
             #self.file.close()
             filename=self.verilogfile
             if self.verilogfile.split('.')[1]!="tlv":
-                reply=QtWidgets.QMessageBox.critical(
+                reply=QtWidgets.QMessageBox.warning(
                         None, "Do you want to automate top module?",
                         "<b>Click on YES if you want top module to be automatically added. NOTE: a .tlv file will be created in the directory of current verilog file\
                         and the makerchip will be running on this file. Otherwise click on NO.</b>",
@@ -265,10 +281,31 @@ logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, o
         self.optionsgrid.addWidget(self.runoptions, 0, 4)
         self.optionsbox.setLayout(self.optionsgrid)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        self.acceptTOS = QtWidgets.QPushButton("Accept Makerchip TOS")
+        self.optionsgroupbtn.addButton(self.acceptTOS)
+        self.acceptTOS.clicked.connect(self.makerchipaccepted)
+        self.optionsgrid.addWidget(self.acceptTOS, 0, 5)
+        self.optionsbox.setLayout(self.optionsgrid)
+        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         
         return self.optionsbox
 
     
+    def makerchipaccepted(self):
+        reply=QtWidgets.QMessageBox.warning(
+                        None, "Terms of Services","Please review the makerchip\
+                         Terms of Service (<a href='https://www.makerchip.com/terms/'>\
+                         https://www.makerchip.com/terms/</a> ).\
+                          Have you read and do you accept these Terms of Service? [y/N]:",
+                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                    )
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            f=open(home+"/.makerchip_accepted","w")
+            f.close()
+        else:
+            return
+
 
 
    
