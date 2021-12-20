@@ -372,6 +372,8 @@ if [ $option == "--install" ];then
             copyKicadLibrary
             installNghdl
             createDesktopStartScript
+	    verilator
+	    Ngveridependencies
 
             if [ $? -ne 0 ];then
                 echo -e "\n\n\nFreeEDA ERROR: Unable to install required packages. Please check your internet connection.\n\n"
