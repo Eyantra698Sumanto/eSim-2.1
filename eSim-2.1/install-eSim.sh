@@ -91,7 +91,7 @@ function verilator
     echo "Installing Verilator..........................."
     sudo apt install -y curl
     curl https://www.veripool.org/ftp/verilator-4.210.tgz | tar -zx
-    cd verilator
+    cd verilator-4.210
     ./configure
     make -j$(nproc)
     sudo make install
