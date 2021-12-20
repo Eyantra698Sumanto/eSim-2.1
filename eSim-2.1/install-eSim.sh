@@ -100,6 +100,8 @@ function Ngveridependencies
 {
     echo "Installing Chrome.........................."
     sudo apt install -y chromium-browser
+    echo "Installing python3 pip.........................."
+    apt-get install python3-pip
     echo "Installing watchdog..........................."
     pip install watchdog
     echo "Installing HDLParse..........................."
