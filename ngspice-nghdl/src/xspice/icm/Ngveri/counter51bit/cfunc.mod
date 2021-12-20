@@ -25,7 +25,7 @@ void cm_counter51bit(ARGS)
         
         port_clk=PORT_SIZE(clk);
 
-        port_rst=PORT_SIZE(rst);
+        port_reset=PORT_SIZE(reset);
 
         port_out=PORT_SIZE(out);
 		cm_event_alloc(0,51*sizeof(Digital_State_t));
@@ -35,9 +35,9 @@ void cm_counter51bit(ARGS)
 		{
 			LOAD(clk[Ii])=PARAM(input_load); 
 		}
-		for(Ii=0;Ii<PORT_SIZE(rst);Ii++)
+		for(Ii=0;Ii<PORT_SIZE(reset);Ii++)
 		{
-			LOAD(rst[Ii])=PARAM(input_load); 
+			LOAD(reset[Ii])=PARAM(input_load); 
 		}
 
 		/*Retrieve Storage for output*/
@@ -65,14 +65,14 @@ void cm_counter51bit(ARGS)
             temp_clk[Ii]=1;
         }
             }
-    for(Ii=0;Ii<PORT_SIZE(rst);Ii++)
+    for(Ii=0;Ii<PORT_SIZE(reset);Ii++)
     {
-        if( INPUT_STATE(rst[Ii])==ZERO )
+        if( INPUT_STATE(reset[Ii])==ZERO )
         {
-            temp_rst[Ii]=0;            }
+            temp_reset[Ii]=0;            }
         else
         {
-            temp_rst[Ii]=1;
+            temp_reset[Ii]=1;
         }
             }
 	foocounter51bit(1,count);

@@ -1,0 +1,11 @@
+int fooadder_subtractor_4bit(int,int);
+        int temp_a[1024];
+        int port_a;
+        int temp_b[1024];
+        int port_b;
+        int temp_cin[1024];
+        int port_cin;
+        int temp_sum[1024];
+        int port_sum;
+        int temp_carry[1024];
+        int port_carry;

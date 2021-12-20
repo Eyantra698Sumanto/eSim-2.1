@@ -1,0 +1,5 @@
+	a                   input   4
+	b                   input   4
+	cin                 input   1
+	sum                 output  4
+	carry               output  1

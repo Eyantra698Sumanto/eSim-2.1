@@ -12,9 +12,8 @@ VL_INLINE_OPT void Vcounter51bit___024root___sequent__TOP__1(Vcounter51bit___024
     Vcounter51bit__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vcounter51bit___024root___sequent__TOP__1\n"); );
     // Body
-    vlSelf->out = ((IData)(vlSelf->rst) ? 0ULL : (0x7ffffffffffffULL 
-                                                  & (1ULL 
-                                                     + vlSelf->out)));
+    vlSelf->out = ((IData)(vlSelf->reset) ? 0ULL : 
+                   (0x7ffffffffffffULL & (1ULL + vlSelf->out)));
 }
 
 void Vcounter51bit___024root___eval(Vcounter51bit___024root* vlSelf) {
@@ -57,7 +56,7 @@ void Vcounter51bit___024root___eval_debug_assertions(Vcounter51bit___024root* vl
     // Body
     if (VL_UNLIKELY((vlSelf->clk & 0xfeU))) {
         Verilated::overWidthError("clk");}
-    if (VL_UNLIKELY((vlSelf->rst & 0xfeU))) {
-        Verilated::overWidthError("rst");}
+    if (VL_UNLIKELY((vlSelf->reset & 0xfeU))) {
+        Verilated::overWidthError("reset");}
 }
 #endif  // VL_DEBUG

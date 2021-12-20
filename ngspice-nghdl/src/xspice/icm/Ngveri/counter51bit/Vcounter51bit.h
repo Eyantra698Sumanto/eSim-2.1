@@ -25,7 +25,7 @@ class Vcounter51bit VL_NOT_FINAL {
     // The application code writes and reads these signals to
     // propagate new values into/out from the Verilated model.
     VL_IN8(&clk,0,0);
-    VL_IN8(&rst,0,0);
+    VL_IN8(&reset,0,0);
     VL_OUT64(&out,50,0);
 
     // CELLS

@@ -51,6 +51,6 @@ void Vcounter51bit___024root___ctor_var_reset(Vcounter51bit___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vcounter51bit___024root___ctor_var_reset\n"); );
     // Body
     vlSelf->clk = VL_RAND_RESET_I(1);
-    vlSelf->rst = VL_RAND_RESET_I(1);
+    vlSelf->reset = VL_RAND_RESET_I(1);
     vlSelf->out = VL_RAND_RESET_Q(51);
 }

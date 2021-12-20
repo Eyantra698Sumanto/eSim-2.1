@@ -43,3 +43,9 @@ counter64bit
 counter51bit
 intr_cntrl
 spi
+apb
+fifo
+adder_subtractor_4bit
+counter21bit
+counter19bit
+ram1

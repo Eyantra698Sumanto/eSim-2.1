@@ -27,7 +27,7 @@ void cm_counter51bit(Mif_Private_t *mif_private)
         
         port_clk=mif_private->conn[0]->size;
 
-        port_rst=mif_private->conn[1]->size;
+        port_reset=mif_private->conn[1]->size;
 
         port_out=mif_private->conn[2]->size;
 		cm_event_alloc(0,51*sizeof(Digital_State_t));
@@ -71,10 +71,10 @@ void cm_counter51bit(Mif_Private_t *mif_private)
     {
         if( ((Digital_t*)(mif_private->conn[1]->port[Ii]->input.pvalue))->state==ZERO )
         {
-            temp_rst[Ii]=0;            }
+            temp_reset[Ii]=0;            }
         else
         {
-            temp_rst[Ii]=1;
+            temp_reset[Ii]=1;
         }
             }
 	foocounter51bit(1,count);

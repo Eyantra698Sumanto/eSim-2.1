@@ -42,4 +42,10 @@ ddr2_controller/*.o \
 counter64bit/*.o \
 counter51bit/*.o \
 intr_cntrl/*.o \
-spi/*.o
+spi/*.o \
+apb/*.o \
+fifo/*.o \
+adder_subtractor_4bit/*.o \
+counter21bit/*.o \
+counter19bit/*.o \
+ram1/*.o

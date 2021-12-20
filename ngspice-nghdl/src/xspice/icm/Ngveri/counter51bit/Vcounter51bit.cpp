@@ -10,7 +10,7 @@
 Vcounter51bit::Vcounter51bit(VerilatedContext* _vcontextp__, const char* _vcname__)
     : vlSymsp{new Vcounter51bit__Syms(_vcontextp__, _vcname__, this)}
     , clk{vlSymsp->TOP.clk}
-    , rst{vlSymsp->TOP.rst}
+    , reset{vlSymsp->TOP.reset}
     , out{vlSymsp->TOP.out}
     , rootp{&(vlSymsp->TOP)}
 {
@@ -57,7 +57,7 @@ static void _eval_initial_loop(Vcounter51bit__Syms* __restrict vlSymsp) {
             Verilated::debug(1);
             __Vchange = Vcounter51bit___024root___change_request(&(vlSymsp->TOP));
             Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("counter51bit.v", 19, "",
+            VL_FATAL_MT("counter51bit.v", 1, "",
                 "Verilated model didn't DC converge\n"
                 "- See https://verilator.org/warn/DIDNOTCONVERGE");
         } else {
@@ -87,7 +87,7 @@ void Vcounter51bit::eval_step() {
             Verilated::debug(1);
             __Vchange = Vcounter51bit___024root___change_request(&(vlSymsp->TOP));
             Verilated::debug(__Vsaved_debug);
-            VL_FATAL_MT("counter51bit.v", 19, "",
+            VL_FATAL_MT("counter51bit.v", 1, "",
                 "Verilated model didn't converge\n"
                 "- See https://verilator.org/warn/DIDNOTCONVERGE");
         } else {

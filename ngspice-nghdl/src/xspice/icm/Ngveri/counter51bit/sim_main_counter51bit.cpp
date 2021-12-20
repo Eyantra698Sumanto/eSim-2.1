@@ -16,8 +16,8 @@
         
         extern "C" int temp_clk[1024];
         extern "C" int port_clk;
-        extern "C" int temp_rst[1024];
-        extern "C" int port_rst;
+        extern "C" int temp_reset[1024];
+        extern "C" int port_reset;
         extern "C" int temp_out[1024];
         extern "C" int port_out;
         extern "C" int foocounter51bit(int,int);
@@ -55,15 +55,15 @@
                 printf("\nInstance : %d\n",count);
                 printf("\nInside foo before eval.....\n");
 				printf("clk=%d\n", counter51bit[count] ->clk);
-				printf("rst=%d\n", counter51bit[count] ->rst);
+				printf("reset=%d\n", counter51bit[count] ->reset);
 				printf("out=%d\n", counter51bit[count] ->out);
 				counter51bit[count]->clk = arr2intcounter51bit(temp_clk, port_clk);
-				counter51bit[count]->rst = arr2intcounter51bit(temp_rst, port_rst);
+				counter51bit[count]->reset = arr2intcounter51bit(temp_reset, port_reset);
 				counter51bit[count]->eval();
 
                 printf("\nInside foo after eval.....\n");
 				printf("clk=%d\n", counter51bit[count] ->clk);
-				printf("rst=%d\n", counter51bit[count] ->rst);
+				printf("reset=%d\n", counter51bit[count] ->reset);
 				printf("out=%d\n", counter51bit[count] ->out);
 				int2arrcounter51bit(counter51bit[count] -> out, temp_out, port_out);
 

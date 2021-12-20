@@ -18,7 +18,7 @@ VL_MODULE(Vcounter51bit___024root) {
 
     // PORTS
     VL_IN8(clk,0,0);
-    VL_IN8(rst,0,0);
+    VL_IN8(reset,0,0);
     VL_OUT64(out,50,0);
 
     // LOCAL VARIABLES

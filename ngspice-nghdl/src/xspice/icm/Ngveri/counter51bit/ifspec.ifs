@@ -20,8 +20,8 @@ Vector_Bounds:	[1 1]
 Null_Allowed:	no
 
 PORT_TABLE:
-Port_Name:	rst
-Description:	"input port rst"
+Port_Name:	reset
+Description:	"input port reset"
 Direction:	in
 Default_Type:	d
 Allowed_Types:	[d]

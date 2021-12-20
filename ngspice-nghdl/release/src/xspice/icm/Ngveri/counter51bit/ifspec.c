@@ -74,8 +74,8 @@ static Mif_Conn_Info_t MIFconnTable[] = {
     MIF_FALSE,
   },
   {
-    "rst",
-    "input port rst",
+    "reset",
+    "input port reset",
     MIF_IN,
     MIF_DIGITAL,
     "d",

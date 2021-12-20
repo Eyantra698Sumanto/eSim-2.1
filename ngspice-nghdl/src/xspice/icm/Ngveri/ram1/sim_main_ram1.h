@@ -1,0 +1,17 @@
+int fooram1(int,int);
+        int temp_clk[1024];
+        int port_clk;
+        int temp_reset[1024];
+        int port_reset;
+        int temp_cs[1024];
+        int port_cs;
+        int temp_read[1024];
+        int port_read;
+        int temp_write[1024];
+        int port_write;
+        int temp_datawrite[1024];
+        int port_datawrite;
+        int temp_address[1024];
+        int port_address;
+        int temp_dataread[1024];
+        int port_dataread;
