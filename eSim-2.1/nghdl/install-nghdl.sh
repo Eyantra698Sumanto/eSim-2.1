@@ -48,7 +48,7 @@ function installDependency
         echo "Installing GNAT..........................................."
         sudo apt install -y gnat
 
-    echo "Installing LLVM-8........................................."
+        echo "Installing LLVM-8........................................."
         sudo apt install -y llvm-8
 
         echo "Installing Clang.........................................."
@@ -76,9 +76,9 @@ function installDependency
         echo "Changing directory to $ghdl installation"
         cd $ghdl/
         echo "Configuring $ghdl build as per requirements"
-        chmod +x configure 
-        # Other configure flags can be found at - https://github.com/ghdl/ghdl/blob/master/configure
-        sudo ./configure --with-llvm-config=/usr/bin/llvm-config-8  
+        chmod +x configure
+         # Other configure flags can be found at - https://github.com/ghdl/ghdl/blob/master/configure
+        sudo ./configure --with-llvm-config=/usr/bin/llvm-config-8
         echo "Building the install file for $ghdl LLVM"
         sudo make
         sudo make install
