@@ -411,10 +411,12 @@ elif [ $option == "--uninstall" ];then
         if [[ $(lsb_release -rs) == 20.* ]]; then
             sudo sed -i '/Package: kicad/{:label;N;/Pin-Priority: 501/!blabel};/Pin: version 4.0.7*/d' /etc/apt/preferences.d/preferences
         fi
-
+	echo "Removing Verilator..........................."
+	cd verilator-4.210
+	sudo make uninstall
         echo "Removing NGHDL..........................."
         rm -rf library/modelParamXML/Nghdl/*
-        cd nghdl/
+        cd ../nghdl/
         if [ $? -eq 0 ];then
         	chmod +x install-nghdl.sh
     	    ./install-nghdl.sh --uninstall
