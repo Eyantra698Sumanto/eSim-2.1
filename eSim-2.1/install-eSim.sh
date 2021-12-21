@@ -95,7 +95,7 @@ function verilator
     ./configure
     make -j$(nproc)
     sudo make install
-    sudo rm -v !("config.status"|"configure.ac"|"Makefile.in"|"verilator.1"|"configure"|"Makefile"|"src"|"verilator.pc") 
+    #sudo rm -v !("config.status"|"configure.ac"|"Makefile.in"|"verilator.1"|"configure"|"Makefile"|"src"|"verilator.pc") 
 }
 function Ngveridependencies
 {
