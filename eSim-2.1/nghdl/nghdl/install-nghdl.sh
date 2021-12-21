@@ -1,21 +1,21 @@
 #!/bin/bash 
 #===============================================================================
-#                  FILE: install-nghdl.sh
+#                     FILE: install-nghdl.sh
 # 
 #                 USAGE: ./install-nghdl.sh --install
 #                                           OR
-#                              ./install-nghdl.sh --uninstall
+#                                 ./install-nghdl.sh --uninstall
 # 
 #     DESCRIPTION: Installation script for Ngspice and GHDL simulators (NGHDL)
 #
 #             OPTIONS: ---
-#  REQUIREMENTS: ---
-#                  BUGS: ---
+#     REQUIREMENTS: ---
+#                     BUGS: ---
 #                 NOTES: ---
-#              AUTHOR: Fahim Khan, Rahul Paknikar
-#  ORGANIZATION: eSim, FOSSEE group at IIT Bombay
+#                 AUTHOR: Fahim Khan, Rahul Paknikar, Sumanto Kar
+#     ORGANIZATION: eSim, FOSSEE group at IIT Bombay
 #             CREATED: Tuesday 02 December 2014 17:01
-#          REVISION: Sunday 02 August 2020 01:35
+#             REVISION: Sunday 02 August 2020 01:35
 #===============================================================================
 
 ngspice="ngspice-nghdl"
@@ -136,7 +136,7 @@ function installNgspice
         set +e      # Temporary disable exit on error
         trap "" ERR # Do not trap on error of any command
 
-        echo "Removing previously installed Ngspice (if any)"      
+        echo "Removing previously installed Ngspice (if any)"         
         sudo apt-get purge -y ngspice
 
         echo "Ngspice installed sucessfully"
@@ -213,8 +213,8 @@ fi
 ## Checking flags
 if [ $option == "--install" ];then
         
-        set -e  # Set exit option immediately on error
-        set -E  # inherit ERR trap by shell functions
+        set -e     # Set exit option immediately on error
+        set -E     # inherit ERR trap by shell functions
 
         # Trap on function error_exit before exiting on error
         trap error_exit ERR
