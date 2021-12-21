@@ -78,7 +78,7 @@ function installDependency
         echo "Configuring $ghdl build as per requirements"
         chmod +x configure 
         # Other configure flags can be found at - https://github.com/ghdl/ghdl/blob/master/configure
-        sudo ./../configure --with-llvm-config=/usr/bin/llvm-config-8  
+        sudo ./configure --with-llvm-config=/usr/bin/llvm-config-8  
         echo "Building the install file for $ghdl LLVM"
         sudo make
         sudo make install
