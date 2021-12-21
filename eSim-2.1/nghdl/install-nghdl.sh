@@ -130,6 +130,7 @@ function installNgspice
 
         # Make it executable
         sudo chmod 755 $HOME/$ngspice/install_dir/bin/ngspice
+        sudo chmod 777 -R $HOME/$ngspice
         
         set +e      # Temporary disable exit on error
         trap "" ERR # Do not trap on error of any command
