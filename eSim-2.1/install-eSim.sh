@@ -96,8 +96,14 @@ function verilator
     make -j$(nproc)
     sudo make install
     echo "Removing the Unessential files in Verilator Folder..........................."
-    #ls -1 | grep -E -v 'config.status|configure.ac|Makefile.in|verilator.1|configure|Makefile|src|verilator.pc' | xargs rm -f
-    sudo rm -v -r'!("config.status"|"configure.ac"|"Makefile.in"|"verilator.1"|"configure"|"Makefile"|"src"|"verilator.pc")'
+    ls -1 | grep -E -v 'config.status|configure.ac|Makefile.in|verilator.1|configure|Makefile|src|verilator.pc' | xargs rm -f
+    rm -r docs
+    rm -r examples
+    rm -r include
+    rm -r test_regress
+    rm -r include
+    rm -r bin
+    #sudo rm -v -r'!("config.status"|"configure.ac"|"Makefile.in"|"verilator.1"|"configure"|"Makefile"|"src"|"verilator.pc")'
 }
 function Ngveridependencies
 {
