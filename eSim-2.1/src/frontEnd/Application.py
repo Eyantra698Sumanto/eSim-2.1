@@ -11,6 +11,7 @@
 #         NOTES: ---
 #        AUTHOR: Fahim Khan, fahim.elex@gmail.com
 #      MODIFIED: Rahul Paknikar, rahulp@iitb.ac.in
+#                Sumanto Kar, jeetsumanto123@gmail.com              
 #  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
 #       CREATED: Tuesday 24 February 2015
 #      REVISION: Sunday 13 December 2020
@@ -215,7 +216,7 @@ class Application(QtWidgets.QMainWindow):
 
         self.makerchip = QtWidgets.QAction(
             QtGui.QIcon(init_path + 'images/makerchip.png'),
-            '<b>Makerchip</b>', self
+            '<b>Makerchip-NgVeri</b>', self
         )
         self.makerchip.triggered.connect(self.open_makerchip)
 

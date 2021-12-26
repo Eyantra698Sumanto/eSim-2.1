@@ -18,6 +18,9 @@
 #       CREATED: Monday 29, November 2021
 #      REVISION: Monday 29, November 2021
 # =========================================================================
+
+
+#importing the files and libraries
 from PyQt5 import QtCore, QtWidgets, QtGui
 from . import Maker
 from . import ModelGeneration
@@ -28,9 +31,10 @@ from configparser import SafeConfigParser
 from configparser import ConfigParser
 
 
-
+#beginning class NgVeri. This class create the NgVeri Tab
 class NgVeri(QtWidgets.QWidget):
 
+    #initialising the variables
     def __init__(self,filecount):
         print(self)
         QtWidgets.QWidget.__init__(self)
@@ -49,15 +53,15 @@ class NgVeri(QtWidgets.QWidget):
         self.count=0
         self.text= "" 
         self.entry_var = {}
-        self.createAnalysisWidget()       
+        self.createNgveriWidget()       
         self.fname=""
         self.filecount=filecount
         
         
        
 
-
-    def createAnalysisWidget(self):
+    #Creating the various components of the Widget(Ngveri Tab)
+    def createNgveriWidget(self):
 
         self.grid = QtWidgets.QGridLayout()
         self.setLayout(self.grid)
@@ -67,6 +71,7 @@ class NgVeri(QtWidgets.QWidget):
        
         self.show()
 
+    #Adding the verilog file in Maker tab to Ngveri Tab automatically
     def addverilog(self):
 
 
@@ -108,7 +113,7 @@ class NgVeri(QtWidgets.QWidget):
             model.runMakeInstall()
 
 
-        
+    #This function is used to add additional files required by the verilog top module  
     def addfile(self):
         if len(Maker.verilogFile)<(self.filecount+1):
             reply=QtWidgets.QMessageBox.critical(
@@ -124,6 +129,7 @@ class NgVeri(QtWidgets.QWidget):
         #model.verilogfile()
         model.addfile()
 
+    #This function is used to add additional folder required by the verilog top module
     def addfolder(self):
         if len(Maker.verilogFile)<(self.filecount+1):
             reply=QtWidgets.QMessageBox.critical(
@@ -140,10 +146,11 @@ class NgVeri(QtWidgets.QWidget):
         model.addfolder()
         
 
-
+    #This function is used to clear the terminal
     def clearTerminal(self):
         self.entry_var[0].setText("")
-        
+    
+    #This function is used to create buttons/options  
     def createoptionsBox(self):
         
 
@@ -186,6 +193,7 @@ class NgVeri(QtWidgets.QWidget):
         
         return self.optionsbox
 
+    #This function is used to remove models in modlst of Ngspice folder if the user wants to remove a model.Note: files do not get removed
     def edit_modlst(self, text):
         if text=="Edit modlst":
             return
@@ -215,6 +223,8 @@ class NgVeri(QtWidgets.QWidget):
         else:
             return 
 
+    #This is to remove lint_off comments needed by the verilator warnings
+    #This function writes to the lint_off.txt here in the same folder
     def lint_off_edit(self, text):
         if text=="Edit lint_off":
             return
@@ -240,6 +250,8 @@ class NgVeri(QtWidgets.QWidget):
         else:
             return
 
+    #This is to add lint_off comments needed by the verilator warnings
+    #This function writes to the lint_off.txt here in the same folder
     def add_lint_off(self):
         text=self.entry_var[3].text()
         
@@ -254,7 +266,7 @@ class NgVeri(QtWidgets.QWidget):
 
 
    
-
+    #creating various other groups like terminal, edit modlst, edit lint_off and add lint_off
     def creategroup(self):
 
         self.trbox = QtWidgets.QGroupBox()

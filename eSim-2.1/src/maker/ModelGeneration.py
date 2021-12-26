@@ -18,6 +18,9 @@
 #       CREATED: Monday 29, November 2021
 #      REVISION: Monday 29, November 2021
 # =========================================================================
+
+
+#importing the files and libraries
 import re
 import os
 import sys
@@ -31,8 +34,10 @@ from . import createkicad
 import hdlparse.verilog_parser as vlog
 from configparser import SafeConfigParser
 
+#Class is used to generate the Ngspice Model
 class ModelGeneration(QtWidgets.QWidget):
 
+    #initialising the variables
     def __init__(self, file,termedit):
         QtWidgets.QWidget.__init__(self)
         super().__init__()
@@ -57,6 +62,7 @@ class ModelGeneration(QtWidgets.QWidget):
         self.digital_home=self.digital_home.split("/ghdl")[0]+"/Ngveri"
         # # #### Creating connection_info.txt file from verilog file #### #
 
+    #Readinf the file and performing operations and copying it in the Ngspice folder
     def verilogfile(self):
         Text = "<span style=\" font-size:25pt; font-weight:1000; color:#008000;\" >"
         Text += ".................Running NgVeri..................."
@@ -87,7 +93,7 @@ class ModelGeneration(QtWidgets.QWidget):
         f.write("\n")
         f.close() 
         
-
+    #This function is call the sandpiper to convert .tlv file to .sv file
     def sandpiper(self):
         print("Running Sandpiper-Saas for TLV to SV Conversion")
         self.cmd="cp ../maker/tlv/clk_gate.v ../maker/tlv/pseudo_rand.sv \
@@ -124,7 +130,8 @@ class ModelGeneration(QtWidgets.QWidget):
 
 
 
-
+    #This function parses the module name and input/output ports of verilog code using HDL parse
+    #and writes to the connection_info.txt
     def verilogParse(self):
         
 
@@ -180,7 +187,7 @@ class ModelGeneration(QtWidgets.QWidget):
             return "Error"
         return "No Error"
 
-     
+    #This function is used to get the Port Information from connection_info.txt
     def getPortInfo(self):
         readfile = open(self.modelpath+'connection_info.txt', 'r')
         data = readfile.readlines()
@@ -218,7 +225,7 @@ class ModelGeneration(QtWidgets.QWidget):
 
 
 
-
+    #This function is used to create the cfunc.mod file in Ngspice folder automatically
     def cfuncmod(self):
         
          ############## Creating content for cfunc.mod file ############## #
@@ -469,6 +476,8 @@ and set the load for input ports */
         cfunc.write("\n}")
         cfunc.close()
 
+
+    #This function creates the ifspec file automatically in Ngspice folder
     def ifspecwrite(self):
         print("Starting with ifspec.ifs file")
         ifspec = open(self.modelpath+'ifspec.ifs', 'w')
@@ -579,6 +588,9 @@ and set the load for input ports */
         ifspec.write("\n")
         ifspec.close()
 
+    
+
+    #This function creates the header file of sim_main file automatically in Ngspice folder
     def sim_main_header(self):
         print("Starting With sim_main_"+ self.fname.split('.')[0]+".h file")
         simh = open(self.modelpath+'sim_main_'+ self.fname.split('.')[0]+'.h', 'w')
@@ -593,6 +605,7 @@ and set the load for input ports */
             simh.write(item)
         simh.close()
 
+    #This function creates the sim_main file needed by verilator automatically in Ngspice folder
     def sim_main(self):
         print("Starting With sim_main_"+self.fname.split('.')[0]+".cpp file")
         csim = open(self.modelpath+'sim_main_'+self.fname.split('.')[0]+'.cpp', 'w')
@@ -702,6 +715,7 @@ and set the load for input ports */
             csim.write(item)
         csim.close()
 
+    #This function creates modpathlst in Ngspice folder
     def modpathlst(self):
         print("Editing modpath.lst file")
         mod = open(self.digital_home+'/modpath.lst', 'r')
@@ -712,7 +726,7 @@ and set the load for input ports */
             mod.write(self.fname.split('.')[0]+"\n")
         mod.close()
 
-
+    #This function is used to run the Verilator using the verilator commands
     def run_verilator(self):
         self.cur_dir = os.getcwd()
         file = open("../maker/lint_off.txt").readlines()
@@ -740,6 +754,7 @@ and set the load for input ports */
         print("Verilator Executed")
         os.chdir(self.cur_dir)
 
+    #Running make verilator using this function
     def make_verilator(self):
         self.cur_dir = os.getcwd()
         print("Make Verilator.............")
@@ -760,6 +775,8 @@ and set the load for input ports */
         print("Make Verilator Executed")
         os.chdir(self.cur_dir)
 
+    #This function copies the verilator files/object files from 
+    #src/xspice/icm/Ngveri/ to release/src/xspice/icm/Ngveri/
     def copy_verilator(self):
         self.cur_dir = os.getcwd()
         print("Copying the required files to Release Folder.............")
@@ -800,6 +817,7 @@ and set the load for input ports */
         except BaseException:
             print("There is error in Copying Files ")
         
+    #Running the make command for Ngspice
     def runMake(self):
         print("run Make Called")
         self.release_home = self.parser.get('NGSPICE', 'RELEASE')
@@ -833,6 +851,7 @@ and set the load for input ports */
             print("There is error in 'make' ")
             #sys.exit()
 
+    #Running the make install command for Ngspice
     def runMakeInstall(self):
         self.cur_dir = os.getcwd()
         print("run Make Install Called")
@@ -871,7 +890,7 @@ and set the load for input ports */
             print("There is error in 'make install' ")
             #sys.exit()
 
-
+    #This function is used to add additional files required by the verilog top module
     def addfile(self):
         print("Adding the files required by the top level module file")
         
@@ -910,6 +929,8 @@ and set the load for input ports */
         print("Added the File:"+filename)
         self.termtitle("Added the File:"+filename)
 
+    
+    #This function is used to add additional folder required by the verilog top module
     def addfolder(self):
         #self.cur_dir = os.getcwd()
         print("Adding the folder required by the top level module file")
@@ -963,6 +984,8 @@ and set the load for input ports */
         print("Added the folder")
         #os.chdir(self.cur_dir)
 
+    
+    #This function is used to print the titles in the terminal of Ngveri tab
     def termtitle(self,textin):
 
         Text = "<span style=\" font-size:20pt; font-weight:1000; color:#0000FF;\" >"
@@ -972,6 +995,7 @@ and set the load for input ports */
         Text += "</span>"
         self.termedit.append(Text)
 
+    #This function is used to print the text/commands in the terminal of Ngveri tab
     def termtext(self,textin):
 
         Text = "<span style=\" font-size:12pt; font-weight:500; color:#000000;\" >"
@@ -979,7 +1003,7 @@ and set the load for input ports */
         Text += "</span>"
         self.termedit.append(Text)
         
-
+    #This function reads all the Standard output data and the errors from the process that aree being run
     @QtCore.pyqtSlot()
     def readAllStandard(self):
         #self.termedit = termedit
@@ -990,7 +1014,7 @@ and set the load for input ports */
             TextStdOut += "<br>"+line
         TextStdOut += "</span>"
         self.termedit.append(TextStdOut)
-        print(str(self.process.readAll().data(), encoding='utf-8'))
+        #print(str(self.process.readAll().data(), encoding='utf-8'))
 
         stderror = self.process.readAllStandardError()
         if stderror.toUpper().contains(b"ERROR"):

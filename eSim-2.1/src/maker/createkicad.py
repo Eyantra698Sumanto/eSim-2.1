@@ -18,14 +18,18 @@
 #       CREATED: Monday 29, November 2021
 #      REVISION: Monday 29, November 2021
 # =========================================================================
+
+#importing the files and libraries
 from . import Appconfig
 import re
 import os,sys
 import xml.etree.cElementTree as ET
 from PyQt5 import QtWidgets
 
+#beginning the AutoSchematic Class
 class AutoSchematic:
 
+    #initialising the variables here
     def init(self,modelname,modelpath):
         self.App_obj=Appconfig.Appconfig()
         self.modelname = modelname.split('.')[0]
@@ -42,6 +46,7 @@ class AutoSchematic:
             self.kicad_ngveri_lib = '/usr/share/kicad/library/eSim_Ngveri.lib'
         #self.parser = self.App_obj.parser_ngveri
 
+    #creating KiCAD library using this function
     def createkicad(self):
         
         xmlFound = None
@@ -87,7 +92,7 @@ class AutoSchematic:
             
             
       
-
+    #getting the port information here
     def getPortInformation(self):
         portInformation = PortInfo(self,self.modelpath)
         portInformation.getPortInfo()
@@ -95,6 +100,7 @@ class AutoSchematic:
         self.input_length = portInformation.input_len
         self.portName = portInformation.port_name
 
+    #creating the XML files in eSim-2.1/library/modelParamXML/Ngveri
     def createXML(self):
         cwd = os.getcwd()
         xmlDestination = os.path.join(self.xml_loc, 'Ngveri')
@@ -140,6 +146,7 @@ class AutoSchematic:
     def char_sum(self, ls):
         return sum([int(x) for x in ls])
 
+    #removing the old library
     def removeOldLibrary(self):
         cwd = os.getcwd()
         os.chdir(self.lib_loc)
@@ -167,6 +174,7 @@ class AutoSchematic:
         os.chdir(cwd)
         print("Leaving directory, ", self.lib_loc)
 
+    #creating the library
     def createLib(self):
         self.dist_port = 100         # Distance between two ports
         self.inc_size = 100          # Increment size of a block
@@ -275,8 +283,10 @@ class AutoSchematic:
         os.chdir(cwd)
         
 
-
+#beginning the PortInfo Class containing Port Information
 class PortInfo:
+
+    #initialising the variables
     def __init__(self, model, modelpath):
         self.modelname = model.modelname
         #self.model_loc = model.parser.get('NGVERI', 'DIGITAL_MODEL')
@@ -285,6 +295,7 @@ class PortInfo:
         self.input_len = 0
         self.modelpath = modelpath
 
+    #getting the port information from connection_info.txt
     def getPortInfo(self):
         input_list = []
         output_list = []

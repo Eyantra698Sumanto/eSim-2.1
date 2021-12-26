@@ -19,6 +19,7 @@
 #      REVISION: Monday 29, November 2021
 # =========================================================================
 
+#importing the files and libraries
 import sys
 import os
 from PyQt5 import QtWidgets
@@ -30,18 +31,13 @@ from . import NgVeri
 
 from xml.etree import ElementTree as ET
 
+#filecount is used to count thenumber of objects created
 filecount=0
-class  makerchip(QtWidgets.QWidget):
-    """
-    - This class create KicadtoNgspice window.
-    - And Call Convert function if convert button is pressed.
-    - The convert function takes all the value entered by user and create
-      a final netlist "*.cir.out".
-    - This final netlist is compatible with Ngspice.
-    - clarg1 is the path to the .cir file
-    - clarg2 is either None or "sub" depending on the analysis type
-    """
 
+#this class creates objects for creating the Maker and the Ngveri tabs
+class  makerchip(QtWidgets.QWidget):
+    
+    #initialising the variables
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self)
         
@@ -54,14 +50,8 @@ class  makerchip(QtWidgets.QWidget):
         self.createMainWindow()
 
         
-
+    #Creating the main Window(Main tab)
     def createMainWindow(self):
-        """
-        - This function create main window of KiCad to Ngspice converter
-        - Two components
-            - createcreateConvertWidget
-            - Convert button => callConvert
-        """
         self.vbox = QtWidgets.QVBoxLayout()
         self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addStretch(1)
@@ -72,6 +62,7 @@ class  makerchip(QtWidgets.QWidget):
         self.setWindowTitle("Makerchip and Verilog to Ngspice Converter")
         self.show()
 
+    #Creating the maker and ngveri widgets
     def createWidget(self):
         global obj_Maker
         global filecount
@@ -90,11 +81,14 @@ class  makerchip(QtWidgets.QWidget):
         self.tabWidget = QtWidgets.QTabWidget() 
         self.tabWidget.addTab(self.MakerTab, "Makerchip")
         self.tabWidget.addTab(self.NgVeriTab, "NgVeri")
+        #The object refresh gets destroyed when Ngspice to verilog converter is called
+        #so calling refresh_change to start toggling of refresh again
         self.tabWidget.currentChanged.connect(obj_Maker.refresh_change)
         self.mainLayout = QtWidgets.QVBoxLayout()
         self.mainLayout.addWidget(self.tabWidget)
         self.convertWindow.setLayout(self.mainLayout)
         self.convertWindow.show()
+        #incrementing filecount for every new window
         filecount=filecount+1
         return self.convertWindow
 

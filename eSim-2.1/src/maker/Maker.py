@@ -18,6 +18,8 @@
 #       CREATED: Monday 29, November 2021
 #      REVISION: Monday 29, November 2021
 # =========================================================================
+
+#importing the files and libraries
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import  QThread, Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
@@ -32,10 +34,17 @@ home = expanduser("~")
 import time
 import hdlparse.verilog_parser as vlog
 from xml.etree import ElementTree as ET
+
+#declaring the global variables
+#verilogfile stores the name of the file
+#toggle flag stores the object of the toggling button
 verilogFile=[]
 toggle_flag=[]
+
+#beginning class Maker. This class create the Maker Tab
 class Maker(QtWidgets.QWidget):
 
+    #initailising the varaibles
     def __init__(self,filecount):
         print(self)
 
@@ -45,12 +54,12 @@ class Maker(QtWidgets.QWidget):
         self.text= "" 
         self.filecount=filecount
         self.entry_var = {}
-        self.createAnalysisWidget()
+        self.createMakerWidget()
         self.obj_Appconfig = Appconfig()
         verilogFile.append("")
   
-
-    def createAnalysisWidget(self):
+    #Creating the various components of the Widget(Maker Tab)
+    def createMakerWidget(self):
 
         self.grid = QtWidgets.QGridLayout()
         self.setLayout(self.grid)
@@ -60,6 +69,7 @@ class Maker(QtWidgets.QWidget):
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         self.show()
 
+    #This function is to Add new  verilog file
     def addverilog(self):
 
         init_path = '../../../'
@@ -105,11 +115,14 @@ class Maker(QtWidgets.QWidget):
         # self.notify.start()
         #open("filepath.txt","w").write(self.verilogfile)
         
+    #This function is used to call refresh during running Ngspice to Verilog Converter 
+    #(as the original one gets destroyed)
     def refresh_change(self):
         if self.refreshoption in toggle_flag:
             self.toggle=toggle(self.refreshoption)
             self.toggle.start()
             
+    #It is used to refresh the file in eSim if its edited anywhere else
     def refresh(self):
         if not hasattr(self, 'verilogfile'):
             return
@@ -127,11 +140,12 @@ class Maker(QtWidgets.QWidget):
         if self.refreshoption in toggle_flag:
             toggle_flag.remove(self.refreshoption)
 
+    #This function is used to save the edited file in eSim
     def save(self):
         wr=self.entry_var[1].toPlainText()
         open(self.verilogfile,"w+").write(wr)
 
-
+    #This is used to run the makerchip-app
     def runmakerchip(self):        
         init_path = '../../'
         if os.name == 'nt':
@@ -246,7 +260,7 @@ logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, o
         
 
 
-
+    #This creates the buttons/options
     def createoptionsBox(self):
 
         self.optionsbox = QtWidgets.QGroupBox()
@@ -291,6 +305,7 @@ logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, o
         return self.optionsbox
 
     
+    #This function is called to accept TOS of makerchip
     def makerchipaccepted(self):
         reply=QtWidgets.QMessageBox.warning(
                         None, "Terms of Services","Please review the makerchip\
@@ -309,7 +324,7 @@ logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, o
 
 
    
-
+    #This function adds the other parts of widget like text box
     def creategroup(self):
 
         self.trbox = QtWidgets.QGroupBox()
@@ -363,7 +378,10 @@ logic clk, input logic reset, input logic [31:0] cyc_cnt, output logic passed, o
 
         return self.trbox
 
+
+#The Handler class is used to create a watch on the files using WatchDog
 class Handler(watchdog.events.PatternMatchingEventHandler):
+    #this function initialisses the variable and the objects of watchdog
     def __init__(self,verilogfile,refreshoption,observer):
         # Set the patterns for PatternMatchingEventHandler
         watchdog.events.PatternMatchingEventHandler.__init__(self, ignore_directories=True, case_sensitive=False)
@@ -372,7 +390,8 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         self.obj_Appconfig = Appconfig()
         self.observer=observer
         self.toggle=toggle(self.refreshoption)
-  
+    
+    #if a file is modified, toggle starts to toggle the refresh button
     def on_modified(self, event):
         print("Watchdog received modified event - % s." % event.src_path)
         msg = QtWidgets.QErrorMessage()
@@ -425,7 +444,11 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
 #                         #i.rm_watch()
 #                         self.toggle.start()
 #                         break
+
+
+#This class is used to toggle a button(change colour by toggling)
 class toggle(QThread):
+    #initialising the threads
     def __init__(self,option):
         QThread.__init__(self)
         self.option=option
@@ -435,6 +458,7 @@ class toggle(QThread):
     def __del__(self):
         self.wait()
 
+    #running the thread to toggle
     def run(self):
 
         while True:
