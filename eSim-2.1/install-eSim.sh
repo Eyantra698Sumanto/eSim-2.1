@@ -100,7 +100,6 @@ function verilator
     rm -r examples
     rm -r include
     rm -r test_regress
-    rm -r include
     rm -r bin
     ls -1 | grep -E -v 'config.status|configure.ac|Makefile.in|verilator.1|configure|Makefile|src|verilator.pc' | xargs rm -f
     #sudo rm -v -r'!("config.status"|"configure.ac"|"Makefile.in"|"verilator.1"|"configure"|"Makefile"|"src"|"verilator.pc")'
