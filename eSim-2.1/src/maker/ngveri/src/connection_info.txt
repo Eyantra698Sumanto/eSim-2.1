@@ -1,4 +1,0 @@
-	clk                 input   1
-	reset               input   1
-	passed              output  1
-	failed              output  1
