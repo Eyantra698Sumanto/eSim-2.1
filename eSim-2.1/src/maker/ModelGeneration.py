@@ -116,7 +116,7 @@ class ModelGeneration(QtWidgets.QWidget):
         self.cmd="sandpiper-saas -i "+self.fname.split('.')[0]+".tlv -o "+self.fname.split('.')[0]+".sv"
         self.args = ['-c', self.cmd]
         self.process.start('sh',self.args)
-        self.termtitle("RUN SANDPIPER")           
+        self.termtitle("RUN SANDPIPER-SAAS")           
         self.termtext("Current Directory: "+self.modelpath)
         self.termtext("Command: "+self.cmd)
         #self.process.setProcessChannelMode(QtCore.QProcess.MergedChannels)
