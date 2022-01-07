@@ -1,5 +1,5 @@
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            ?               d               net-_u4-pad1_   
 --------------------------------------------------------------------------------
@@ -252,7 +252,7 @@ Index   time            ?               d               net-_u4-pad1_
 234	3.000000e-03	-9.00000e+00	-7.83094e+00	0.000000e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            net-_x1-pad4_   net-_x1-pad7_   pwl_in          
 --------------------------------------------------------------------------------
@@ -505,7 +505,7 @@ Index   time            net-_x1-pad4_   net-_x1-pad7_   pwl_in
 234	3.000000e-03	-9.00000e+00	9.000000e+00	3.000000e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q               q.x1.q1#collCX  q.x1.q2#collCX  
 --------------------------------------------------------------------------------
@@ -758,7 +758,7 @@ Index   time            q               q.x1.q1#collCX  q.x1.q2#collCX
 234	3.000000e-03	5.000000e+00	8.461314e+00	8.461297e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q.x1.q3#collCX  q.x1.q4#collCX  q.x1.q5#collCX  
 --------------------------------------------------------------------------------
@@ -1011,7 +1011,7 @@ Index   time            q.x1.q3#collCX  q.x1.q4#collCX  q.x1.q5#collCX
 234	3.000000e-03	9.000000e+00	8.461330e+00	-7.74901e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q.x1.q6#collCX  q.x1.q7#collCX  q.x1.q8#collCX  
 --------------------------------------------------------------------------------
@@ -1264,7 +1264,7 @@ Index   time            q.x1.q6#collCX  q.x1.q7#collCX  q.x1.q8#collCX
 234	3.000000e-03	-8.67845e+00	-8.67845e+00	-7.74902e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q.x1.q9#collCX  q.x1.q10#collCX q.x1.q11#collCX 
 --------------------------------------------------------------------------------
@@ -1517,7 +1517,7 @@ Index   time            q.x1.q9#collCX  q.x1.q10#collCX q.x1.q11#collCX
 234	3.000000e-03	3.671030e+00	8.374287e+00	-7.32354e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q.x1.q12#collCX q.x1.q13#collCX q.x1.q14#collCX 
 --------------------------------------------------------------------------------
@@ -1770,7 +1770,7 @@ Index   time            q.x1.q12#collCX q.x1.q13#collCX q.x1.q14#collCX
 234	3.000000e-03	-8.37433e+00	3.670996e+00	-7.32441e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q.x1.q15#collCX q.x1.q16#collCX q.x1.q17#collCX 
 --------------------------------------------------------------------------------
@@ -2023,7 +2023,7 @@ Index   time            q.x1.q15#collCX q.x1.q16#collCX q.x1.q17#collCX
 234	3.000000e-03	-8.34256e+00	-8.34209e+00	-7.74902e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            q.x1.q18#collCX q.x1.q19#collCX q.x1.q20#collCX 
 --------------------------------------------------------------------------------
@@ -2276,7 +2276,7 @@ Index   time            q.x1.q18#collCX q.x1.q19#collCX q.x1.q20#collCX
 234	3.000000e-03	8.999994e+00	-8.99999e+00	-7.32401e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            rc1             x1.net-_c1-pad1 x1.net-_c1-pad2 
 --------------------------------------------------------------------------------
@@ -2529,7 +2529,7 @@ Index   time            rc1             x1.net-_c1-pad1 x1.net-_c1-pad2
 234	3.000000e-03	4.747363e+00	-7.32401e+00	-7.74902e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q1-pad1 x1.net-_q1-pad3 x1.net-_q2-pad3 
 --------------------------------------------------------------------------------
@@ -2782,7 +2782,7 @@ Index   time            x1.net-_q1-pad1 x1.net-_q1-pad3 x1.net-_q2-pad3
 234	3.000000e-03	8.461314e+00	3.174054e+00	4.207655e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q3-pad2 x1.net-_q3-pad3 x1.net-_q10-pad 
 --------------------------------------------------------------------------------
@@ -3035,7 +3035,7 @@ Index   time            x1.net-_q3-pad2 x1.net-_q3-pad3 x1.net-_q10-pad
 234	3.000000e-03	-8.67845e+00	-8.99977e+00	8.373892e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q12-pad x1.net-_q13-pad x1.net-_q13-pad 
 --------------------------------------------------------------------------------
@@ -3288,7 +3288,7 @@ Index   time            x1.net-_q12-pad x1.net-_q13-pad x1.net-_q13-pad
 234	3.000000e-03	-8.37390e+00	3.671013e+00	-8.91129e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q14-pad x1.net-_q14-pad x1.net-_q15-pad 
 --------------------------------------------------------------------------------
@@ -3541,7 +3541,7 @@ Index   time            x1.net-_q14-pad x1.net-_q14-pad x1.net-_q15-pad
 234	3.000000e-03	-7.71843e+00	-8.34209e+00	-8.34644e+00	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            x1.net-_q15-pad x1.net-_q18-pad x1.net-_q19-pad 
 --------------------------------------------------------------------------------

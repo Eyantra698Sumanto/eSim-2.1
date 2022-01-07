@@ -95,13 +95,13 @@ class ModelGeneration(QtWidgets.QWidget):
         
     #This function is call the sandpiper to convert .tlv file to .sv file
     def sandpiper(self):
+        #Text="Running Sandpiper............"
         print("Running Sandpiper-Saas for TLV to SV Conversion")
         self.cmd="cp ../maker/tlv/clk_gate.v ../maker/tlv/pseudo_rand.sv \
 ../maker/tlv/sandpiper.vh ../maker/tlv/sandpiper_gen.vh \
 ../maker/tlv/sp_default.vh ../maker/tlv/pseudo_rand_gen.sv ../maker/tlv/pseudo_rand.m4out.tlv "+self.file+" "+self.modelpath
             
                    
-        self.termedit.append(Text)
         self.process = QtCore.QProcess(self)
         self.args = ['-c', self.cmd]
         self.process.start('sh',self.args)
@@ -116,10 +116,14 @@ class ModelGeneration(QtWidgets.QWidget):
         self.cmd="sandpiper-saas -i "+self.fname.split('.')[0]+".tlv -o "+self.fname.split('.')[0]+".sv"
         self.args = ['-c', self.cmd]
         self.process.start('sh',self.args)
-        self.termedit.append("Current Directory: "+self.modelpath)
-        self.termedit.append("Command: "+self.cmd)
+        self.termtitle("RUN SANDPIPER")           
+        self.termtext("Current Directory: "+self.modelpath)
+        self.termtext("Command: "+self.cmd)
+        #self.process.setProcessChannelMode(QtCore.QProcess.MergedChannels)
         self.process \
                 .readyReadStandardOutput.connect(self.readAllStandard)
+        self.process \
+                .readyReadStandardError.connect(self.readAllStandard)
         self.process.waitForFinished(50000)
         print("Ran Sandpiper successfully")
         os.chdir(self.cur_dir)

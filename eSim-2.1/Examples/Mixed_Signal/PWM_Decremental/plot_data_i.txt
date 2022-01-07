@@ -1,5 +1,5 @@
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            a1#branch_1_0   v1#branch       v2#branch       
 --------------------------------------------------------------------------------
@@ -252,7 +252,7 @@ Index   time            a1#branch_1_0   v1#branch       v2#branch
 234	3.000000e-03	-2.52637e-04	4.649701e-11	-9.47933e-04	
 
 * /home/sumanto/esim-2.1/examples/mixed_signal/pwm_decremental/pwm_decremental.cir
-Transient Analysis  Sat Dec 18 14:59:47  2021
+Transient Analysis  Thu Jan  6 13:33:26  2022
 --------------------------------------------------------------------------------
 Index   time            v3#branch       v4#branch       
 --------------------------------------------------------------------------------
