@@ -11,7 +11,7 @@
 #         NOTES: ---
 #        AUTHOR: Fahim Khan, fahim.elex@gmail.com
 #      MODIFIED: Rahul Paknikar, rahulp@iitb.ac.in
-#                Sumanto Kar, jeetsumanto123@gmail.com              
+#                Sumanto Kar, jeetsumanto123@gmail.com
 #  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
 #       CREATED: Tuesday 24 February 2015
 #      REVISION: Sunday 13 December 2020

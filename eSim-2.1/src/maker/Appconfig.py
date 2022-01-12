@@ -17,7 +17,8 @@ class Appconfig:
 
     # Reading all variables from ngveri config.ini
     # parser_ngveri = SafeConfigParser()
-    # parser_ngveri.read(os.path.join(home, os.path.join('.ngveri', 'config.ini')))
+    # parser_ngveri.read(os.path.join(home,
+    # os.path.join('.ngveri', 'config.ini')))
 
     kicad_lib_template = {
         "start_def": "DEF comp_name U 0 40 Y Y 1 F N",

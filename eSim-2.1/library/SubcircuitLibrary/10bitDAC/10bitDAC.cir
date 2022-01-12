@@ -1,0 +1,23 @@
+* /home/sumanto/eSim-2.1/library/SubcircuitLibrary/10bitDAC/10bitDAC.cir
+
+* EESchema Netlist Version 1.1 (Spice format) creation date: Wed Jan 12 17:18:53 2022
+
+* To exclude a component from the Spice Netlist add [Spice_Netlist_Enabled] user FIELD set to: N
+* To reorder the component spice node sequence add [Spice_Node_Sequence] user FIELD and define sequence: 2,1,0
+
+* Sheet Name: /
+R1  Net-_R1-Pad1_ Net-_R1-Pad2_ 1024k		
+R2  Net-_R2-Pad1_ Net-_R1-Pad2_ 512k		
+R3  Net-_R3-Pad1_ Net-_R1-Pad2_ 256k		
+R4  Net-_R4-Pad1_ Net-_R1-Pad2_ 128k		
+R5  Net-_R5-Pad1_ Net-_R1-Pad2_ 64k		
+R6  Net-_R6-Pad1_ Net-_R1-Pad2_ 32k		
+R7  Net-_R7-Pad1_ Net-_R1-Pad2_ 16k		
+R9  Net-_R9-Pad1_ Net-_R1-Pad2_ 8k		
+R10  Net-_R10-Pad1_ Net-_R1-Pad2_ 4k		
+R11  Net-_R11-Pad1_ Net-_R1-Pad2_ 2k		
+R8  Net-_R1-Pad2_ GND 10k		
+U2  Net-_R1-Pad2_ GND Net-_U1-Pad11_ summer		
+U1  Net-_R1-Pad1_ Net-_R2-Pad1_ Net-_R3-Pad1_ Net-_R4-Pad1_ Net-_R5-Pad1_ Net-_R6-Pad1_ Net-_R7-Pad1_ Net-_R9-Pad1_ Net-_R10-Pad1_ Net-_R11-Pad1_ Net-_U1-Pad11_ PORT		
+
+.end
