@@ -328,35 +328,20 @@ Add \\TLV here if desired\
         self.optionsgrid.addWidget(self.refreshoption, 0, 2)
         #self.optionsbox.setLayout(self.optionsgrid)
         #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-<<<<<<< HEAD
-=======
         
->>>>>>> f65a6ac31b501d284f5c508b397472b7942d890b
         self.saveoption = QtWidgets.QPushButton("Save")
         self.optionsgroupbtn.addButton(self.saveoption)
         self.saveoption.clicked.connect(self.save)
         self.optionsgrid.addWidget(self.saveoption, 0, 3)
         #self.optionsbox.setLayout(self.optionsgrid)
         #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-<<<<<<< HEAD
-=======
         
->>>>>>> f65a6ac31b501d284f5c508b397472b7942d890b
         self.runoptions = QtWidgets.QPushButton("Edit in Makerchip")
         self.optionsgroupbtn.addButton(self.runoptions)
         self.runoptions.clicked.connect(self.runmakerchip)
         self.optionsgrid.addWidget(self.runoptions, 0, 4)
         #self.optionsbox.setLayout(self.optionsgrid)
         #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-<<<<<<< HEAD
-        self.acceptTOS = QtWidgets.QPushButton("Accept Makerchip TOS")
-        self.optionsgroupbtn.addButton(self.acceptTOS)
-        self.acceptTOS.clicked.connect(self.makerchipaccepted)
-        self.optionsgrid.addWidget(self.acceptTOS, 0, 5)
-        #self.optionsbox.setLayout(self.optionsgrid)
-        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-
-=======
         if not os.path.isfile(home + "/.makerchip_accepted"):
             self.acceptTOS = QtWidgets.QPushButton("Accept Makerchip TOS")
             self.optionsgroupbtn.addButton(self.acceptTOS)
@@ -365,7 +350,6 @@ Add \\TLV here if desired\
             #self.optionsbox.setLayout(self.optionsgrid)
             #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         self.optionsbox.setLayout(self.optionsgrid)
->>>>>>> f65a6ac31b501d284f5c508b397472b7942d890b
         return self.optionsbox
 
     # This function is called to accept TOS of makerchip

@@ -492,7 +492,7 @@ and set the load for input ports */
         name_table = 'NAME_TABLE:\n\
         C_Function_Name: cm_' + self.fname.split('.')[0] + '\n\
         Spice_Model_Name: ' + self.fname.split('.')[0] + '\n\
-        Description: "Model generated from ghdl code ' + self.fname + '" \n'
+        Description: "Model generated from NgVeri code ' + self.fname + '" \n'
 
         # Input and Output Port Table
         in_port_table = []
