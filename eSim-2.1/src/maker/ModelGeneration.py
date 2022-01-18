@@ -191,7 +191,7 @@ class ModelGeneration(QtWidgets.QWidget):
 
             self.obj_Appconfig.print_info(
                 'NgVeri Stopped due to File \
-                name and module name not matching error')
+name and module name not matching error')
             return "Error"
         modelname = str(m.name)
         schematicLib = createkicad.AutoSchematic()

@@ -240,6 +240,18 @@ output logic passed, output logic failed);\n'''
                                         p.name) != "failed":
                                     string += '\t\tlogic ' + p.data_type\
                                      + " " + p.name + ";//" + p.mode + "\n"
+                    if m.name.lower() != file.lower():
+                        QtWidgets.QMessageBox.critical(
+                            None,
+                            "Error Message",
+                            "<b>Error: File name and module \
+                            name are not same. Please ensure that they are same</b>",
+                            QtWidgets.QMessageBox.Ok)
+
+                        self.obj_Appconfig.print_info(
+                            'NgVeri Stopped due to File \
+name and module name not matching error')
+                        return
                     string += "//The $random() can be replaced \
 if user wants to assign values\n"
                     for m in vlog_mods:
