@@ -78,16 +78,16 @@ class NgVeri(QtWidgets.QWidget):
         # b=Maker.Maker(self)
         print(Maker.verilogFile)
         if Maker.verilogFile[self.filecount] == "":
-            reply = QtWidgets.QMessageBox.critical(
+            QtWidgets.QMessageBox.critical(
                 None,
                 "Error Message",
                 "<b>Error: No Verilog File Chosen. \
                 Please chose a Verilog file in Makerchip Tab</b>",
                 QtWidgets.QMessageBox.Ok)
-            if reply == QtWidgets.QMessageBox.Ok:
-                self.obj_Appconfig.print_error(
+            
+            self.obj_Appconfig.print_error(
                     'No VerilogFile. Please add a File in Makerchip Tab')
-                return
+            return
 
         self.fname = Maker.verilogFile[self.filecount]
         model = ModelGeneration.ModelGeneration(self.fname, self.entry_var[0])
@@ -96,7 +96,7 @@ class NgVeri(QtWidgets.QWidget):
             self.entry_var[1].addItem(file)
         model.verilogfile()
         error = model.verilogParse()
-        if error is not "Error":
+        if error != "Error":
             model.getPortInfo()
             model.cfuncmod()
             model.ifspecwrite()
@@ -108,23 +108,38 @@ class NgVeri(QtWidgets.QWidget):
             model.copy_verilator()
             model.runMake()
             model.runMakeInstall()
+            txt = self.entry_var[0].toPlainText()
+            if not "error" in txt.lower():
+            	self.entry_var[0].append('''
+            	<p style=\" font-size:20pt; font-weight:1000; color:#00FF00;\" >
+            	Model Created Successfully !
+            	</p>
+            	''')
+            else:
+            	self.entry_var[0].append('''
+            	<p style=\" font-size:20pt; font-weight:1000; color:#FF0000;\" >
+            	There was an error during model creation, 
+                <br/>
+                Please rectify the error and try again !
+            	</p>
+            	''')
 
     # This function is used to add additional files required by the verilog
     # top module
 
     def addfile(self):
         if len(Maker.verilogFile) < (self.filecount + 1):
-            reply = QtWidgets.QMessageBox.critical(
+            QtWidgets.QMessageBox.critical(
                 None,
                 "Error Message",
                 "<b>Error: No Verilog File Chosen. \
                 Please chose a Verilog file in Makerchip Tab</b>",
                 QtWidgets.QMessageBox.Ok)
-            if reply == QtWidgets.QMessageBox.Ok:
-                self.obj_Appconfig.print_error(
+            self.obj_Appconfig.print_error(
                     'No VerilogFile. Please chose\
                      a Verilog File in Makerchip Tab')
-                return
+            return
+        
         self.fname = Maker.verilogFile[self.filecount]
         model = ModelGeneration.ModelGeneration(self.fname, self.entry_var[0])
         # model.verilogfile()
@@ -134,17 +149,18 @@ class NgVeri(QtWidgets.QWidget):
     # top module
     def addfolder(self):
         if len(Maker.verilogFile) < (self.filecount + 1):
-            reply = QtWidgets.QMessageBox.critical(
+            QtWidgets.QMessageBox.critical(
                 None,
                 "Error Message",
                 "<b>Error: No Verilog File Chosen. \
                 Please chose a Verilog file in Makerchip Tab</b>",
                 QtWidgets.QMessageBox.Ok)
-            if reply == QtWidgets.QMessageBox.Ok:
-                self.obj_Appconfig.print_error(
+            
+            self.obj_Appconfig.print_error(
                     'No VerilogFile. Please chose \
                     a Verilog File in Makerchip Tab')
-                return
+            return
+            
         self.fname = Maker.verilogFile[self.filecount]
         model = ModelGeneration.ModelGeneration(self.fname, self.entry_var[0])
         # model.verilogfile()
@@ -169,30 +185,30 @@ class NgVeri(QtWidgets.QWidget):
         self.optionsgroupbtn.addButton(self.addverilogbutton)
         self.addverilogbutton.clicked.connect(self.addverilog)
         self.optionsgrid.addWidget(self.addverilogbutton, 0, 1)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
         self.addfilebutton = QtWidgets.QPushButton("Add Other file")
         self.optionsgroupbtn.addButton(self.addfilebutton)
         self.addfilebutton.clicked.connect(self.addfile)
         self.optionsgrid.addWidget(self.addfilebutton, 0, 2)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
         self.addfolderbutton = QtWidgets.QPushButton("Add Folder")
         self.optionsgroupbtn.addButton(self.addfolderbutton)
         self.addfolderbutton.clicked.connect(self.addfolder)
         self.optionsgrid.addWidget(self.addfolderbutton, 0, 3)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
         self.clearTerminalBtn = QtWidgets.QPushButton("Clear Terminal")
         self.optionsgroupbtn.addButton(self.clearTerminalBtn)
         self.clearTerminalBtn.clicked.connect(self.clearTerminal)
         self.optionsgrid.addWidget(self.clearTerminalBtn, 0, 4)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-
         return self.optionsbox
 
     # This function is used to remove models in modlst of Ngspice folder if
@@ -224,8 +240,8 @@ class NgVeri(QtWidgets.QWidget):
             model.runMakeInstall()
             return
 
-        else:
-            return
+        #else:
+        #    return
 
     # This is to remove lint_off comments needed by the verilator warnings
     # This function writes to the lint_off.txt here in the same folder
@@ -253,8 +269,8 @@ class NgVeri(QtWidgets.QWidget):
                 file.write(item)
             return
 
-        else:
-            return
+        #else:
+        #    return
 
     # This is to add lint_off comments needed by the verilator warnings
     # This function writes to the lint_off.txt here in the same folder
