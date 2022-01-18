@@ -67,7 +67,7 @@ class Maker(QtWidgets.QWidget):
 
         self.grid.addWidget(self.createoptionsBox(), 0, 0, QtCore.Qt.AlignTop)
         self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
         self.show()
 
     # This function is to Add new  verilog file
@@ -189,7 +189,7 @@ class Maker(QtWidgets.QWidget):
             # self.file.write(self.entry_var[1].toPlainText())
             # self.file.close()
             filename = self.verilogfile
-            if self.verilogfile.split('.')[1] != "tlv":
+            if self.verilogfile.split('.')[-1] != "tlv":
                 reply = QtWidgets.QMessageBox.warning(
                     None,
                     "Do you want to automate top module?",
@@ -198,13 +198,18 @@ class Maker(QtWidgets.QWidget):
                     NOTE: a .tlv file will be created \
                     in the directory of current verilog file\
                         and the makerchip will be running on \
-                        this file. Otherwise click on NO.</b>",
-                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                        this file. Otherwise click on NO.</b><br/> \
+                    <b> To not open Makerchip, click CANCEL</b>",
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
+                
+                if reply == QtWidgets.QMessageBox.Cancel:
+                    return
+                    
                 if reply == QtWidgets.QMessageBox.Yes:
                     code = open(self.verilogfile).read()
                     text = code
-                    filename = self.verilogfile.split('.')[0] + ".tlv"
-                    file = os.path.basename(self.verilogfile.split('.')[0])
+                    filename = '.'.join(self.verilogfile.split('.')[:-1]) + ".tlv"
+                    file = os.path.basename('.'.join(self.verilogfile.split('.')[:-1]))
                     f = open(filename, 'w')
                     flag = 1
                     ports = ""
@@ -274,7 +279,8 @@ Add \\TLV here if desired\
                 print(
                     "Makerchip command process pid ---------- >",
                     self.process.pid())
-        except BaseException:
+        except BaseException as e:
+            print(e)
             self.msg = QtWidgets.QErrorMessage(self)
             self.msg.setModal(True)
             self.msg.setWindowTitle("Error Message")
@@ -313,33 +319,53 @@ Add \\TLV here if desired\
         self.optionsgroupbtn.addButton(self.addoptions)
         self.addoptions.clicked.connect(self.addverilog)
         self.optionsgrid.addWidget(self.addoptions, 0, 1)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        
         self.refreshoption = QtWidgets.QPushButton("Refresh")
         self.optionsgroupbtn.addButton(self.refreshoption)
         self.refreshoption.clicked.connect(self.refresh)
         self.optionsgrid.addWidget(self.refreshoption, 0, 2)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+<<<<<<< HEAD
+=======
+        
+>>>>>>> f65a6ac31b501d284f5c508b397472b7942d890b
         self.saveoption = QtWidgets.QPushButton("Save")
         self.optionsgroupbtn.addButton(self.saveoption)
         self.saveoption.clicked.connect(self.save)
         self.optionsgrid.addWidget(self.saveoption, 0, 3)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+<<<<<<< HEAD
+=======
+        
+>>>>>>> f65a6ac31b501d284f5c508b397472b7942d890b
         self.runoptions = QtWidgets.QPushButton("Edit in Makerchip")
         self.optionsgroupbtn.addButton(self.runoptions)
         self.runoptions.clicked.connect(self.runmakerchip)
         self.optionsgrid.addWidget(self.runoptions, 0, 4)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+<<<<<<< HEAD
         self.acceptTOS = QtWidgets.QPushButton("Accept Makerchip TOS")
         self.optionsgroupbtn.addButton(self.acceptTOS)
         self.acceptTOS.clicked.connect(self.makerchipaccepted)
         self.optionsgrid.addWidget(self.acceptTOS, 0, 5)
-        self.optionsbox.setLayout(self.optionsgrid)
-        self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        #self.optionsbox.setLayout(self.optionsgrid)
+        #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
 
+=======
+        if not os.path.isfile(home + "/.makerchip_accepted"):
+            self.acceptTOS = QtWidgets.QPushButton("Accept Makerchip TOS")
+            self.optionsgroupbtn.addButton(self.acceptTOS)
+            self.acceptTOS.clicked.connect(self.makerchipaccepted)
+            self.optionsgrid.addWidget(self.acceptTOS, 0, 5)
+            #self.optionsbox.setLayout(self.optionsgrid)
+            #self.grid.addWidget(self.creategroup(), 1, 0, 5, 0)
+        self.optionsbox.setLayout(self.optionsgrid)
+>>>>>>> f65a6ac31b501d284f5c508b397472b7942d890b
         return self.optionsbox
 
     # This function is called to accept TOS of makerchip
@@ -358,8 +384,8 @@ Add \\TLV here if desired\
         if reply == QtWidgets.QMessageBox.Yes:
             f = open(home + "/.makerchip_accepted", "w")
             f.close()
-        else:
-            return
+        #else:
+        #    return
 
     # This function adds the other parts of widget like text box
 
@@ -375,7 +401,7 @@ Add \\TLV here if desired\
         self.start = QtWidgets.QLabel("Path to .tlv file")
         self.trgrid.addWidget(self.start, 1, 0)
         self.count = 0
-        self.entry_var[self.count] = QtWidgets.QLineEdit(self)
+        self.entry_var[self.count] = QtWidgets.QLabel(" - ")
         self.trgrid.addWidget(self.entry_var[self.count], 1, 1)
         self.entry_var[self.count].setMaximumWidth(1000)
         self.count += 1
