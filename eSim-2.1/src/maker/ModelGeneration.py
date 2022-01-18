@@ -101,6 +101,7 @@ class ModelGeneration(QtWidgets.QWidget):
     def sandpiper(self):
         # Text="Running Sandpiper............"
         print("Running Sandpiper-Saas for TLV to SV Conversion")
+        self.termtitle("COPYING THE FILES FOR SANDPIPER-SAAS")
         self.cmd = "cp ../maker/tlv/clk_gate.v ../maker/tlv/pseudo_rand.sv \
 ../maker/tlv/sandpiper.vh ../maker/tlv/sandpiper_gen.vh \
 ../maker/tlv/sp_default.vh ../maker/tlv/pseudo_rand_gen.sv \
@@ -109,7 +110,7 @@ class ModelGeneration(QtWidgets.QWidget):
         self.process = QtCore.QProcess(self)
         self.args = ['-c', self.cmd]
         self.process.start('sh', self.args)
-        self.termedit.append("Command: " + self.cmd)
+        self.termtext("Command: " + self.cmd)
         self.process \
             .readyReadStandardOutput.connect(self.readAllStandard)
         self.process.waitForFinished(50000)

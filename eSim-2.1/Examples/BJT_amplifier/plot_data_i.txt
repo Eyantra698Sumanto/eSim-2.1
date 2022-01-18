@@ -1,5 +1,5 @@
        * /home/sumanto/esim-2.1/examples/bjt_amplifier/bjt_amplifier.cir
-       Transient Analysis  Wed Dec 15 18:14:24  2021
+       Transient Analysis  Fri Jan 14 20:32:53  2022
 --------------------------------------------------------------------------------
 Index   time            v1#branch       v2#branch       
 --------------------------------------------------------------------------------

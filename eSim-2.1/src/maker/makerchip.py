@@ -59,7 +59,7 @@ class makerchip(QtWidgets.QWidget):
         self.hbox.addStretch(1)
         self.vbox.addWidget(self.createWidget())
         self.vbox.addLayout(self.hbox)
-
+            
         self.setLayout(self.vbox)
         self.setWindowTitle("Makerchip and Verilog to Ngspice Converter")
         self.show()
