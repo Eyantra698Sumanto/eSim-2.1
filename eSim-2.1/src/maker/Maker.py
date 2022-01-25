@@ -284,13 +284,13 @@ Add \\TLV here if desired\
                                     string += ", "
                     f.write(string)
 
-                self.process = QtCore.QProcess(self)
-                cmd = 'makerchip ' + filename
-                print("File: " + filename)
-                self.process.start(cmd)
-                print(
-                    "Makerchip command process pid ---------- >",
-                    self.process.pid())
+            self.process = QtCore.QProcess(self)
+            cmd = 'makerchip ' + filename
+            print("File: " + filename)
+            self.process.start(cmd)
+            print(
+                "Makerchip command process pid ---------- >",
+                self.process.pid())
         except BaseException as e:
             print(e)
             self.msg = QtWidgets.QErrorMessage(self)
@@ -298,10 +298,10 @@ Add \\TLV here if desired\
             self.msg.setWindowTitle("Error Message")
             self.msg.showMessage(
                 "Error in running Makerchip. \
-                Please check if Verilog File Chosen.")
+Please check if Verilog File Chosen.")
             self.msg.exec_()
             print("Error in running Makerchip. \
-                Please check if Verilog File Chosen.")
+Please check if Verilog File Chosen.")
         #   initial = self.read_file()
 
         # while True:
