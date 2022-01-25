@@ -145,7 +145,7 @@ class Model(QtWidgets.QWidget):
                         temp_tag.append(self.nextcount)
                         self.nextcount = self.nextcount + 1
                         self.nextrow = self.nextrow + 1
-                        if 'Sumanto:1' in tag_dict:
+                        if 'attiny' in line[5].lower():
                             self.addbtn = QtWidgets.QPushButton("Add Hex File")
                             self.addbtn.setObjectName("%d" % self.nextcount)
                             self.addbtn.clicked.connect(self.addHex)
@@ -204,7 +204,7 @@ class Model(QtWidgets.QWidget):
                     tag_dict[key] = self.nextcount
                     self.nextcount = self.nextcount + 1
                     self.nextrow = self.nextrow + 1
-                    if 'Sumanto:1' in tag_dict:
+                    if  'Instance ID:1' in tag_dict:
                         self.addbtn = QtWidgets.QPushButton("Add Hex File")
                         self.addbtn.setObjectName("%d" % self.nextcount)
                         self.addbtn.clicked.connect(self.addHex)

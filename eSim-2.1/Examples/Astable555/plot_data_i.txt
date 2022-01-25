@@ -1,5 +1,5 @@
                     * /home/ash98/esim-workspace/555/555.cir
-                    Transient Analysis  Wed Jan 12 14:53:55  2022
+                    Transient Analysis  Mon Jan 24 23:05:13  2022
 --------------------------------------------------------------------------------
 Index   time            a.x1.a3#branch_ a.x1.a4#branch_ a.x1.a5#branch_ 
 --------------------------------------------------------------------------------
@@ -2531,7 +2531,7 @@ Index   time            a.x1.a3#branch_ a.x1.a4#branch_ a.x1.a5#branch_
 2402	5.000000e-02	0.000000e+00	0.000000e+00	-2.00000e-04	
 
                     * /home/ash98/esim-workspace/555/555.cir
-                    Transient Analysis  Wed Jan 12 14:53:55  2022
+                    Transient Analysis  Mon Jan 24 23:05:13  2022
 --------------------------------------------------------------------------------
 Index   time            a.x1.a6#branch_ e.x1.e1#branch  e.x1.e2#branch  
 --------------------------------------------------------------------------------
@@ -5063,7 +5063,7 @@ Index   time            a.x1.a6#branch_ e.x1.e1#branch  e.x1.e2#branch
 2402	5.000000e-02	-2.13551e-03	0.000000e+00	0.000000e+00	
 
                     * /home/ash98/esim-workspace/555/555.cir
-                    Transient Analysis  Wed Jan 12 14:53:55  2022
+                    Transient Analysis  Mon Jan 24 23:05:13  2022
 --------------------------------------------------------------------------------
 Index   time            v1#branch       
 --------------------------------------------------------------------------------
