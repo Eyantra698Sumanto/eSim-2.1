@@ -11,7 +11,7 @@
 #            NOTES: ---
 #           AUTHOR: Sumanto Kar, sumantokar@iitb.ac.in, FOSSEE, IIT Bombay
 # ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
-#                Digvjay Singh, digvijay.singh@iitb.ac.in, FOSSEE, IIT Bombay
+#                Digvijay Singh, digvijay.singh@iitb.ac.in, FOSSEE, IIT Bombay
 #                Prof. Maheswari R. and Team, VIT Chennai
 #     GUIDED BY: Steve Hoover, Founder Redwood EDA
 #                Kunal Ghosh, VLSI System Design Corp.Pvt.Ltd
