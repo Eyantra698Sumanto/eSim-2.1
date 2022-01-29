@@ -220,8 +220,8 @@ class Maker(QtWidgets.QWidget):
                     f = open(filename, 'w')
                     flag = 1
                     ports = ""
-                    code = code.replace("wire", " ")
-                    code = code.replace("reg", " ")
+                    code = code.replace(" wire ", " ")
+                    code = code.replace(" reg ", " ")
                     vlog_ex = vlog.VerilogExtractor()
                     vlog_mods = vlog_ex.extract_objects_from_source(code)
                     lint_off = open("../maker/lint_off.txt").readlines()
