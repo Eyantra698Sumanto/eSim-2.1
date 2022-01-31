@@ -21,7 +21,7 @@
 # All variables goes here
 config_dir="$HOME/.esim"
 config_file="config.ini"
-eSim_Home=`pwd`
+eSim_Home=${PWD/#$HOME/'~'}/eSim-2.1/
 ngspiceFlag=0
 
 ## All Functions goes here
