@@ -41,7 +41,6 @@ class NgspiceWidget(QtWidgets.QWidget):
 
         else:                   # For Linux OS
             self.command = "cd " + projPath + ";ngspice " + command
-
             # Creating argument for process
             self.args = ['-hold', '-e', self.command]
             self.process.start('xterm', self.args)
@@ -52,10 +51,4 @@ class NgspiceWidget(QtWidgets.QWidget):
                 [self.obj_appconfig.current_project['ProjectName']].append(
                     self.process.pid())
             )
-            self.process = QtCore.QProcess(self)
-            self.command ="ngspice -b -r " + command.replace(".cir.out",".raw") + \
-                " -o " + command.replace(".cir.out",".out") + " " + command + \
-                "; gaw " + command.replace(".cir.out",".raw")
-            self.process.start('sh', ['-c', self.command])
-            print(self.command)
        
