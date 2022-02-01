@@ -9,14 +9,21 @@
 #     REQUIREMENTS: ---
 #             BUGS: ---
 #            NOTES: ---
-#           AUTHOR: Sumanto Kar, jeetsumanto123@gmail.com, FOSSEE, IIT Bombay
+#           AUTHOR: Sumanto Kar, sumantokar@iitb.ac.in, FOSSEE, IIT Bombay
 # ACKNOWLEDGEMENTS: Rahul Paknikar, rahulp@iitb.ac.in, FOSSEE, IIT Bombay
-#                   Digvjay Singh, chrl3hr5@gmail.com, FOSSEE, IIT Bombay
-#                   Prof. Maheswari R., VIT Chennai
+#                Digvijay Singh, digvijay.singh@iitb.ac.in, FOSSEE, IIT Bombay
+#                Prof. Maheswari R. and Team, VIT Chennai
 #     GUIDED BY: Steve Hoover, Founder Redwood EDA
+#                Kunal Ghosh, VLSI System Design Corp.Pvt.Ltd
+#                Anagha Ghosh, VLSI System Design Corp.Pvt.Ltd
+#OTHER CONTRIBUTERS:
+#                Prof. Madhuri Kadam, Shree L. R. Tiwari College of Engineering
+#                Rohinth Ram, Madras Institue of Technology 
+#                Charaan S., Madras Institue of Technology 
+#                Nalinkumar S., Madras Institue of Technology  
 #  ORGANIZATION: eSim Team at FOSSEE, IIT Bombay
 #       CREATED: Monday 29, November 2021
-#      REVISION: Monday 29, November 2021
+#      REVISION: Tuesday 25, January 2022
 # =========================================================================
 
 
@@ -101,6 +108,7 @@ class ModelGeneration(QtWidgets.QWidget):
     def sandpiper(self):
         # Text="Running Sandpiper............"
         print("Running Sandpiper-Saas for TLV to SV Conversion")
+        self.termtitle("COPYING THE FILES FOR SANDPIPER-SAAS")
         self.cmd = "cp ../maker/tlv/clk_gate.v ../maker/tlv/pseudo_rand.sv \
 ../maker/tlv/sandpiper.vh ../maker/tlv/sandpiper_gen.vh \
 ../maker/tlv/sp_default.vh ../maker/tlv/pseudo_rand_gen.sv \
@@ -109,7 +117,7 @@ class ModelGeneration(QtWidgets.QWidget):
         self.process = QtCore.QProcess(self)
         self.args = ['-c', self.cmd]
         self.process.start('sh', self.args)
-        self.termedit.append("Command: " + self.cmd)
+        self.termtext("Command: " + self.cmd)
         self.process \
             .readyReadStandardOutput.connect(self.readAllStandard)
         self.process.waitForFinished(50000)
@@ -144,8 +152,8 @@ class ModelGeneration(QtWidgets.QWidget):
         with open(self.modelpath + self.fname, 'rt') as fh:
             code = fh.read()
 
-        code = code.replace("wire", " ")
-        code = code.replace("reg", " ")
+        code = code.replace(" wire ", " ")
+        code = code.replace(" reg ", " ")
         vlog_ex = vlog.VerilogExtractor()
         vlog_mods = vlog_ex.extract_objects_from_source(code)
         f = open(self.modelpath + "connection_info.txt", 'w')
@@ -190,7 +198,7 @@ class ModelGeneration(QtWidgets.QWidget):
 
             self.obj_Appconfig.print_info(
                 'NgVeri Stopped due to File \
-                name and module name not matching error')
+name and module name not matching error')
             return "Error"
         modelname = str(m.name)
         schematicLib = createkicad.AutoSchematic()
@@ -491,7 +499,7 @@ and set the load for input ports */
         name_table = 'NAME_TABLE:\n\
         C_Function_Name: cm_' + self.fname.split('.')[0] + '\n\
         Spice_Model_Name: ' + self.fname.split('.')[0] + '\n\
-        Description: "Model generated from ghdl code ' + self.fname + '" \n'
+        Description: "Model generated from NgVeri code ' + self.fname + '" \n'
 
         # Input and Output Port Table
         in_port_table = []
@@ -785,7 +793,7 @@ and set the load for input ports */
         # print(self.modelpath)
 
         self.cmd = "verilator -Wall " + wno + "\
-         --cc --exe --Mdir . -CFLAGS -fPIC  sim_main_" + \
+         --cc --exe --no-MMD --Mdir . -CFLAGS -fPIC  sim_main_" + \
             self.fname.split('.')[0] + ".cpp " + self.fname
         self.process = QtCore.QProcess(self)
         self.process.readyReadStandardOutput.connect(self.readAllStandard)
