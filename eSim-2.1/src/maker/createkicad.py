@@ -96,7 +96,7 @@ class AutoSchematic:
             ret = QtWidgets.QMessageBox.critical(
                 self.parent, "Error", '''<b>A standard library already ''' +
                 '''exists with this name.</b><br/><b>Please change the ''' +
-                '''name of your vhdl file and upload it again</b>''',
+                '''name of your verilog file and upload it again</b>''',
                 QtWidgets.QMessageBox.Ok
             )
 
