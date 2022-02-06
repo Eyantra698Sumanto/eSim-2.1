@@ -1,0 +1,33 @@
+
+No compatibility mode selected!
+
+
+Circuit: * /home/saurabh/installer_main_workshop/esim-1.1.2/examples/bjt_ce_config/bjt_ce_config.cir
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+
+No. of Data Rows : 606
+ERROR: (internal)  This operation is not defined for display type PrinterOnly.
+Can't open viewport for graphics.
+binary raw file "/home/sumanto/eSim-2.1/Examples/BJT_CE_config/BJT_CE_config.raw"
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+No. of Data Columns : 9  
+
+No. of Data Rows : 606
+
+Total analysis time (seconds) = 0.00223
+
+Total CPU time (seconds) = 0.028 
+
+Total DRAM available = 4772.516 MB.
+DRAM currently available =  148.840 MB.
+Maximum ngspice program size =   90.809 MB.
+Current ngspice program size =   11.465 MB.
+
+Shared ngspice pages =    9.730 MB.
+Text (code) pages =    6.242 MB.
+Stack = 0 bytes.
+Library pages =    3.340 MB.
+
